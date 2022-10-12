@@ -5,6 +5,8 @@ VisualStudioVersion = 25.0.1703.4
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KinMai.Api", "KinMai.Api\KinMai.Api.csproj", "{C9CAC138-0D38-42DF-8F94-A75F832445AB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KinMai.UnitTests", "KinMai.UnitTests\KinMai.UnitTests.csproj", "{DD9F96AF-8DBC-4B45-A505-851940B6C316}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{C9CAC138-0D38-42DF-8F94-A75F832445AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C9CAC138-0D38-42DF-8F94-A75F832445AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C9CAC138-0D38-42DF-8F94-A75F832445AB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DD9F96AF-8DBC-4B45-A505-851940B6C316}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD9F96AF-8DBC-4B45-A505-851940B6C316}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DD9F96AF-8DBC-4B45-A505-851940B6C316}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DD9F96AF-8DBC-4B45-A505-851940B6C316}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
