@@ -10,4 +10,14 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Models\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\KinMai.Common\KinMai.Common.csproj" />
+    <ProjectReference Include="..\KinMai.Logic\KinMai.Logic.csproj" />
+    <ProjectReference Include="..\KinMai.UnitTests\KinMai.UnitTests.csproj" />
+  </ItemGroup>
+
 </Project>
