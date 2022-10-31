@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KinMai.Logic", "KinMai.Logi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KinMai.Common", "KinMai.Common\KinMai.Common.csproj", "{0C6B66A5-2F7C-4904-97DD-DB6A99E87B2B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KinMai.Authentication", "KinMai.Authentication\KinMai.Authentication.csproj", "{F805849B-6B22-417B-B9A9-35CC439F18F5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{0C6B66A5-2F7C-4904-97DD-DB6A99E87B2B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0C6B66A5-2F7C-4904-97DD-DB6A99E87B2B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0C6B66A5-2F7C-4904-97DD-DB6A99E87B2B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F805849B-6B22-417B-B9A9-35CC439F18F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F805849B-6B22-417B-B9A9-35CC439F18F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F805849B-6B22-417B-B9A9-35CC439F18F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F805849B-6B22-417B-B9A9-35CC439F18F5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
