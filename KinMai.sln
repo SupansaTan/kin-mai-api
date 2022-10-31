@@ -7,11 +7,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KinMai.Api", "KinMai.Api\Ki
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KinMai.UnitTests", "KinMai.UnitTests\KinMai.UnitTests.csproj", "{DD9F96AF-8DBC-4B45-A505-851940B6C316}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KinMai.Logic", "KinMai.Logic\KinMai.Logic.csproj", "{E1BACCC1-001C-44F8-9CFE-62D703B6E99D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KinMai.Logic", "KinMai.Logic\KinMai.Logic.csproj", "{E1BACCC1-001C-44F8-9CFE-62D703B6E99D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KinMai.Common", "KinMai.Common\KinMai.Common.csproj", "{0C6B66A5-2F7C-4904-97DD-DB6A99E87B2B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KinMai.Common", "KinMai.Common\KinMai.Common.csproj", "{0C6B66A5-2F7C-4904-97DD-DB6A99E87B2B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KinMai.Authentication", "KinMai.Authentication\KinMai.Authentication.csproj", "{F805849B-6B22-417B-B9A9-35CC439F18F5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KinMai.Authentication", "KinMai.Authentication\KinMai.Authentication.csproj", "{F805849B-6B22-417B-B9A9-35CC439F18F5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

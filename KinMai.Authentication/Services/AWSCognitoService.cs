@@ -1,5 +1,4 @@
 ﻿using Amazon.CognitoIdentityProvider;
-using Amazon.Extensions.CognitoAuthentication;
 using KinMai.Authentication.Interface;
 using KinMai.Authentication.Model;
 using System;
@@ -12,11 +11,13 @@ namespace KinMai.Authentication.Services
 {
     public class AWSCognitoService : IAWSCognitoService
     {
+        private readonly AmazonCognitoIdentityProviderClient amazonCognito;
         public AWSCognitoService (
-            IAmazonCognitoIdentityProvider identityProvider,
-            CognitoUserPool userPool
+            AmazonCognitoIdentityProviderClient amazonCognito
         )
-        { }
+        {
+            this.amazonCognito = amazonCognito;
+        }
 
         public async Task<TokenResponseModel> LoginAsync(string email, string password)
         {
