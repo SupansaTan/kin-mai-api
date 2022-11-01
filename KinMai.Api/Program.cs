@@ -1,4 +1,6 @@
-﻿using KinMai.Authentication.Model;
+﻿using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DataModel;
+using KinMai.Authentication.Model;
 using KinMai.Authentication.UnitOfWork;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -20,8 +22,14 @@ AWSCredential.Region = builder.Configuration.GetSection("AWSCognito")["Region"];
 AWSCredential.AccessKey = builder.Configuration.GetSection("AWSCognito")["AccessKey"];
 AWSCredential.SecretKey = builder.Configuration.GetSection("AWSCognito")["SecretKey"];
 
+// aws
+var awsOptions = builder.Configuration.GetAWSOptions();
+builder.Services.AddDefaultAWSOptions(awsOptions);
+builder.Services.AddAWSService<IAmazonDynamoDB>();
+
 // unit of work
 builder.Services.AddScoped<IAuthenticationUnitOfWork, AuthenticationUnitOfWork>();
+builder.Services.AddScoped<IDynamoDBContext, DynamoDBContext>();
 
 // authentication
 builder.Services.AddCognitoIdentity();
