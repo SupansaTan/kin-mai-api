@@ -1,7 +1,12 @@
+﻿using KinMai.Api.Models;
 using KinMai.Authentication.Model;
 using KinMai.Authentication.UnitOfWork;
 using KinMai.Common.Resolver;
+using KinMai.EntityFramework.Models;
+using KinMai.EntityFramework.UnitOfWork.Implement;
+using KinMai.EntityFramework.UnitOfWork.Interface;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,8 +30,17 @@ ConnectionResolver.KinMaiConnection = builder.Configuration.GetSection("Connecti
 var awsOptions = builder.Configuration.GetAWSOptions();
 builder.Services.AddDefaultAWSOptions(awsOptions);
 
+// data access service
+builder.Services.AddDbContext<KinMaiContext>(options =>
+{
+    options.UseNpgsql(ConnectionResolver.KinMaiConnection)
+            .EnableSensitiveDataLogging()
+            .UseLoggerFactory(LoggerFactory.Create(builder => { builder.AddConsole(); }));
+});
+
 // unit of work
 builder.Services.AddScoped<IAuthenticationUnitOfWork, AuthenticationUnitOfWork>();
+builder.Services.AddScoped<IEntityUnitOfWork, EntityUnitOfWork>();
 
 var app = builder.Build();
 

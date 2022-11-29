@@ -1,4 +1,5 @@
-﻿using KinMai.EntityFramework.Models;
+﻿using KinMai.Api.Models;
+using KinMai.EntityFramework.Models;
 using KinMai.EntityFramework.UnitOfWork.Interface;
 using Microsoft.EntityFrameworkCore;
 using System;
