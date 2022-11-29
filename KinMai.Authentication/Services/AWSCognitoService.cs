@@ -1,9 +1,11 @@
 ﻿using Amazon.CognitoIdentityProvider;
+using Amazon.CognitoIdentityProvider.Model;
 using KinMai.Authentication.Interface;
 using KinMai.Authentication.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -19,18 +21,82 @@ namespace KinMai.Authentication.Services
             this.amazonCognito = amazonCognito;
         }
 
-        public async Task<TokenResponseModel> LoginAsync(string email, string password)
+        public async Task<SignUpResponse> SignUp(Guid username, string email, string password)
         {
-            return new TokenResponseModel()
+            var request = new SignUpRequest
             {
-                Token = "",
-                RefreshToken = "",
-                ExpiredToken = ""
+                ClientId = AWSCredential.ClientId,
+                SecretHash = EncodeSecretHash(username.ToString()),
+                Username = username.ToString(),
+                Password = password
             };
+
+            if (!string.IsNullOrWhiteSpace(email))
+            {
+                request.UserAttributes.Add(new AttributeType()
+                {
+                    Name = "email",
+                    Value = email
+                });
+            }
+            return await amazonCognito.SignUpAsync(request);
         }
-        public async Task<bool> ChangePasswordAsync(string email, string password)
+        public async Task<InitiateAuthResponse> Login(Guid username, string password)
         {
-            return true;
+            try
+            {
+                string clientSecret = await GetClientSecret();
+                return await InitiateAuth(username.ToString(), password);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message, e);
+            }
+        }
+        public async Task<ChangePasswordResponse> ChangePassword(Guid username, string oldPassword, string newPassword)
+        {
+            var authResponse = await InitiateAuth(username.ToString(), oldPassword);
+
+            return await amazonCognito.ChangePasswordAsync(new ChangePasswordRequest
+            {
+                AccessToken = authResponse.AuthenticationResult.AccessToken,
+                PreviousPassword = oldPassword,
+                ProposedPassword = newPassword
+            });
+        }
+        private async Task<InitiateAuthResponse> InitiateAuth(string username, string password)
+        {
+            var request = new InitiateAuthRequest
+            {
+                ClientId = AWSCredential.ClientId,
+                AuthFlow = AuthFlowType.USER_PASSWORD_AUTH
+            };
+            request.AuthParameters.Add("USERNAME", username);
+            request.AuthParameters.Add("PASSWORD", password);
+            request.AuthParameters.Add("SECRET_HASH", EncodeSecretHash(username));
+            return await amazonCognito.InitiateAuthAsync(request);
+        }
+        private string EncodeSecretHash(string username)
+        {
+            var dataString = username + "" + AWSCredential.ClientId;
+            var data = Encoding.UTF8.GetBytes(dataString);
+            var key = Encoding.UTF8.GetBytes(AWSCredential.ClientSecret);
+
+            using (var shaAlgorithm = new HMACSHA256(key))
+            {
+                var byteHash = shaAlgorithm.ComputeHash(data);
+                return Convert.ToBase64String(byteHash);
+            }
+        }
+        private async Task<string> GetClientSecret()
+        {
+            var describeUserPool = await amazonCognito.DescribeUserPoolClientAsync(new DescribeUserPoolClientRequest()
+            {
+                ClientId = AWSCredential.ClientId,
+                UserPoolId = AWSCredential.PoolId
+            }).ConfigureAwait(false);
+
+            return describeUserPool.UserPoolClient.ClientSecret;
         }
     }
 }

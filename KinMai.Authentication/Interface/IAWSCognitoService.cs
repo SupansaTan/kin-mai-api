@@ -1,4 +1,5 @@
-﻿using KinMai.Authentication.Model;
+﻿using Amazon.CognitoIdentityProvider.Model;
+using KinMai.Authentication.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,8 @@ namespace KinMai.Authentication.Interface
 {
     public interface IAWSCognitoService
     {
-        Task<TokenResponseModel> LoginAsync(string email, string password);
-        Task<bool> ChangePasswordAsync(string email, string password);
+        Task<SignUpResponse> SignUp(Guid userName, string email, string password);
+        Task<InitiateAuthResponse> Login(Guid username, string password);
+        Task<ChangePasswordResponse> ChangePassword(Guid username, string oldPassword, string newPassword);
     }
 }
