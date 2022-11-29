@@ -13,5 +13,7 @@ namespace KinMai.Authentication.Interface
         Task<SignUpResponse> SignUp(Guid userName, string email, string password);
         Task<InitiateAuthResponse> Login(Guid username, string password);
         Task<ChangePasswordResponse> ChangePassword(Guid username, string oldPassword, string newPassword);
+        Task<bool> ResetPassword(Guid username, string password);
+        Task<InitiateAuthResponse> RefreshToken(Guid username, string refreshToken);
     }
 }

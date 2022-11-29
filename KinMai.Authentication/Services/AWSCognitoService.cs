@@ -5,6 +5,7 @@ using KinMai.Authentication.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -63,6 +64,30 @@ namespace KinMai.Authentication.Services
                 PreviousPassword = oldPassword,
                 ProposedPassword = newPassword
             });
+        }
+        public async Task<bool> ResetPassword(Guid username, string password)
+        {
+            var data = await amazonCognito.AdminSetUserPasswordAsync(new AdminSetUserPasswordRequest()
+            {
+                Username = username.ToString(),
+                Password = password,
+                Permanent = true,
+                UserPoolId = AWSCredential.PoolId
+            }).ConfigureAwait(false);
+
+            return data.HttpStatusCode == HttpStatusCode.OK;
+        }
+        public async Task<InitiateAuthResponse> RefreshToken(Guid username, string refreshToken)
+        {
+            var request = new InitiateAuthRequest
+            {
+                ClientId = AWSCredential.ClientId,
+                AuthFlow = AuthFlowType.REFRESH_TOKEN_AUTH
+            };
+
+            request.AuthParameters.Add("REFRESH_TOKEN", refreshToken);
+            request.AuthParameters.Add("SECRET_HASH", EncodeSecretHash(username.ToString()));
+            return await amazonCognito.InitiateAuthAsync(request);
         }
         private async Task<InitiateAuthResponse> InitiateAuth(string username, string password)
         {
