@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <PackageReference Include="Amazon.AspNetCore.Identity.Cognito" Version="3.0.0" />
-    <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.7.100.7" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.10" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
   </ItemGroup>
