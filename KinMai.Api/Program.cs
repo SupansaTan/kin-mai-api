@@ -16,7 +16,6 @@ builder.Services.AddSwaggerGen();
 AWSCredential.PoolId = builder.Configuration.GetSection("AWSCognito")["UserPoolId"];
 AWSCredential.ClientId = builder.Configuration.GetSection("AWSCognito")["UserPoolClientId"];
 AWSCredential.ClientSecret = builder.Configuration.GetSection("AWSCognito")["UserPoolClientSecret"];
-AWSCredential.Region = builder.Configuration.GetSection("AWSCognito")["Region"];
 AWSCredential.AccessKey = builder.Configuration.GetSection("AWSCognito")["AccessKey"];
 AWSCredential.SecretKey = builder.Configuration.GetSection("AWSCognito")["SecretKey"];
 
@@ -26,23 +25,6 @@ builder.Services.AddDefaultAWSOptions(awsOptions);
 
 // unit of work
 builder.Services.AddScoped<IAuthenticationUnitOfWork, AuthenticationUnitOfWork>();
-
-// authentication
-builder.Services.AddCognitoIdentity();
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.Authority = builder.Configuration["AWSCognito:Authority"];
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuerSigningKey = true,
-        ValidateAudience = false
-    };
-});
 
 var app = builder.Build();
 

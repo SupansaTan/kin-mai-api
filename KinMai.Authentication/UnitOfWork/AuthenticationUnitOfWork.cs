@@ -18,7 +18,7 @@ namespace KinMai.Authentication.UnitOfWork
 
         public AuthenticationUnitOfWork()
         {
-            amazonCognito = new AmazonCognitoIdentityProviderClient(AWSCredential.AccessKey, AWSCredential.SecretKey, RegionEndpoint.USEast1);
+            amazonCognito = new AmazonCognitoIdentityProviderClient(AWSCredential.AccessKey, AWSCredential.SecretKey, RegionEndpoint.APSoutheast1);
         }
 
         public IAWSCognitoService AWSCognitoService
