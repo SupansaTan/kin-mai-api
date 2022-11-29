@@ -11,6 +11,7 @@ namespace KinMai.Authentication.Interface
     public interface IAWSCognitoService
     {
         Task<SignUpResponse> SignUp(Guid userName, string email, string password);
+        Task<bool> ConfirmSignUp(Guid username);
         Task<InitiateAuthResponse> Login(Guid username, string password);
         Task<ChangePasswordResponse> ChangePassword(Guid username, string oldPassword, string newPassword);
         Task<bool> ResetPassword(Guid username, string password);

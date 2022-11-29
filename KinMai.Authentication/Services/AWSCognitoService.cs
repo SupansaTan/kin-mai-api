@@ -42,6 +42,16 @@ namespace KinMai.Authentication.Services
             }
             return await amazonCognito.SignUpAsync(request);
         }
+        public async Task<bool> ConfirmSignUp(Guid username)
+        {
+            var response = await amazonCognito.AdminConfirmSignUpAsync(new AdminConfirmSignUpRequest
+            {
+                Username = username.ToString(),
+                UserPoolId = AWSCredential.PoolId
+            });
+
+            return response.HttpStatusCode == HttpStatusCode.OK;
+        }
         public async Task<InitiateAuthResponse> Login(Guid username, string password)
         {
             try
