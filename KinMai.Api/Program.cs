@@ -1,5 +1,6 @@
-﻿using KinMai.Authentication.Model;
+using KinMai.Authentication.Model;
 using KinMai.Authentication.UnitOfWork;
+using KinMai.Common.Resolver;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
@@ -18,6 +19,7 @@ AWSCredential.ClientId = builder.Configuration.GetSection("AWSCognito")["UserPoo
 AWSCredential.ClientSecret = builder.Configuration.GetSection("AWSCognito")["UserPoolClientSecret"];
 AWSCredential.AccessKey = builder.Configuration.GetSection("AWSCognito")["AccessKey"];
 AWSCredential.SecretKey = builder.Configuration.GetSection("AWSCognito")["SecretKey"];
+ConnectionResolver.KinMaiConnection = builder.Configuration.GetSection("ConnectionStrings")["KinMaiConnection"];
 
 // aws
 var awsOptions = builder.Configuration.GetAWSOptions();
