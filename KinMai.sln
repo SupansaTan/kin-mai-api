@@ -15,7 +15,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KinMai.Authentication", "Ki
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KinMai.EntityFramework", "KinMai.EntityFramework\KinMai.EntityFramework.csproj", "{1A4CE17A-9F72-4B1F-BE49-BFBA46EF0F1F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KinMai.Dapper", "KinMai.Dapper\KinMai.Dapper.csproj", "{2E53BE94-37BD-45F9-9E28-3FCB8C3A06C0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KinMai.Dapper", "KinMai.Dapper\KinMai.Dapper.csproj", "{2E53BE94-37BD-45F9-9E28-3FCB8C3A06C0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6EFA54EA-C99A-4501-B498-4101FACB57C2}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
