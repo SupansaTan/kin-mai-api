@@ -2,6 +2,8 @@
 using KinMai.Authentication.Model;
 using KinMai.Authentication.UnitOfWork;
 using KinMai.Common.Resolver;
+using KinMai.Dapper.Implement;
+using KinMai.Dapper.Interface;
 using KinMai.EntityFramework.Models;
 using KinMai.EntityFramework.UnitOfWork.Implement;
 using KinMai.EntityFramework.UnitOfWork.Interface;
@@ -41,6 +43,7 @@ builder.Services.AddDbContext<KinMaiContext>(options =>
 // unit of work
 builder.Services.AddScoped<IAuthenticationUnitOfWork, AuthenticationUnitOfWork>();
 builder.Services.AddScoped<IEntityUnitOfWork, EntityUnitOfWork>();
+builder.Services.AddScoped<IDapperUnitOfWork, DapperUnitOfWork>();
 
 var app = builder.Build();
 

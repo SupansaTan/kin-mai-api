@@ -13,7 +13,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KinMai.Common", "KinMai.Com
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KinMai.Authentication", "KinMai.Authentication\KinMai.Authentication.csproj", "{F805849B-6B22-417B-B9A9-35CC439F18F5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KinMai.EntityFramework", "KinMai.EntityFramework\KinMai.EntityFramework.csproj", "{1A4CE17A-9F72-4B1F-BE49-BFBA46EF0F1F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KinMai.EntityFramework", "KinMai.EntityFramework\KinMai.EntityFramework.csproj", "{1A4CE17A-9F72-4B1F-BE49-BFBA46EF0F1F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KinMai.Dapper", "KinMai.Dapper\KinMai.Dapper.csproj", "{2E53BE94-37BD-45F9-9E28-3FCB8C3A06C0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{1A4CE17A-9F72-4B1F-BE49-BFBA46EF0F1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1A4CE17A-9F72-4B1F-BE49-BFBA46EF0F1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1A4CE17A-9F72-4B1F-BE49-BFBA46EF0F1F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E53BE94-37BD-45F9-9E28-3FCB8C3A06C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E53BE94-37BD-45F9-9E28-3FCB8C3A06C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E53BE94-37BD-45F9-9E28-3FCB8C3A06C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E53BE94-37BD-45F9-9E28-3FCB8C3A06C0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
