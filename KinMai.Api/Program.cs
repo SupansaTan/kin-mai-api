@@ -7,6 +7,8 @@ using KinMai.Dapper.Interface;
 using KinMai.EntityFramework.Models;
 using KinMai.EntityFramework.UnitOfWork.Implement;
 using KinMai.EntityFramework.UnitOfWork.Interface;
+using KinMai.Logic.UnitOfWork.Implement;
+using KinMai.Logic.UnitOfWork.Interface;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -43,7 +45,8 @@ builder.Services.AddDbContext<KinMaiContext>(options =>
 // unit of work
 builder.Services.AddScoped<IAuthenticationUnitOfWork, AuthenticationUnitOfWork>();
 builder.Services.AddScoped<IEntityUnitOfWork, EntityUnitOfWork>();
-builder.Services.AddScoped<IDapperUnitOfWork, DapperUnitOfWork>();
+builder.Services.AddScoped<IDapperUnitOfWork>(_ => new DapperUnitOfWork(ConnectionResolver.KinMaiConnection));
+builder.Services.AddScoped<ILogicUnitOfWork, LogicUnitOfWork>();
 
 var app = builder.Build();
 
