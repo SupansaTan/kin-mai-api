@@ -92,5 +92,39 @@ namespace KinMai.Api.Controllers
             }
             return response;
         }
+        [HttpGet("GetUserInfo")]
+        public async Task<ResponseModel<UserInfoModel>> ReviewerRegister([FromQuery] string email)
+        {
+            var response = new ResponseModel<UserInfoModel>();
+            try
+            {
+                var userInfo = await _logicUnitOfWork.AuthenticationService.GetUserInfo(email);
+                response = new ResponseModel<UserInfoModel>
+                {
+                    Data = userInfo,
+                    Message = "success",
+                    Status = 200
+                };
+            }
+            catch (ArgumentException ae)
+            {
+                response = new ResponseModel<UserInfoModel>
+                {
+                    Data = null,
+                    Message = ae.Message,
+                    Status = 400
+                };
+            }
+            catch (Exception e)
+            {
+                response = new ResponseModel<UserInfoModel>
+                {
+                    Data = null,
+                    Message = e.Message,
+                    Status = 500
+                };
+            }
+            return response;
+        }
     }
 }

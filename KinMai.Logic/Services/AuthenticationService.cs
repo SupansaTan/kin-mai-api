@@ -81,6 +81,30 @@ namespace KinMai.Logic.Services
             await _entityUnitOfWork.SaveAsync();
             return true;
         }
+        public async Task<UserInfoModel> GetUserInfo(string email)
+        {
+            var user = await _entityUnitOfWork.UserRepository.GetSingleAsync(x => x.Email.ToLower() == email.ToLower());
+            if (user == null)
+            {
+                throw new ArgumentException("Email does not exist.");
+            }
+
+            var restaurantName = "";
+            if (user.UserType == (int)UserType.RestaurantOwner)
+            {
+                var restaurant = await _entityUnitOfWork.RestaurantRepository.GetSingleAsync(x => x.OwnerId == user.Id);
+                restaurantName = restaurant.Name;
+            }
+                    
+            var userInfo = new UserInfoModel()
+            {
+                UserId = user.Id,
+                UserName = user.Username,
+                RestaurantName = restaurantName,
+                UserType = (UserType)user.UserType
+            };
+            return userInfo;
+        }
     }
 }
 

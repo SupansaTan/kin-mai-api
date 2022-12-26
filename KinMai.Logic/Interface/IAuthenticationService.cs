@@ -8,6 +8,7 @@ namespace KinMai.Logic.Interface
     {
         Task<TokenResponseModel> Login(string email, string password);
         Task<bool> ReviewerRegister(ReviewerRegisterModel model);
+        Task<UserInfoModel> GetUserInfo(string email);
     }
 }
 
