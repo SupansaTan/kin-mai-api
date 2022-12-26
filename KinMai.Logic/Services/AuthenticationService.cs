@@ -1,10 +1,16 @@
 ﻿using System;
 using System.Net;
+using System.Text;
+using KinMai.Api.Models;
 using KinMai.Authentication.Model;
 using KinMai.Authentication.UnitOfWork;
+using KinMai.Common.Enum;
 using KinMai.Dapper.Interface;
+using KinMai.EntityFramework.Models;
 using KinMai.EntityFramework.UnitOfWork.Interface;
 using KinMai.Logic.Interface;
+using KinMai.Logic.Models;
+using Newtonsoft.Json;
 
 namespace KinMai.Logic.Services
 {
@@ -43,6 +49,37 @@ namespace KinMai.Logic.Services
                 ExpiredToken = (DateTime.UtcNow).AddSeconds(access.AuthenticationResult.ExpiresIn),
                 RefreshToken = access.AuthenticationResult.RefreshToken
             };
+        }
+        public async Task<bool> ReviewerRegister(ReviewerRegisterModel model)
+        {
+            // validate
+            var user = await _entityUnitOfWork.UserRepository.GetSingleAsync(x => x.Email.ToLower() == model.Email.ToLower());
+            if (user != null) throw new ArgumentException("Email already exists.");
+            if (model.Password != model.ConfirmPassword) throw new ArgumentException("Password and Confirm password are not matching");
+
+            // create user
+            user = new User
+            {
+                Id = Guid.NewGuid(),
+                Email = model.Email.ToLower(),
+                CreateAt = DateTime.UtcNow,
+                FirstName = model.FirstName,
+                LastName = model.LastName,
+                Username = model.Username,
+                UserType = (int)UserType.Reviewer
+            };
+
+            var singup = await _authenticationUnitOfWork.AWSCognitoService.SignUp(user.Id, user.Email, model.Password);
+            if (singup.HttpStatusCode != HttpStatusCode.OK)
+                throw new ArgumentException("Can't register, Please contact admin.");
+
+            var confirmSignup = await _authenticationUnitOfWork.AWSCognitoService.ConfirmSignUp(user.Id);
+            if (!confirmSignup)
+                throw new ArgumentException("Can't confirmed register, Please try again.");
+
+            _entityUnitOfWork.UserRepository.Add(user);
+            await _entityUnitOfWork.SaveAsync();
+            return true;
         }
     }
 }
