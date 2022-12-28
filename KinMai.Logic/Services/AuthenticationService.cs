@@ -105,6 +105,11 @@ namespace KinMai.Logic.Services
             };
             return userInfo;
         }
+        public async Task<bool> CheckIsLoginWithGoogleFirstTimes(string email)
+        {
+            var user = await _entityUnitOfWork.UserRepository.GetSingleAsync(x => x.Email == email);
+            return user == null;
+        }
     }
 }
 

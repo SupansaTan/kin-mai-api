@@ -126,5 +126,39 @@ namespace KinMai.Api.Controllers
             }
             return response;
         }
+        [HttpGet("CheckIsLoginWithGoogleFirstTimes")]
+        public async Task<ResponseModel<bool>> CheckIsLoginWithGoogleFirstTimes([FromQuery] string email)
+        {
+            var response = new ResponseModel<bool>();
+            try
+            {
+                var isLoginFirstTime = await _logicUnitOfWork.AuthenticationService.CheckIsLoginWithGoogleFirstTimes(email);
+                response = new ResponseModel<bool>
+                {
+                    Data = isLoginFirstTime,
+                    Message = "success",
+                    Status = 200
+                };
+            }
+            catch (ArgumentException ae)
+            {
+                response = new ResponseModel<bool>
+                {
+                    Data = false,
+                    Message = ae.Message,
+                    Status = 400
+                };
+            }
+            catch (Exception e)
+            {
+                response = new ResponseModel<bool>
+                {
+                    Data = false,
+                    Message = e.Message,
+                    Status = 500
+                };
+            }
+            return response;
+        }
     }
 }
