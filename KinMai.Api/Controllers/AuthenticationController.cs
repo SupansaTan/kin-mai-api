@@ -92,6 +92,40 @@ namespace KinMai.Api.Controllers
             }
             return response;
         }
+        [HttpPost("RestaurantRegister")]
+        public async Task<ResponseModel<bool>> RestaurantRegister(RestaurantRegisterModel request)
+        {
+            var response = new ResponseModel<bool>();
+            try
+            {
+                var registerStatus = await _logicUnitOfWork.AuthenticationService.RestaurantRegister(request);
+                response = new ResponseModel<bool>
+                {
+                    Data = registerStatus,
+                    Message = "success",
+                    Status = 200
+                };
+            }
+            catch (ArgumentException ae)
+            {
+                response = new ResponseModel<bool>
+                {
+                    Data = false,
+                    Message = ae.Message,
+                    Status = 400
+                };
+            }
+            catch (Exception e)
+            {
+                response = new ResponseModel<bool>
+                {
+                    Data = false,
+                    Message = e.Message,
+                    Status = 500
+                };
+            }
+            return response;
+        }
         [HttpGet("GetUserInfo")]
         public async Task<ResponseModel<UserInfoModel>> ReviewerRegister([FromQuery] string email)
         {
