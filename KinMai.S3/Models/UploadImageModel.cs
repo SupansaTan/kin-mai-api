@@ -14,9 +14,7 @@ namespace KinMai.S3.Models
         [Required]
         public string ContentType { get; set; }
         [Required]
-        public string Module { get; set; }
-        [Required]
-        public string Key { get; set; }
+        public string FileName { get; set; }
         [Required]
         public string BucketName { get; set; }
     }

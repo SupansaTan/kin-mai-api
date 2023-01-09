@@ -14,7 +14,7 @@ namespace KinMai.S3.UnitOfWork.Implement
 {
     public class S3UnitOfWork : IS3UnitOfWork
     {
-        private AmazonS3Client S3Client;
+        private readonly AmazonS3Client S3Client;
         private IS3FileService IS3FileService;
 
         public S3UnitOfWork()
