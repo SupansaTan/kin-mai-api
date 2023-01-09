@@ -27,6 +27,7 @@
     <ProjectReference Include="..\KinMai.Dapper\KinMai.Dapper.csproj" />
     <ProjectReference Include="..\KinMai.EntityFramework\KinMai.EntityFramework.csproj" />
     <ProjectReference Include="..\KinMai.Logic\KinMai.Logic.csproj" />
+    <ProjectReference Include="..\KinMai.S3\KinMai.S3.csproj" />
     <ProjectReference Include="..\KinMai.UnitTests\KinMai.UnitTests.csproj" />
   </ItemGroup>
 

@@ -4,14 +4,13 @@ using KinMai.Authentication.UnitOfWork;
 using KinMai.Common.Resolver;
 using KinMai.Dapper.Implement;
 using KinMai.Dapper.Interface;
-using KinMai.EntityFramework.Models;
 using KinMai.EntityFramework.UnitOfWork.Implement;
 using KinMai.EntityFramework.UnitOfWork.Interface;
 using KinMai.Logic.UnitOfWork.Implement;
 using KinMai.Logic.UnitOfWork.Interface;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using KinMai.S3.UnitOfWork.Implement;
+using KinMai.S3.UnitOfWork.Interface;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 
 var allowOrigin = "_allowOrigin";
 var builder = WebApplication.CreateBuilder(args);
@@ -56,6 +55,7 @@ builder.Services.AddScoped<IAuthenticationUnitOfWork, AuthenticationUnitOfWork>(
 builder.Services.AddScoped<IEntityUnitOfWork, EntityUnitOfWork>();
 builder.Services.AddScoped<IDapperUnitOfWork>(_ => new DapperUnitOfWork(ConnectionResolver.KinMaiConnection));
 builder.Services.AddScoped<ILogicUnitOfWork, LogicUnitOfWork>();
+builder.Services.AddScoped<IS3UnitOfWork, S3UnitOfWork>();
 
 var app = builder.Build();
 
