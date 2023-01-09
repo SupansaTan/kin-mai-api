@@ -10,5 +10,6 @@ namespace KinMai.Logic.UnitOfWork.Interface
     public interface ILogicUnitOfWork
     {
         IAuthenticationService AuthenticationService { get; set; }
+        IFileService FileService { get; set; }
     }
 }
