@@ -1,4 +1,5 @@
 ﻿using KinMai.Logic.Models;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,6 @@ namespace KinMai.Logic.Interface
 {
     public interface IFileService
     {
-        Task<List<UploadImageResponse>> UploadRestaurantImage(UploadFileModel model, Guid restaurantId);
+        Task<List<UploadImageResponse>> UploadRestaurantImage(List<IFormFile> files, Guid restaurantId);
     }
 }

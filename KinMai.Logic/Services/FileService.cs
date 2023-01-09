@@ -2,6 +2,7 @@
 using KinMai.Logic.Models;
 using KinMai.S3.Models;
 using KinMai.S3.UnitOfWork.Interface;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,13 +20,13 @@ namespace KinMai.Logic.Services
             this.S3UnitOfWork = s3UnitOfWork;
         }
 
-        public async Task<List<UploadImageResponse>> UploadRestaurantImage(UploadFileModel model, Guid restaurantId)
+        public async Task<List<UploadImageResponse>> UploadRestaurantImage(List<IFormFile> files, Guid restaurantId)
         {
             try
             {
                 List<UploadImageResponse> uploadImageList = new List<UploadImageResponse>();
 
-                foreach (var file in model.Files)
+                foreach (var file in files)
                 {
                     UploadImageResponse image = new UploadImageResponse();
                     string fileName = $"{restaurantId}/{Guid.NewGuid()}";
