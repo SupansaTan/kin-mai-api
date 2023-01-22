@@ -11,5 +11,6 @@ namespace KinMai.Logic.Interface
     public interface IFileService
     {
         Task<List<UploadImageResponse>> UploadRestaurantImage(List<IFormFile> files, Guid restaurantId);
+        Task<List<IFormFile>> CompressImage(List<IFormFile> files);
     }
 }
