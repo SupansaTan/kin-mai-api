@@ -39,7 +39,7 @@ namespace KinMai.Logic.UnitOfWork.Implement
 
         public IAuthenticationService AuthenticationService
         {
-            get { return _authenticationService ?? (_authenticationService = new AuthenticationService(_entityUnitOfWork, _authenticationUnitOfWork, _dapperUnitOfWork, _s3UnitOfWork)); }
+            get { return _authenticationService ?? (_authenticationService = new AuthenticationService(_entityUnitOfWork, _authenticationUnitOfWork, _dapperUnitOfWork, _s3UnitOfWork, _fileService)); }
 
             set { _authenticationService = value; }
         }

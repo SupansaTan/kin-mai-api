@@ -4,7 +4,6 @@ using KinMai.Authentication.UnitOfWork;
 using KinMai.Common.Enum;
 using KinMai.Dapper.Interface;
 using KinMai.EntityFramework.Models;
-using KinMai.EntityFramework.UnitOfWork.Implement;
 using KinMai.EntityFramework.UnitOfWork.Interface;
 using KinMai.Logic.Interface;
 using KinMai.Logic.Models;
@@ -21,19 +20,23 @@ namespace KinMai.Logic.Services
         private readonly IDapperUnitOfWork _dapperUnitOfWork;
         private readonly IAuthenticationUnitOfWork _authenticationUnitOfWork;
         private readonly IS3UnitOfWork _S3UnitOfWork;
+        private readonly IFileService _fileService;
         private readonly string QUERY_PATH;
 
         public AuthenticationService(
             IEntityUnitOfWork entityUnitOfWork,
             IAuthenticationUnitOfWork authenticationUnitOfWork,
             IDapperUnitOfWork dapperUnitOfWork,
-            IS3UnitOfWork s3UnitOfWork)
+            IS3UnitOfWork s3UnitOfWork,
+            IFileService fileService
+        )
         {
             QUERY_PATH = this.GetType().Name.Split("Service")[0] + "/";
             _entityUnitOfWork = entityUnitOfWork;
             _authenticationUnitOfWork = authenticationUnitOfWork;
             _dapperUnitOfWork = dapperUnitOfWork;
             _S3UnitOfWork = s3UnitOfWork;
+            _fileService = fileService;
         }
         public async Task<TokenResponseModel> Login(string email, string password)
         {
@@ -138,13 +141,16 @@ namespace KinMai.Logic.Services
                 UserType = (int)userType
             };
 
-            var singup = await _authenticationUnitOfWork.AWSCognitoService.SignUp(user.Id, user.Email, model.Password);
-            if (singup.HttpStatusCode != HttpStatusCode.OK)
-                throw new ArgumentException("Can't register, Please contact admin.");
+            if (!(string.IsNullOrEmpty(model.Password) && string.IsNullOrEmpty(model.ConfirmPassword)))
+            {
+                var singup = await _authenticationUnitOfWork.AWSCognitoService.SignUp(user.Id, user.Email, model.Password);
+                if (singup.HttpStatusCode != HttpStatusCode.OK)
+                    throw new ArgumentException("Can't register, Please contact admin.");
 
-            var confirmSignup = await _authenticationUnitOfWork.AWSCognitoService.ConfirmSignUp(user.Id);
-            if (!confirmSignup)
-                throw new ArgumentException("Can't confirmed register, Please try again.");
+                var confirmSignup = await _authenticationUnitOfWork.AWSCognitoService.ConfirmSignUp(user.Id);
+                if (!confirmSignup)
+                    throw new ArgumentException("Can't confirmed register, Please try again.");
+            }
 
             _entityUnitOfWork.UserRepository.Add(user);
             await _entityUnitOfWork.SaveAsync();
@@ -165,8 +171,8 @@ namespace KinMai.Logic.Services
                     Id = Guid.NewGuid(),
                     RestaurantId = restaurantId,
                     Day = timeItem.Day,
-                    OpenTime = timeItem.StartTime,
-                    CloseTime = timeItem.EndTime,
+                    OpenTime = TimeOnly.FromDateTime(timeItem.StartTime),
+                    CloseTime = TimeOnly.FromDateTime(timeItem.EndTime),
                 };
                 businessHourList.Add(item);
             }
@@ -212,7 +218,8 @@ namespace KinMai.Logic.Services
             var folder = await _S3UnitOfWork.S3FileService.CreateFolder("kinmai", restaurantId.ToString());
             if (folder)
             {
-                var images = await UploadRestaurantImage(additionInfo.ImageFiles, restaurantId);
+                var imageCompressedList = await _fileService.CompressImage(additionInfo.ImageFiles);
+                var images = await UploadRestaurantImage(imageCompressedList, restaurantId);
                 restaurant.ImageLink = images.ToArray();
             }
 
