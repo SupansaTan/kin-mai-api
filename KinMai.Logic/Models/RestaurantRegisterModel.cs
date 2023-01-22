@@ -38,15 +38,15 @@ namespace KinMai.Logic.Models
     public class RestaurantAddressModel
     {
         public string Address { get; set; }
-        public int Latitude { get; set; }
-        public int Longitude { get; set; }
+        public double Latitude { get; set; }
+        public double Longitude { get; set; }
     }
 
     public class BusinessHourModel
     {
         public int Day { get; set; }
-        public TimeOnly StartTime { get; set; }
-        public TimeOnly EndTime { get; set; }
+        public DateTime StartTime { get; set; }
+        public DateTime EndTime { get; set; }
     }
 
     public class RestaurantPhotoModel
