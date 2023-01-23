@@ -25,6 +25,8 @@ public partial class Reviewer
 
     public string[]? FoodRecommendList { get; set; }
 
+    public DateTime CreateAt { get; set; }
+
     [ForeignKey("RestaurantId")]
     [InverseProperty("Reviewers")]
     public virtual Restaurant Restaurant { get; set; } = null!;
