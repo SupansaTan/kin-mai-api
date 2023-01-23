@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using ImageMagick;
 using KinMai.Authentication.Model;
 using KinMai.Authentication.UnitOfWork;
 using KinMai.Common.Enum;
@@ -10,6 +11,7 @@ using KinMai.Logic.Models;
 using KinMai.S3.Models;
 using KinMai.S3.UnitOfWork.Interface;
 using Microsoft.AspNetCore.Http;
+using MimeKit;
 using Newtonsoft.Json;
 
 namespace KinMai.Logic.Services
@@ -215,13 +217,8 @@ namespace KinMai.Logic.Services
             };
 
             // upload image
-            var folder = await _S3UnitOfWork.S3FileService.CreateFolder("kinmai", restaurantId.ToString());
-            if (folder)
-            {
-                var imageCompressedList = await _fileService.CompressImage(additionInfo.ImageFiles);
-                var images = await UploadRestaurantImage(imageCompressedList, restaurantId);
-                restaurant.ImageLink = images.ToArray();
-            }
+            var images = await CompressImage(additionInfo.ImageFiles, restaurantId);
+            restaurant.ImageLink = images.ToArray();
 
             _entityUnitOfWork.RestaurantRepository.Add(restaurant);
             _entityUnitOfWork.BusinessHourRepository.AddRange(businessHourList);
@@ -230,33 +227,41 @@ namespace KinMai.Logic.Services
             await _entityUnitOfWork.SaveAsync();
             return true;
         }
-        private async Task<List<string>> UploadRestaurantImage(List<IFormFile> files, Guid restaurantId)
+        private async Task<List<string>> CompressImage(List<IFormFile> files, Guid restaurantId)
         {
-            try
-            {
-                List<string> uploadImageList = new List<string>();
+            List<string> uploadImageList = new List<string>();
 
-                foreach (var file in files)
+            foreach (var file in files)
+            {
+                using (var stream = new MemoryStream())
                 {
-                    UploadImageResponse image = new UploadImageResponse();
-                    string fileName = $"{restaurantId}/{Guid.NewGuid()}";
-
-                    var imageInfo = new UploadImageModel()
+                    await file.CopyToAsync(stream);
+                    stream.Position = 0;
+                    using (MagickImage image = new MagickImage(stream))
                     {
-                        ContentType = file.ContentType,
-                        File = file.OpenReadStream(),
-                        FileName = fileName,
-                        BucketName = "kinmai"
-                    };
-                    image.FileName = await _S3UnitOfWork.S3FileService.UploadImage(imageInfo);
-                    uploadImageList.Add(image.FileName);
+                        image.Format = image.Format;
+                        image.Quality = 10;
+                        using (var newImagestream = new MemoryStream())
+                        {
+                            image.Write(newImagestream);
+                            newImagestream.Position = 0;
+
+                            UploadImageResponse currentImage = new UploadImageResponse();
+                            string fileName = $"{restaurantId}/{Guid.NewGuid()}";
+                            var imageInfo = new UploadImageModel()
+                            {
+                                ContentType = MimeTypes.GetMimeType(file.FileName),
+                                File = newImagestream,
+                                FileName = fileName,
+                                BucketName = "kinmai"
+                            };
+                            currentImage.FileName = await _S3UnitOfWork.S3FileService.UploadImage(imageInfo);
+                            uploadImageList.Add(currentImage.FileName);
+                        }
+                    }
                 }
-                return uploadImageList;
             }
-            catch (Exception e)
-            {
-                throw new Exception(e.Message, e);
-            }
+            return uploadImageList;
         }
     }
 }

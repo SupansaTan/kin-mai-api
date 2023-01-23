@@ -93,7 +93,7 @@ namespace KinMai.Api.Controllers
             return response;
         }
         [HttpPost("RestaurantRegister")]
-        public async Task<ResponseModel<bool>> RestaurantRegister(RestaurantRegisterModel request)
+        public async Task<ResponseModel<bool>> RestaurantRegister([FromForm] RestaurantRegisterModel request)
         {
             var response = new ResponseModel<bool>();
             try
