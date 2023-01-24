@@ -173,8 +173,8 @@ namespace KinMai.Logic.Services
                     Id = Guid.NewGuid(),
                     RestaurantId = restaurantId,
                     Day = timeItem.Day,
-                    OpenTime = TimeOnly.FromDateTime(timeItem.StartTime),
-                    CloseTime = TimeOnly.FromDateTime(timeItem.EndTime),
+                    OpenTime = TimeOnly.FromDateTime(timeItem.StartTime).AddHours(7),
+                    CloseTime = TimeOnly.FromDateTime(timeItem.EndTime).AddHours(7),
                 };
                 businessHourList.Add(item);
             }
