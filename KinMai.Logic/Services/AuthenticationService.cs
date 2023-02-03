@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using ImageMagick;
 using KinMai.Authentication.Model;
 using KinMai.Authentication.UnitOfWork;
@@ -95,7 +95,7 @@ namespace KinMai.Logic.Services
         }
         public async Task<bool> RestaurantRegister(RestaurantRegisterModel model)
         {
-            var user = await UserRegister(model.PersonalInfo, UserType.RestaurantOwner);
+            var user = await CreateUser(model.PersonalInfo, UserType.RestaurantOwner);
             return await RestaurantRegister(model.RestaurantInfo, model.RestaurantAdditionInfo, user);
         }
         public async Task<UserInfoModel> GetUserInfo(string email)
@@ -127,7 +127,7 @@ namespace KinMai.Logic.Services
             var user = await _entityUnitOfWork.UserRepository.GetSingleAsync(x => x.Email == email);
             return user == null;
         }
-        private async Task<Guid> UserRegister(ReviewerRegisterModel model, UserType userType)
+        private async Task<User> CreateUser(ReviewerRegisterModel model, UserType userType)
         {
             // validate
             var user = await _entityUnitOfWork.UserRepository.GetSingleAsync(x => x.Email.ToLower() == model.Email.ToLower());
@@ -156,12 +156,9 @@ namespace KinMai.Logic.Services
                 if (!confirmSignup)
                     throw new ArgumentException("Can't confirmed register, Please try again.");
             }
-
-            _entityUnitOfWork.UserRepository.Add(user);
-            await _entityUnitOfWork.SaveAsync();
-            return user.Id;
+            return user;
         }
-        private async Task<bool> RestaurantRegister(RestaurantInfoModel restaurantInfo, RestaurantPhotoModel additionInfo, Guid ownerId)
+        private async Task<bool> RestaurantRegister(RestaurantInfoModel restaurantInfo, RestaurantPhotoModel additionInfo, User userInfo)
         {
             List<BusinessHour> businessHourList = new List<BusinessHour>();
             List<SocialContact> socialContactList = new List<SocialContact>();
@@ -209,7 +206,7 @@ namespace KinMai.Logic.Services
             Restaurant restaurant = new Restaurant()
             {
                 Id = restaurantId,
-                OwnerId = ownerId,
+                OwnerId = userInfo.Id,
                 Name = restaurantInfo.RestaurantName,
                 Description = additionInfo.RestaurantStatus,
                 Address = JsonConvert.SerializeObject(restaurantInfo.Address),
@@ -223,6 +220,7 @@ namespace KinMai.Logic.Services
             var images = await CompressImage(additionInfo.ImageFiles, restaurantId);
             restaurant.ImageLink = images.ToArray();
 
+            _entityUnitOfWork.UserRepository.Add(userInfo);
             _entityUnitOfWork.RestaurantRepository.Add(restaurant);
             _entityUnitOfWork.BusinessHourRepository.AddRange(businessHourList);
             _entityUnitOfWork.SocialContactRepository.AddRange(socialContactList);
