@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using ImageMagick;
 using KinMai.Authentication.Model;
 using KinMai.Authentication.UnitOfWork;
@@ -78,13 +78,16 @@ namespace KinMai.Logic.Services
                 UserType = (int)UserType.Reviewer
             };
 
-            var singup = await _authenticationUnitOfWork.AWSCognitoService.SignUp(user.Id, user.Email, model.Password);
-            if (singup.HttpStatusCode != HttpStatusCode.OK)
-                throw new ArgumentException("Can't register, Please contact admin.");
+            if (!(string.IsNullOrEmpty(model.Password) && string.IsNullOrEmpty(model.ConfirmPassword)))
+            {
+                var singup = await _authenticationUnitOfWork.AWSCognitoService.SignUp(user.Id, user.Email, model.Password);
+                if (singup.HttpStatusCode != HttpStatusCode.OK)
+                    throw new ArgumentException("Can't register, Please contact admin.");
 
-            var confirmSignup = await _authenticationUnitOfWork.AWSCognitoService.ConfirmSignUp(user.Id);
-            if (!confirmSignup)
-                throw new ArgumentException("Can't confirmed register, Please try again.");
+                var confirmSignup = await _authenticationUnitOfWork.AWSCognitoService.ConfirmSignUp(user.Id);
+                if (!confirmSignup)
+                    throw new ArgumentException("Can't confirmed register, Please try again.");
+            }
 
             _entityUnitOfWork.UserRepository.Add(user);
             await _entityUnitOfWork.SaveAsync();
