@@ -1,4 +1,6 @@
-﻿using System;
+﻿using KinMai.Api.Models.Reviewer;
+using KinMai.Logic.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +10,6 @@ namespace KinMai.Logic.Interface
 {
     public interface IReviewerService
     {
-
+        Task<RestaurantInfoListModel> GetRestaurantNearMeList(GetRestaurantNearMeRequestModel model);
     }
 }
