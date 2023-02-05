@@ -9,5 +9,6 @@ namespace KinMai.Common.Enum
     public enum DeliveryType
     {
         Delivery = 1,
+        PickUp = 2,
     }
 }

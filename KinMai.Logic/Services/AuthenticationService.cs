@@ -1,16 +1,17 @@
 ﻿using System.Net;
+using ImageMagick;
 using KinMai.Authentication.Model;
 using KinMai.Authentication.UnitOfWork;
 using KinMai.Common.Enum;
 using KinMai.Dapper.Interface;
 using KinMai.EntityFramework.Models;
-using KinMai.EntityFramework.UnitOfWork.Implement;
 using KinMai.EntityFramework.UnitOfWork.Interface;
 using KinMai.Logic.Interface;
 using KinMai.Logic.Models;
 using KinMai.S3.Models;
 using KinMai.S3.UnitOfWork.Interface;
 using Microsoft.AspNetCore.Http;
+using MimeKit;
 using Newtonsoft.Json;
 
 namespace KinMai.Logic.Services
@@ -27,7 +28,8 @@ namespace KinMai.Logic.Services
             IEntityUnitOfWork entityUnitOfWork,
             IAuthenticationUnitOfWork authenticationUnitOfWork,
             IDapperUnitOfWork dapperUnitOfWork,
-            IS3UnitOfWork s3UnitOfWork)
+            IS3UnitOfWork s3UnitOfWork
+        )
         {
             QUERY_PATH = this.GetType().Name.Split("Service")[0] + "/";
             _entityUnitOfWork = entityUnitOfWork;
@@ -73,13 +75,16 @@ namespace KinMai.Logic.Services
                 UserType = (int)UserType.Reviewer
             };
 
-            var singup = await _authenticationUnitOfWork.AWSCognitoService.SignUp(user.Id, user.Email, model.Password);
-            if (singup.HttpStatusCode != HttpStatusCode.OK)
-                throw new ArgumentException("Can't register, Please contact admin.");
+            if (!(string.IsNullOrEmpty(model.Password) && string.IsNullOrEmpty(model.ConfirmPassword)))
+            {
+                var singup = await _authenticationUnitOfWork.AWSCognitoService.SignUp(user.Id, user.Email, model.Password);
+                if (singup.HttpStatusCode != HttpStatusCode.OK)
+                    throw new ArgumentException("Can't register, Please contact admin.");
 
-            var confirmSignup = await _authenticationUnitOfWork.AWSCognitoService.ConfirmSignUp(user.Id);
-            if (!confirmSignup)
-                throw new ArgumentException("Can't confirmed register, Please try again.");
+                var confirmSignup = await _authenticationUnitOfWork.AWSCognitoService.ConfirmSignUp(user.Id);
+                if (!confirmSignup)
+                    throw new ArgumentException("Can't confirmed register, Please try again.");
+            }
 
             _entityUnitOfWork.UserRepository.Add(user);
             await _entityUnitOfWork.SaveAsync();
@@ -87,7 +92,7 @@ namespace KinMai.Logic.Services
         }
         public async Task<bool> RestaurantRegister(RestaurantRegisterModel model)
         {
-            var user = await UserRegister(model.PersonalInfo, UserType.RestaurantOwner);
+            var user = await CreateUser(model.PersonalInfo, UserType.RestaurantOwner);
             return await RestaurantRegister(model.RestaurantInfo, model.RestaurantAdditionInfo, user);
         }
         public async Task<UserInfoModel> GetUserInfo(string email)
@@ -119,7 +124,7 @@ namespace KinMai.Logic.Services
             var user = await _entityUnitOfWork.UserRepository.GetSingleAsync(x => x.Email == email);
             return user == null;
         }
-        private async Task<Guid> UserRegister(ReviewerRegisterModel model, UserType userType)
+        private async Task<User> CreateUser(ReviewerRegisterModel model, UserType userType)
         {
             // validate
             var user = await _entityUnitOfWork.UserRepository.GetSingleAsync(x => x.Email.ToLower() == model.Email.ToLower());
@@ -138,19 +143,19 @@ namespace KinMai.Logic.Services
                 UserType = (int)userType
             };
 
-            var singup = await _authenticationUnitOfWork.AWSCognitoService.SignUp(user.Id, user.Email, model.Password);
-            if (singup.HttpStatusCode != HttpStatusCode.OK)
-                throw new ArgumentException("Can't register, Please contact admin.");
+            if (!(string.IsNullOrEmpty(model.Password) && string.IsNullOrEmpty(model.ConfirmPassword)))
+            {
+                var singup = await _authenticationUnitOfWork.AWSCognitoService.SignUp(user.Id, user.Email, model.Password);
+                if (singup.HttpStatusCode != HttpStatusCode.OK)
+                    throw new ArgumentException("Can't register, Please contact admin.");
 
-            var confirmSignup = await _authenticationUnitOfWork.AWSCognitoService.ConfirmSignUp(user.Id);
-            if (!confirmSignup)
-                throw new ArgumentException("Can't confirmed register, Please try again.");
-
-            _entityUnitOfWork.UserRepository.Add(user);
-            await _entityUnitOfWork.SaveAsync();
-            return user.Id;
+                var confirmSignup = await _authenticationUnitOfWork.AWSCognitoService.ConfirmSignUp(user.Id);
+                if (!confirmSignup)
+                    throw new ArgumentException("Can't confirmed register, Please try again.");
+            }
+            return user;
         }
-        private async Task<bool> RestaurantRegister(RestaurantInfoModel restaurantInfo, RestaurantPhotoModel additionInfo, Guid ownerId)
+        private async Task<bool> RestaurantRegister(RestaurantInfoModel restaurantInfo, RestaurantPhotoModel additionInfo, User userInfo)
         {
             List<BusinessHour> businessHourList = new List<BusinessHour>();
             List<SocialContact> socialContactList = new List<SocialContact>();
@@ -165,8 +170,8 @@ namespace KinMai.Logic.Services
                     Id = Guid.NewGuid(),
                     RestaurantId = restaurantId,
                     Day = timeItem.Day,
-                    OpenTime = timeItem.StartTime,
-                    CloseTime = timeItem.EndTime,
+                    OpenTime = TimeOnly.FromDateTime(timeItem.StartTime).AddHours(7),
+                    CloseTime = TimeOnly.FromDateTime(timeItem.EndTime).AddHours(7),
                 };
                 businessHourList.Add(item);
             }
@@ -198,7 +203,7 @@ namespace KinMai.Logic.Services
             Restaurant restaurant = new Restaurant()
             {
                 Id = restaurantId,
-                OwnerId = ownerId,
+                OwnerId = userInfo.Id,
                 Name = restaurantInfo.RestaurantName,
                 Description = additionInfo.RestaurantStatus,
                 Address = JsonConvert.SerializeObject(restaurantInfo.Address),
@@ -209,13 +214,10 @@ namespace KinMai.Logic.Services
             };
 
             // upload image
-            var folder = await _S3UnitOfWork.S3FileService.CreateFolder("kinmai", restaurantId.ToString());
-            if (folder)
-            {
-                var images = await UploadRestaurantImage(additionInfo.ImageFiles, restaurantId);
-                restaurant.ImageLink = images.ToArray();
-            }
+            var images = await CompressImage(additionInfo.ImageFiles, restaurantId);
+            restaurant.ImageLink = images.ToArray();
 
+            _entityUnitOfWork.UserRepository.Add(userInfo);
             _entityUnitOfWork.RestaurantRepository.Add(restaurant);
             _entityUnitOfWork.BusinessHourRepository.AddRange(businessHourList);
             _entityUnitOfWork.SocialContactRepository.AddRange(socialContactList);
@@ -223,33 +225,41 @@ namespace KinMai.Logic.Services
             await _entityUnitOfWork.SaveAsync();
             return true;
         }
-        private async Task<List<string>> UploadRestaurantImage(List<IFormFile> files, Guid restaurantId)
+        private async Task<List<string>> CompressImage(List<IFormFile> files, Guid restaurantId)
         {
-            try
-            {
-                List<string> uploadImageList = new List<string>();
+            List<string> uploadImageList = new List<string>();
 
-                foreach (var file in files)
+            foreach (var file in files)
+            {
+                using (var stream = new MemoryStream())
                 {
-                    UploadImageResponse image = new UploadImageResponse();
-                    string fileName = $"{restaurantId}/{Guid.NewGuid()}";
-
-                    var imageInfo = new UploadImageModel()
+                    await file.CopyToAsync(stream);
+                    stream.Position = 0;
+                    using (MagickImage image = new MagickImage(stream))
                     {
-                        ContentType = file.ContentType,
-                        File = file.OpenReadStream(),
-                        FileName = fileName,
-                        BucketName = "kinmai"
-                    };
-                    image.FileName = await _S3UnitOfWork.S3FileService.UploadImage(imageInfo);
-                    uploadImageList.Add(image.FileName);
+                        image.Format = image.Format;
+                        image.Quality = 10;
+                        using (var newImagestream = new MemoryStream())
+                        {
+                            image.Write(newImagestream);
+                            newImagestream.Position = 0;
+
+                            UploadImageResponse currentImage = new UploadImageResponse();
+                            string fileName = $"{restaurantId}/{Guid.NewGuid()}";
+                            var imageInfo = new UploadImageModel()
+                            {
+                                ContentType = MimeTypes.GetMimeType(file.FileName),
+                                File = newImagestream,
+                                FileName = fileName,
+                                BucketName = "kinmai"
+                            };
+                            currentImage.FileName = await _S3UnitOfWork.S3FileService.UploadImage(imageInfo);
+                            uploadImageList.Add(currentImage.FileName);
+                        }
+                    }
                 }
-                return uploadImageList;
             }
-            catch (Exception e)
-            {
-                throw new Exception(e.Message, e);
-            }
+            return uploadImageList;
         }
     }
 }
