@@ -44,6 +44,9 @@ public partial class Restaurant
     [InverseProperty("Restaurant")]
     public virtual ICollection<BusinessHour> BusinessHours { get; } = new List<BusinessHour>();
 
+    [InverseProperty("Restaurant")]
+    public virtual ICollection<FavoriteRestaurant> FavoriteRestaurants { get; } = new List<FavoriteRestaurant>();
+
     [ForeignKey("OwnerId")]
     [InverseProperty("Restaurants")]
     public virtual User Owner { get; set; } = null!;
