@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -32,6 +32,14 @@ public partial class Restaurant
     public int[] PaymentMethod { get; set; } = null!;
 
     public int RestaurantType { get; set; }
+
+    public double Latitude { get; set; }
+
+    public double Longitude { get; set; }
+
+    public int MinPriceRate { get; set; }
+
+    public int MaxPriceRate { get; set; }
 
     [InverseProperty("Restaurant")]
     public virtual ICollection<BusinessHour> BusinessHours { get; } = new List<BusinessHour>();

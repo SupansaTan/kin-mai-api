@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -24,6 +24,8 @@ public partial class Reviewer
     public string[]? ImageLink { get; set; }
 
     public string[]? FoodRecommendList { get; set; }
+
+    public DateTime CreateAt { get; set; }
 
     [ForeignKey("RestaurantId")]
     [InverseProperty("Reviewers")]
