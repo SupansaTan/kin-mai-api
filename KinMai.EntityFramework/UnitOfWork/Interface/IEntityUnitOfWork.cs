@@ -17,5 +17,6 @@ namespace KinMai.EntityFramework.UnitOfWork.Interface
         IEntityFrameworkNpgsqlRepository<SocialContact> SocialContactRepository { get; set; }
         IEntityFrameworkNpgsqlRepository<Reviewer> ReviewerRepository { get; set; }
         IEntityFrameworkNpgsqlRepository<Category> CategoryRepository { get; set; }
+        IEntityFrameworkNpgsqlRepository<FavoriteRestaurant> FavoriteRestaurantRepository { get; set; }
     }
 }
