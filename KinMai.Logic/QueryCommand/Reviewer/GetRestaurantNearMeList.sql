@@ -54,15 +54,14 @@ SELECT
 	"Restaurant"."Name" AS "RestaurantName",
 	"Restaurant"."ImageLink"[1] AS "ImageCover",
     CASE
-        WHEN array_length("Restaurant"."ImageLink", 1) > 4
+        WHEN cardinality("Restaurant"."ImageLink") > 4
         THEN "Restaurant"."ImageLink"[2:4]::text[]
 
-        WHEN array_length("Restaurant"."ImageLink", 1) < 2
+        WHEN cardinality("Restaurant"."ImageLink") < 2
         THEN ARRAY[]::text[]
 
         ELSE "Restaurant"."ImageLink"[2:]::text[]
     END AS "AnotherImageCover",
-	"Restaurant"."ImageLink"[2:]::text[] AS "AnotherImageCover",
     "Restaurant"."MinPriceRate" as "MinPriceRate",
 	"Restaurant"."MaxPriceRate" as "MaxPriceRate",
 	to_char("BusinessHours"."OpenTime", 'HH:mm') AS "StartTime",
