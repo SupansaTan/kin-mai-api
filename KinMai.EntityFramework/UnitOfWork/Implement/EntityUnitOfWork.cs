@@ -21,6 +21,7 @@ namespace KinMai.EntityFramework.UnitOfWork.Implement
         private IEntityFrameworkNpgsqlRepository<SocialContact> _socialContactRepository;
         private IEntityFrameworkNpgsqlRepository<Reviewer> _reviewerRepository;
         private IEntityFrameworkNpgsqlRepository<Category> _categoryRepository;
+        private IEntityFrameworkNpgsqlRepository<FavoriteRestaurant> _favoriteRestaurantRepository;
 
         public EntityUnitOfWork(KinMaiContext dbContext)
         {
@@ -61,6 +62,11 @@ namespace KinMai.EntityFramework.UnitOfWork.Implement
         {
             get { return _categoryRepository ?? (_categoryRepository = new EntityFrameworkNpgsqlRepository<Category>(_dbContext)); }
             set { _categoryRepository = value; }
+        }
+        public IEntityFrameworkNpgsqlRepository<FavoriteRestaurant> FavoriteRestaurantRepository
+        {
+            get { return _favoriteRestaurantRepository ?? (_favoriteRestaurantRepository = new EntityFrameworkNpgsqlRepository<FavoriteRestaurant>(_dbContext)); }
+            set { _favoriteRestaurantRepository = value; }
         }
 
         public async Task<int> SaveAsync()
