@@ -1,4 +1,5 @@
-﻿using System;
+﻿using KinMai.Logic.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,6 @@ namespace KinMai.Logic.Interface
 {
     public interface IRestaurantService
     {
-
+        List<RestaurantDetailInfoModel> GetAllRestaurant();
     }
 }
