@@ -51,6 +51,33 @@ namespace KinMai.Logic.Services
                 TotalRestaurant = _entityUnitOfWork.RestaurantRepository.GetAll().Count()
             };
         }
+        public async Task<RestaurantInfoListModel> GetRestaurantListRequestFromHomepage(GetRestaurantListFromFilterRequestModel model)
+        {
+            string keyword = "";
+            if (!string.IsNullOrEmpty(model.Keywords))
+            {
+                var keywords = model.Keywords.Split();
+                keywords = keywords.Select(x => x = $"%{x.ToLower()}%").ToArray();
+                keyword = string.Join(" ", keywords);
+            }
+
+            var query = QueryService.GetCommand(QUERY_PATH + "GetRestaurantListFromHomepage",
+                            new ParamCommand { Key = "_userId", Value = model.userId.ToString() },
+                            new ParamCommand { Key = "_latitude", Value = model.latitude.ToString() },
+                            new ParamCommand { Key = "_longitude", Value = model.longitude.ToString() },
+                            new ParamCommand { Key = "_skip", Value = model.skip.ToString() },
+                            new ParamCommand { Key = "_take", Value = model.take.ToString() },
+                            new ParamCommand { Key = "_keywords", Value = keyword },
+                            new ParamCommand { Key = "_category", Value = model.CategoryType.ToString() }
+                        );
+            var restaurantInfoList = (await _dapperUnitOfWork.KinMaiRepository.QueryAsync<RestaurantInfoItemModel>(query)).ToList();
+            return new RestaurantInfoListModel()
+            {
+                RestaurantInfo = restaurantInfoList,
+                RestaurantCumulativeCount = model.skip + restaurantInfoList.Count,
+                TotalRestaurant = _entityUnitOfWork.RestaurantRepository.GetAll().Count()
+            };
+        }
         public async Task<bool> SetFavoriteRestaurant(SetFavoriteResturantRequestModel model)
         {
             var isExist = await _entityUnitOfWork.FavoriteRestaurantRepository.GetSingleAsync(x => x.UserId == model.UserId && x.RestaurantId == model.RestaurantId);

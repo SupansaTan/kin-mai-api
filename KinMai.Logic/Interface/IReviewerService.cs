@@ -11,6 +11,7 @@ namespace KinMai.Logic.Interface
     public interface IReviewerService
     {
         Task<RestaurantInfoListModel> GetRestaurantNearMeList(GetRestaurantNearMeRequestModel model);
+        Task<RestaurantInfoListModel> GetRestaurantListRequestFromHomepage(GetRestaurantListFromFilterRequestModel model);
         Task<bool> SetFavoriteRestaurant(SetFavoriteResturantRequestModel model);
     }
 }
