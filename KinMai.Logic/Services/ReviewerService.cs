@@ -45,7 +45,9 @@ namespace KinMai.Logic.Services
             var restaurantInfoList = (await _dapperUnitOfWork.KinMaiRepository.QueryAsync<RestaurantInfoItemModel>(query)).ToList();
             return new RestaurantInfoListModel()
             {
-                RestaurantInfo = restaurantInfoList
+                RestaurantInfo = restaurantInfoList,
+                RestaurantCumulativeCount = model.skip + restaurantInfoList.Count,
+                TotalRestaurant = _entityUnitOfWork.RestaurantRepository.GetAll().Count()
             };
         }
     }

@@ -9,6 +9,8 @@ namespace KinMai.Logic.Models
     public class RestaurantInfoListModel
     {
         public List<RestaurantInfoItemModel> RestaurantInfo { get; set; }
+        public int TotalRestaurant { get; set; }
+        public int RestaurantCumulativeCount { get; set; }
     }
 
     public class RestaurantInfoItemModel

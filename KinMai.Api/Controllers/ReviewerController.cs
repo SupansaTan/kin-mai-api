@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace KinMai.Api.Controllers
 {
+    [ApiController]
+    [Route("[controller]")]
     public class ReviewerController : ControllerBase
     {
         private readonly ILogicUnitOfWork _logicUnitOfWork;
