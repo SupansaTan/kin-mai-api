@@ -3,6 +3,7 @@ using KinMai.Api.Models.Reviewer;
 using KinMai.Logic.Models;
 using KinMai.Logic.UnitOfWork.Interface;
 using Microsoft.AspNetCore.Mvc;
+using Org.BouncyCastle.Asn1.Ocsp;
 
 namespace KinMai.Api.Controllers
 {
@@ -44,6 +45,40 @@ namespace KinMai.Api.Controllers
                 response = new ResponseModel<RestaurantInfoListModel>
                 {
                     Data = null,
+                    Message = e.Message,
+                    Status = 500
+                };
+            }
+            return response;
+        }
+        [HttpPost("SetFavoriteRestaurant")]
+        public async Task<ResponseModel<bool>> SetFavoriteRestaurant([FromBody] SetFavoriteResturantRequestModel request)
+        {
+            var response = new ResponseModel<bool>();
+            try
+            {
+                var isSuccess = await _logicUnitOfWork.ReviewerService.SetFavoriteRestaurant(request);
+                response = new ResponseModel<bool>
+                {
+                    Data = isSuccess,
+                    Message = "success",
+                    Status = 200
+                };
+            }
+            catch (ArgumentException ae)
+            {
+                response = new ResponseModel<bool>
+                {
+                    Data = false,
+                    Message = ae.Message,
+                    Status = 400
+                };
+            }
+            catch (Exception e)
+            {
+                response = new ResponseModel<bool>
+                {
+                    Data = false,
                     Message = e.Message,
                     Status = 500
                 };

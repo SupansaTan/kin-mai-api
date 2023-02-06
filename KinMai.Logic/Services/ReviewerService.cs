@@ -1,6 +1,7 @@
 ﻿using KinMai.Api.Models.Reviewer;
 using KinMai.Common.ShareService;
 using KinMai.Dapper.Interface;
+using KinMai.EntityFramework.Models;
 using KinMai.EntityFramework.UnitOfWork.Interface;
 using KinMai.Logic.Interface;
 using KinMai.Logic.Models;
@@ -49,6 +50,31 @@ namespace KinMai.Logic.Services
                 RestaurantCumulativeCount = model.skip + restaurantInfoList.Count,
                 TotalRestaurant = _entityUnitOfWork.RestaurantRepository.GetAll().Count()
             };
+        }
+
+        public async Task<bool> SetFavoriteRestaurant(SetFavoriteResturantRequestModel model)
+        {
+            var isExist = await _entityUnitOfWork.FavoriteRestaurantRepository.GetSingleAsync(x => x.UserId == model.UserId && x.RestaurantId == model.RestaurantId);
+            // favorite restaurant
+            if (isExist == null && model.IsFavorite)
+            {
+                var favoriteItem = new FavoriteRestaurant()
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = model.UserId,
+                    RestaurantId = model.RestaurantId,
+                };
+                _entityUnitOfWork.FavoriteRestaurantRepository.Add(favoriteItem);
+            }
+
+            // disfavor restaurant
+            if (isExist is not null && !model.IsFavorite)
+            {
+                _entityUnitOfWork.FavoriteRestaurantRepository.Delete(isExist);
+            }
+
+            await _entityUnitOfWork.SaveAsync();
+            return true;
         }
     }
 }
