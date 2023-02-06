@@ -21,6 +21,8 @@ public partial class KinMaiContext : DbContext
 
     public virtual DbSet<Category> Categories { get; set; }
 
+    public virtual DbSet<FavoriteRestaurant> FavoriteRestaurants { get; set; }
+
     public virtual DbSet<Related> Relateds { get; set; }
 
     public virtual DbSet<Restaurant> Restaurants { get; set; }
@@ -54,6 +56,21 @@ public partial class KinMaiContext : DbContext
             entity.HasKey(e => e.Id).HasName("categories_pk");
 
             entity.Property(e => e.Id).ValueGeneratedNever();
+        });
+
+        modelBuilder.Entity<FavoriteRestaurant>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("favoriterestaurant_pk");
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+
+            entity.HasOne(d => d.Restaurant).WithMany(p => p.FavoriteRestaurants)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("favoriterestaurant_fk_1");
+
+            entity.HasOne(d => d.User).WithMany(p => p.FavoriteRestaurants)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("favoriterestaurant_fk");
         });
 
         modelBuilder.Entity<Related>(entity =>
