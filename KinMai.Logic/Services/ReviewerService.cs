@@ -51,7 +51,6 @@ namespace KinMai.Logic.Services
                 TotalRestaurant = _entityUnitOfWork.RestaurantRepository.GetAll().Count()
             };
         }
-
         public async Task<bool> SetFavoriteRestaurant(SetFavoriteResturantRequestModel model)
         {
             var isExist = await _entityUnitOfWork.FavoriteRestaurantRepository.GetSingleAsync(x => x.UserId == model.UserId && x.RestaurantId == model.RestaurantId);

@@ -43,6 +43,8 @@ namespace KinMai.Logic.Services
             var user = await _entityUnitOfWork.UserRepository.GetSingleAsync(x => x.Email.ToLower() == email.ToLower());
             if (user == null)
                 throw new ArgumentException("Email does not exist.");
+            if (user.IsLoginWithGoogle)
+                throw new ArgumentException("This email is registered by Google provider, Please login by Google instead");
 
             // validate auth
             var access = await _authenticationUnitOfWork.AWSCognitoService.Login(user.Id, password);
@@ -72,7 +74,8 @@ namespace KinMai.Logic.Services
                 FirstName = model.FirstName,
                 LastName = model.LastName,
                 Username = model.Username,
-                UserType = (int)UserType.Reviewer
+                UserType = (int)UserType.Reviewer,
+                IsLoginWithGoogle = !string.IsNullOrEmpty(model.Password)
             };
 
             if (!(string.IsNullOrEmpty(model.Password) && string.IsNullOrEmpty(model.ConfirmPassword)))
@@ -140,7 +143,8 @@ namespace KinMai.Logic.Services
                 FirstName = model.FirstName,
                 LastName = model.LastName,
                 Username = model.Username,
-                UserType = (int)userType
+                UserType = (int)userType,
+                IsLoginWithGoogle = !string.IsNullOrEmpty(model.Password)
             };
 
             if (!(string.IsNullOrEmpty(model.Password) && string.IsNullOrEmpty(model.ConfirmPassword)))
