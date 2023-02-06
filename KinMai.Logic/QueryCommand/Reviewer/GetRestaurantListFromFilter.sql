@@ -53,19 +53,12 @@ SELECT
 	"Restaurant"."Id" AS "RestaurantId",
 	"Restaurant"."Name" AS "RestaurantName",
 	"Restaurant"."ImageLink"[1] AS "ImageCover",
-    CASE
-        WHEN cardinality("Restaurant"."ImageLink") > 4
-        THEN "Restaurant"."ImageLink"[2:4]::text[]
-
-        WHEN cardinality("Restaurant"."ImageLink") < 2
-        THEN ARRAY[]::text[]
-
-        ELSE "Restaurant"."ImageLink"[2:]::text[]
-    END AS "AnotherImageCover",
     "Restaurant"."MinPriceRate" as "MinPriceRate",
 	"Restaurant"."MaxPriceRate" as "MaxPriceRate",
+    "Restaurant"."Description" as "Description",
 	to_char("BusinessHours"."OpenTime", 'HH:mm') AS "StartTime",
 	to_char("BusinessHours"."CloseTime", 'HH:mm') AS "EndTime",
+    (SELECT COUNT(*) FROM "Reviewer" WHERE "Reviewer"."RestaurantId" = "Id") AS "TotalReview",
     exists(SELECT * from "FavoriteRestaurant" fr WHERE fr."UserId" = '_userId' and fr."RestaurantId" = "Restaurant"."Id") AS "IsFavorite",
     calculate_rating("Restaurant"."Id") AS "Rating",
 	calculate_distance("Restaurant"."Latitude", "Restaurant"."Longitude", '_latitude', '_longitude') AS "Distance"
@@ -79,12 +72,23 @@ WHERE
 	AND
 	
     -- filter by only open now
-	(now()::time between "BusinessHours"."OpenTime" and "BusinessHours"."CloseTime")	
+    ('_isOpen' = 0 OR 
+    (now()::time between "BusinessHours"."OpenTime" and "BusinessHours"."CloseTime"))	
 	AND
 	
     -- filter by category type
     ('_category' = 0 OR
-	("Categories"."Type" = '_category'))
-ORDER BY "Distance"
+	("Categories"."Type" = ANY('_category'::int[])))
+    AND
+
+    -- filter by delivery type
+    ('_deliveryType' = 0 OR
+    ("Restaurant"."DeliveryType" @> '_deliveryType'::int[]))
+	AND 
+	
+    -- filter by payment method
+    ('_paymentMethod' = 0 OR
+	("Restaurant"."PaymentMethod" @> '_paymentMethod'::int[]))
+ORDER BY "Rating" DESC, "Distance"
 OFFSET '_skip'
 LIMIT '_take';
