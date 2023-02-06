@@ -45,8 +45,8 @@ namespace KinMai.Logic.Models
     public class BusinessHourModel
     {
         public int Day { get; set; }
-        public TimeOnly StartTime { get; set; }
-        public TimeOnly EndTime { get; set; }
+        public DateTime StartTime { get; set; }
+        public DateTime EndTime { get; set; }
     }
 
     public class RestaurantPhotoModel

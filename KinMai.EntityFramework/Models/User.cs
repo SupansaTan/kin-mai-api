@@ -28,6 +28,11 @@ public partial class User
 
     public int UserType { get; set; }
 
+    public bool IsLoginWithGoogle { get; set; }
+
+    [InverseProperty("User")]
+    public virtual ICollection<FavoriteRestaurant> FavoriteRestaurants { get; } = new List<FavoriteRestaurant>();
+
     [InverseProperty("Owner")]
     public virtual ICollection<Restaurant> Restaurants { get; } = new List<Restaurant>();
 

@@ -1,10 +1,12 @@
-﻿using KinMai.Logic.Interface;
+﻿using ImageMagick;
+using KinMai.Logic.Interface;
 using KinMai.Logic.Models;
 using KinMai.S3.Models;
 using KinMai.S3.UnitOfWork.Interface;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -47,6 +49,24 @@ namespace KinMai.Logic.Services
             {
                 throw new Exception(e.Message, e);
             }
+        }
+        public async Task<List<IFormFile>> CompressImage(List<IFormFile> files)
+        {
+            var imageList = new List<IFormFile>();
+            foreach (var file in files)
+            {
+                using (var stream = new MemoryStream())
+                using (MagickImage image = new MagickImage((Stream)file))
+                {
+                    image.Format = image.Format;
+                    image.Quality = 10;
+                    image.Write(stream);
+
+                    var imageFile = new FormFile(stream, 0, stream.Length, file.FileName, file.FileName);
+                    imageList.Add(imageFile);
+                }
+            }
+            return imageList;
         }
     }
 }

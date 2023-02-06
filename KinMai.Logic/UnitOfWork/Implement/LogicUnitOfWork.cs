@@ -35,6 +35,7 @@ namespace KinMai.Logic.UnitOfWork.Implement
 
         // instance
         private IAuthenticationService _authenticationService;
+        private IReviewerService _reviewerService;
         private IFileService _fileService;
         private IRestaurantService _restaurantService;
 
@@ -43,6 +44,12 @@ namespace KinMai.Logic.UnitOfWork.Implement
             get { return _authenticationService ?? (_authenticationService = new AuthenticationService(_entityUnitOfWork, _authenticationUnitOfWork, _dapperUnitOfWork, _s3UnitOfWork)); }
 
             set { _authenticationService = value; }
+        }
+        public IReviewerService ReviewerService
+        {
+            get { return _reviewerService ?? (_reviewerService = new ReviewerService(_entityUnitOfWork, _dapperUnitOfWork, _s3UnitOfWork)); }
+
+            set { _reviewerService = value; }
         }
 
         public IFileService FileService
