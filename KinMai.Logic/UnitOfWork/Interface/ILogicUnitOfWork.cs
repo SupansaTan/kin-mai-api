@@ -12,5 +12,6 @@ namespace KinMai.Logic.UnitOfWork.Interface
         IAuthenticationService AuthenticationService { get; set; }
         IReviewerService ReviewerService { get; set; }
         IFileService FileService { get; set; }
+        IRestaurantService RestaurantService { get; set; }
     }
 }
