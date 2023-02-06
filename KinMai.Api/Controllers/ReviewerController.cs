@@ -51,14 +51,14 @@ namespace KinMai.Api.Controllers
             }
             return response;
         }
-        [HttpGet("GetRestaurantListRequestFromHomepage")]
-        public async Task<ResponseModel<RestaurantInfoListModel>> GetRestaurantListRequestFromHomepage([FromQuery] GetRestaurantListFromFilterRequestModel request)
+        [HttpGet("GetRestaurantListFromFilter")]
+        public async Task<ResponseModel<RestaurantCardListModel>> GetRestaurantListFromFilter([FromQuery] GetRestaurantListFromFilterRequestModel request)
         {
-            var response = new ResponseModel<RestaurantInfoListModel>();
+            var response = new ResponseModel<RestaurantCardListModel>();
             try
             {
-                var restaurantInfoList = await _logicUnitOfWork.ReviewerService.GetRestaurantListRequestFromHomepage(request);
-                response = new ResponseModel<RestaurantInfoListModel>
+                var restaurantInfoList = await _logicUnitOfWork.ReviewerService.GetRestaurantListFromFilter(request);
+                response = new ResponseModel<RestaurantCardListModel>
                 {
                     Data = restaurantInfoList,
                     Message = "success",
@@ -67,7 +67,7 @@ namespace KinMai.Api.Controllers
             }
             catch (ArgumentException ae)
             {
-                response = new ResponseModel<RestaurantInfoListModel>
+                response = new ResponseModel<RestaurantCardListModel>
                 {
                     Data = null,
                     Message = ae.Message,
@@ -76,7 +76,7 @@ namespace KinMai.Api.Controllers
             }
             catch (Exception e)
             {
-                response = new ResponseModel<RestaurantInfoListModel>
+                response = new ResponseModel<RestaurantCardListModel>
                 {
                     Data = null,
                     Message = e.Message,
