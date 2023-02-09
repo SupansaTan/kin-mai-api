@@ -54,9 +54,9 @@ namespace KinMai.Logic.Services
         public async Task<RestaurantCardListModel> GetRestaurantListFromFilter(GetRestaurantListFromFilterRequestModel model)
         {
             string keyword = "";
-            string categoryType = "0";
-            string deliveryType = "0";
-            string paymentMethod = "0";
+            string categoryType = "{}";
+            string deliveryType = "{}";
+            string paymentMethod = "{}";
 
             // convert format to support sql command
             if (!string.IsNullOrEmpty(model.Keywords))
@@ -65,15 +65,15 @@ namespace KinMai.Logic.Services
                 keywords = keywords.Select(x => x = $"%{x.ToLower()}%").ToArray();
                 keyword = string.Join(" ", keywords);
             }
-            if (model.CategoryType.Any())
+            if (model.CategoryType != null && model.CategoryType.Any())
             {
                 categoryType = "{" + string.Join(",", model.CategoryType) + "}";
             }
-            if (model.DeliveryType.Any())
+            if (model.DeliveryType != null && model.DeliveryType.Any())
             {
                 deliveryType = "{" + string.Join(",", model.DeliveryType) + "}";
             }
-            if (model.PaymentMethod.Any())
+            if (model.PaymentMethod != null && model.PaymentMethod.Any())
             {
                 paymentMethod = "{" + string.Join(",", model.PaymentMethod) + "}";
             }

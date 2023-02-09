@@ -49,7 +49,7 @@ RETURNS float AS $rating$
     END;
 $rating$ LANGUAGE plpgsql;
 
-SELECT
+SELECT DISTINCT
 	"Restaurant"."Id" AS "RestaurantId",
 	"Restaurant"."Name" AS "RestaurantName",
 	"Restaurant"."ImageLink"[1] AS "ImageCover",
@@ -60,12 +60,13 @@ SELECT
 	to_char("BusinessHours"."CloseTime", 'HH:mm') AS "EndTime",
     (SELECT COUNT(*) FROM "Reviewer" WHERE "Reviewer"."RestaurantId" = "Id") AS "TotalReview",
     exists(SELECT * from "FavoriteRestaurant" fr WHERE fr."UserId" = '_userId' and fr."RestaurantId" = "Restaurant"."Id") AS "IsFavorite",
+    exists(SELECT * from "Reviewer" rv WHERE rv."UserId" = '_userId' and rv."RestaurantId" = "Restaurant"."Id") AS "IsReview",
     calculate_rating("Restaurant"."Id") AS "Rating",
 	calculate_distance("Restaurant"."Latitude", "Restaurant"."Longitude", '_latitude', '_longitude') AS "Distance"
 FROM "Restaurant"
 LEFT JOIN "BusinessHours" ON "BusinessHours"."RestaurantId" = "Restaurant"."Id"
 LEFT JOIN "Related" ON "Related"."RestaurantId" = "Restaurant"."Id"
-LEFT JOIN "Categories" ON "Categories"."Id" = "Related"."CategoriesId" 
+LEFT JOIN "Categories" ON "Categories"."Id" = "Related"."CategoriesId"
 WHERE
     -- filter restaurant name
 	LOWER("Restaurant"."Name") LIKE ALL(string_to_array('_keywords', ' '))
@@ -77,17 +78,17 @@ WHERE
 	AND
 	
     -- filter by category type
-    ('_category' = 0 OR
+    ('_category' = '{}' OR
 	("Categories"."Type" = ANY('_category'::int[])))
     AND
 
     -- filter by delivery type
-    ('_deliveryType' = 0 OR
+    ('_deliveryType' = '{}' OR
     ("Restaurant"."DeliveryType" @> '_deliveryType'::int[]))
 	AND 
 	
     -- filter by payment method
-    ('_paymentMethod' = 0 OR
+    ('_paymentMethod' = '{}' OR
 	("Restaurant"."PaymentMethod" @> '_paymentMethod'::int[]))
 ORDER BY "Rating" DESC, "Distance"
 OFFSET '_skip'

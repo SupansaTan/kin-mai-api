@@ -27,5 +27,6 @@ namespace KinMai.Logic.Models
         public string Description { get; set; }
         public int TotalReview { get; set; }
         public bool IsFavorite { get; set; }
+        public bool IsReview { get; set; }
     }
 }
