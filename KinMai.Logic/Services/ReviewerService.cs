@@ -82,8 +82,6 @@ namespace KinMai.Logic.Services
                             new ParamCommand { Key = "_userId", Value = model.userId.ToString() },
                             new ParamCommand { Key = "_latitude", Value = model.latitude.ToString() },
                             new ParamCommand { Key = "_longitude", Value = model.longitude.ToString() },
-                            new ParamCommand { Key = "_skip", Value = model.skip.ToString() },
-                            new ParamCommand { Key = "_take", Value = model.take.ToString() },
                             new ParamCommand { Key = "_keywords", Value = keyword },
                             new ParamCommand { Key = "_isOpen", Value = model.IsOpen ? "1":"0" },
                             new ParamCommand { Key = "_category", Value = categoryType },
@@ -91,11 +89,12 @@ namespace KinMai.Logic.Services
                             new ParamCommand { Key = "_paymentMethod", Value = paymentMethod }
                         );
             var restaurantInfoList = (await _dapperUnitOfWork.KinMaiRepository.QueryAsync<RestaurantCardInfoModel>(query)).ToList();
+            var filterRestaurantList = restaurantInfoList.Skip(model.skip).Take(model.take).ToList();
             return new RestaurantCardListModel()
             {
-                RestaurantInfo = restaurantInfoList,
-                RestaurantCumulativeCount = model.skip + restaurantInfoList.Count,
-                TotalRestaurant = _entityUnitOfWork.RestaurantRepository.GetAll().Count()
+                RestaurantInfo = filterRestaurantList,
+                RestaurantCumulativeCount = model.skip + filterRestaurantList.Count,
+                TotalRestaurant = restaurantInfoList.Count
             };
         }
         public async Task<bool> SetFavoriteRestaurant(SetFavoriteResturantRequestModel model)

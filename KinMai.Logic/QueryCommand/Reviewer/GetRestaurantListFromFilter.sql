@@ -90,6 +90,4 @@ WHERE
     -- filter by payment method
     ('_paymentMethod' = '{}' OR
 	("Restaurant"."PaymentMethod" @> '_paymentMethod'::int[]))
-ORDER BY "Rating" DESC, "Distance"
-OFFSET '_skip'
-LIMIT '_take';
+ORDER BY "Rating" DESC, "Distance";
