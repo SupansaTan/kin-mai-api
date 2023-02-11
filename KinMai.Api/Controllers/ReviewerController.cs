@@ -51,6 +51,40 @@ namespace KinMai.Api.Controllers
             }
             return response;
         }
+        [HttpGet("GetRestaurantListFromFilter")]
+        public async Task<ResponseModel<RestaurantCardListModel>> GetRestaurantListFromFilter([FromQuery] GetRestaurantListFromFilterRequestModel request)
+        {
+            var response = new ResponseModel<RestaurantCardListModel>();
+            try
+            {
+                var restaurantInfoList = await _logicUnitOfWork.ReviewerService.GetRestaurantListFromFilter(request);
+                response = new ResponseModel<RestaurantCardListModel>
+                {
+                    Data = restaurantInfoList,
+                    Message = "success",
+                    Status = 200
+                };
+            }
+            catch (ArgumentException ae)
+            {
+                response = new ResponseModel<RestaurantCardListModel>
+                {
+                    Data = null,
+                    Message = ae.Message,
+                    Status = 400
+                };
+            }
+            catch (Exception e)
+            {
+                response = new ResponseModel<RestaurantCardListModel>
+                {
+                    Data = null,
+                    Message = e.Message,
+                    Status = 500
+                };
+            }
+            return response;
+        }
         [HttpPost("SetFavoriteRestaurant")]
         public async Task<ResponseModel<bool>> SetFavoriteRestaurant([FromBody] SetFavoriteResturantRequestModel request)
         {

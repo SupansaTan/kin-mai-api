@@ -51,6 +51,52 @@ namespace KinMai.Logic.Services
                 TotalRestaurant = _entityUnitOfWork.RestaurantRepository.GetAll().Count()
             };
         }
+        public async Task<RestaurantCardListModel> GetRestaurantListFromFilter(GetRestaurantListFromFilterRequestModel model)
+        {
+            string keyword = "";
+            string categoryType = "{}";
+            string deliveryType = "{}";
+            string paymentMethod = "{}";
+
+            // convert format to support sql command
+            if (!string.IsNullOrEmpty(model.Keywords))
+            {
+                var keywords = model.Keywords.Split();
+                keywords = keywords.Select(x => x = $"%{x.ToLower()}%").ToArray();
+                keyword = string.Join(" ", keywords);
+            }
+            if (model.CategoryType != null && model.CategoryType.Any())
+            {
+                categoryType = "{" + string.Join(",", model.CategoryType) + "}";
+            }
+            if (model.DeliveryType != null && model.DeliveryType.Any())
+            {
+                deliveryType = "{" + string.Join(",", model.DeliveryType) + "}";
+            }
+            if (model.PaymentMethod != null && model.PaymentMethod.Any())
+            {
+                paymentMethod = "{" + string.Join(",", model.PaymentMethod) + "}";
+            }
+
+            var query = QueryService.GetCommand(QUERY_PATH + "GetRestaurantListFromFilter",
+                            new ParamCommand { Key = "_userId", Value = model.userId.ToString() },
+                            new ParamCommand { Key = "_latitude", Value = model.latitude.ToString() },
+                            new ParamCommand { Key = "_longitude", Value = model.longitude.ToString() },
+                            new ParamCommand { Key = "_keywords", Value = keyword },
+                            new ParamCommand { Key = "_isOpen", Value = model.IsOpen ? "1":"0" },
+                            new ParamCommand { Key = "_category", Value = categoryType },
+                            new ParamCommand { Key = "_deliveryType", Value = deliveryType },
+                            new ParamCommand { Key = "_paymentMethod", Value = paymentMethod }
+                        );
+            var restaurantInfoList = (await _dapperUnitOfWork.KinMaiRepository.QueryAsync<RestaurantCardInfoModel>(query)).ToList();
+            var filterRestaurantList = restaurantInfoList.Skip(model.skip).Take(model.take).ToList();
+            return new RestaurantCardListModel()
+            {
+                RestaurantInfo = filterRestaurantList,
+                RestaurantCumulativeCount = model.skip + filterRestaurantList.Count,
+                TotalRestaurant = restaurantInfoList.Count
+            };
+        }
         public async Task<bool> SetFavoriteRestaurant(SetFavoriteResturantRequestModel model)
         {
             var isExist = await _entityUnitOfWork.FavoriteRestaurantRepository.GetSingleAsync(x => x.UserId == model.UserId && x.RestaurantId == model.RestaurantId);
