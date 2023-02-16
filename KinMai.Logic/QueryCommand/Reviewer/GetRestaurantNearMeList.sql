@@ -31,18 +31,18 @@ RETURNS float AS $rating$
 	DECLARE
 		avg_rating float = 0;
     BEGIN
-	    IF exists(SELECT * FROM "Reviewer" WHERE "RestaurantId" = restaurantId)
+	    IF exists(SELECT * FROM "Review" WHERE "RestaurantId" = restaurantId)
 	    THEN
 	        SELECT SUM(
 	            CASE 
-	                WHEN FLOOR("CountStar") = 1 THEN "CountStar"
-	                WHEN FLOOR("CountStar") = 2 THEN "CountStar" *2
-	                WHEN FLOOR("CountStar") = 3 THEN "CountStar" *3
-	                WHEN FLOOR("CountStar") = 4 THEN "CountStar" *4
-	                WHEN FLOOR("CountStar") = 5 THEN "CountStar" *5        
+	                WHEN FLOOR("Rating") = 1 THEN "Rating"
+	                WHEN FLOOR("Rating") = 2 THEN "Rating" *2
+	                WHEN FLOOR("Rating") = 3 THEN "Rating" *3
+	                WHEN FLOOR("Rating") = 4 THEN "Rating" *4
+	                WHEN FLOOR("Rating") = 5 THEN "Rating" *5        
 	            END    
-	            ) / SUM("CountStar") into avg_rating
-	        FROM "Reviewer"
+	            ) / SUM("Rating") into avg_rating
+	        FROM "Review"
 	        WHERE "RestaurantId" = restaurantId;
 	    END IF;
        	RETURN avg_rating;

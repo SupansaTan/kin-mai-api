@@ -119,5 +119,107 @@ namespace KinMai.Api.Controllers
             }
             return response;
         }
+        [HttpPost("AddReviewRestaurant")]
+        public async Task<ResponseModel<bool>> AddReviewRestaurant([FromForm] AddReviewRequestModel request)
+        {
+            var response = new ResponseModel<bool>();
+            try
+            {
+                var isSuccess = await _logicUnitOfWork.ReviewerService.AddReviewRestaurant(request);
+                response = new ResponseModel<bool>
+                {
+                    Data = isSuccess,
+                    Message = "success",
+                    Status = 200
+                };
+            }
+            catch (ArgumentException ae)
+            {
+                response = new ResponseModel<bool>
+                {
+                    Data = false,
+                    Message = ae.Message,
+                    Status = 400
+                };
+            }
+            catch (Exception e)
+            {
+                response = new ResponseModel<bool>
+                {
+                    Data = false,
+                    Message = e.Message,
+                    Status = 500
+                };
+            }
+            return response;
+        }
+        [HttpGet("GetReviewInfo")]
+        public async Task<ResponseModel<ReviewInfoModel>> GetReviewInfo([FromQuery] GetReviewInfoRequest request)
+        {
+            var response = new ResponseModel<ReviewInfoModel>();
+            try
+            {
+                var reviewInfo = await _logicUnitOfWork.ReviewerService.GetReviewInfo(request);
+                response = new ResponseModel<ReviewInfoModel>
+                {
+                    Data = reviewInfo,
+                    Message = "success",
+                    Status = 200
+                };
+            }
+            catch (ArgumentException ae)
+            {
+                response = new ResponseModel<ReviewInfoModel>
+                {
+                    Data = null,
+                    Message = ae.Message,
+                    Status = 400
+                };
+            }
+            catch (Exception e)
+            {
+                response = new ResponseModel<ReviewInfoModel>
+                {
+                    Data = null,
+                    Message = e.Message,
+                    Status = 500
+                };
+            }
+            return response;
+        }
+        [HttpPut("UpdateReviewInfo")]
+        public async Task<ResponseModel<bool>> UpdateReviewInfo([FromForm] UpdateReviewInfoRequest request)
+        {
+            var response = new ResponseModel<bool>();
+            try
+            {
+                var updateSuccess = await _logicUnitOfWork.ReviewerService.UpdateReviewInfo(request);
+                response = new ResponseModel<bool>
+                {
+                    Data = updateSuccess,
+                    Message = "success",
+                    Status = 200
+                };
+            }
+            catch (ArgumentException ae)
+            {
+                response = new ResponseModel<bool>
+                {
+                    Data = false,
+                    Message = ae.Message,
+                    Status = 400
+                };
+            }
+            catch (Exception e)
+            {
+                response = new ResponseModel<bool>
+                {
+                    Data = false,
+                    Message = e.Message,
+                    Status = 500
+                };
+            }
+            return response;
+        }
     }
 }
