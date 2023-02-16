@@ -37,5 +37,5 @@ public partial class User
     public virtual ICollection<Restaurant> Restaurants { get; } = new List<Restaurant>();
 
     [InverseProperty("User")]
-    public virtual ICollection<Reviewer> Reviewers { get; } = new List<Reviewer>();
+    public virtual ICollection<Review> Reviews { get; } = new List<Review>();
 }

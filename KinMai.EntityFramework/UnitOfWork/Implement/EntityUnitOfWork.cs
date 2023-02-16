@@ -1,5 +1,4 @@
-﻿using KinMai.Api.Models;
-using KinMai.EntityFramework.Models;
+﻿using KinMai.EntityFramework.Models;
 using KinMai.EntityFramework.UnitOfWork.Interface;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -19,7 +18,7 @@ namespace KinMai.EntityFramework.UnitOfWork.Implement
         private IEntityFrameworkNpgsqlRepository<Restaurant> _restaurantRepository;
         private IEntityFrameworkNpgsqlRepository<BusinessHour> _businessHourRepository;
         private IEntityFrameworkNpgsqlRepository<SocialContact> _socialContactRepository;
-        private IEntityFrameworkNpgsqlRepository<Reviewer> _reviewerRepository;
+        private IEntityFrameworkNpgsqlRepository<Review> _reviewRepository;
         private IEntityFrameworkNpgsqlRepository<Category> _categoryRepository;
         private IEntityFrameworkNpgsqlRepository<FavoriteRestaurant> _favoriteRestaurantRepository;
 
@@ -53,10 +52,10 @@ namespace KinMai.EntityFramework.UnitOfWork.Implement
             get { return _socialContactRepository ?? (_socialContactRepository = new EntityFrameworkNpgsqlRepository<SocialContact>(_dbContext)); }
             set { _socialContactRepository = value; }
         }
-        public IEntityFrameworkNpgsqlRepository<Reviewer> ReviewerRepository
+        public IEntityFrameworkNpgsqlRepository<Review> ReviewRepository
         {
-            get { return _reviewerRepository ?? (_reviewerRepository = new EntityFrameworkNpgsqlRepository<Reviewer>(_dbContext)); }
-            set { _reviewerRepository = value; }
+            get { return _reviewRepository ?? (_reviewRepository = new EntityFrameworkNpgsqlRepository<Review>(_dbContext)); }
+            set { _reviewRepository = value; }
         }
         public IEntityFrameworkNpgsqlRepository<Category> CategoryRepository
         {

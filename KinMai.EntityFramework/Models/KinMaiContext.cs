@@ -1,10 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using KinMai.Common.Resolver;
-using KinMai.EntityFramework.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace KinMai.Api.Models;
+namespace KinMai.EntityFramework.Models;
 
 public partial class KinMaiContext : DbContext
 {
@@ -27,7 +25,7 @@ public partial class KinMaiContext : DbContext
 
     public virtual DbSet<Restaurant> Restaurants { get; set; }
 
-    public virtual DbSet<Reviewer> Reviewers { get; set; }
+    public virtual DbSet<Review> Reviews { get; set; }
 
     public virtual DbSet<SocialContact> SocialContacts { get; set; }
 
@@ -99,17 +97,17 @@ public partial class KinMaiContext : DbContext
                 .HasConstraintName("user_fk");
         });
 
-        modelBuilder.Entity<Reviewer>(entity =>
+        modelBuilder.Entity<Review>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("reviewer_pk");
 
             entity.Property(e => e.Id).ValueGeneratedNever();
 
-            entity.HasOne(d => d.Restaurant).WithMany(p => p.Reviewers)
+            entity.HasOne(d => d.Restaurant).WithMany(p => p.Reviews)
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("restaurant_fk");
 
-            entity.HasOne(d => d.User).WithMany(p => p.Reviewers)
+            entity.HasOne(d => d.User).WithMany(p => p.Reviews)
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("user_fk");
         });
