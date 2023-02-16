@@ -27,26 +27,26 @@ RETURNS float AS $dist$
 $dist$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION calculate_rating(restaurantId uuid)
-RETURNS float AS $rating$
-	DECLARE
-		avg_rating float = 0;
-    BEGIN
-	    IF exists(SELECT * FROM "Reviewer" WHERE "RestaurantId" = restaurantId)
-	    THEN
-	        SELECT SUM(
-	            CASE 
-	                WHEN FLOOR("CountStar") = 1 THEN "CountStar"
-	                WHEN FLOOR("CountStar") = 2 THEN "CountStar" *2
-	                WHEN FLOOR("CountStar") = 3 THEN "CountStar" *3
-	                WHEN FLOOR("CountStar") = 4 THEN "CountStar" *4
-	                WHEN FLOOR("CountStar") = 5 THEN "CountStar" *5        
-	            END    
-	            ) / SUM("CountStar") into avg_rating
-	        FROM "Reviewer"
-	        WHERE "RestaurantId" = restaurantId;
-	    END IF;
-       	RETURN avg_rating;
-    END;
+    RETURNS float AS $rating$
+DECLARE
+    avg_rating float = 0;
+BEGIN
+    IF exists(SELECT * FROM "Review" WHERE "RestaurantId" = restaurantId)
+    THEN
+        SELECT SUM(
+               CASE
+                   WHEN FLOOR("Rating") = 1 THEN "Rating"
+                   WHEN FLOOR("Rating") = 2 THEN "Rating" *2
+                   WHEN FLOOR("Rating") = 3 THEN "Rating" *3
+                   WHEN FLOOR("Rating") = 4 THEN "Rating" *4
+                   WHEN FLOOR("Rating") = 5 THEN "Rating" *5
+               END
+               ) / SUM("Rating") into avg_rating
+        FROM "Review"
+        WHERE "RestaurantId" = restaurantId;
+    END IF;
+    RETURN avg_rating;
+END;
 $rating$ LANGUAGE plpgsql;
 
 SELECT DISTINCT
@@ -58,9 +58,9 @@ SELECT DISTINCT
     "Restaurant"."Description" as "Description",
 	to_char("BusinessHours"."OpenTime", 'HH:mm') AS "StartTime",
 	to_char("BusinessHours"."CloseTime", 'HH:mm') AS "EndTime",
-    (SELECT COUNT(*) FROM "Reviewer" WHERE "Reviewer"."RestaurantId" = "Id") AS "TotalReview",
+    (SELECT COUNT(*) FROM "Review" WHERE "Review"."RestaurantId" = "Id") AS "TotalReview",
     exists(SELECT * from "FavoriteRestaurant" fr WHERE fr."UserId" = '_userId' and fr."RestaurantId" = "Restaurant"."Id") AS "IsFavorite",
-    exists(SELECT * from "Reviewer" rv WHERE rv."UserId" = '_userId' and rv."RestaurantId" = "Restaurant"."Id") AS "IsReview",
+    exists(SELECT * from "Review" rv WHERE rv."UserId" = '_userId' and rv."RestaurantId" = "Restaurant"."Id") AS "IsReview",
     calculate_rating("Restaurant"."Id") AS "Rating",
 	calculate_distance("Restaurant"."Latitude", "Restaurant"."Longitude", '_latitude', '_longitude') AS "Distance"
 FROM "Restaurant"

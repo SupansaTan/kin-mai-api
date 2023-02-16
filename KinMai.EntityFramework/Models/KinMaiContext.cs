@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using KinMai.Common.Resolver;
 using Microsoft.EntityFrameworkCore;
 
 namespace KinMai.EntityFramework.Models;
