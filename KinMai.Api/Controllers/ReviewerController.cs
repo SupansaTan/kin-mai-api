@@ -119,5 +119,40 @@ namespace KinMai.Api.Controllers
             }
             return response;
         }
+
+        [HttpPost("AddReviewRestaurant")]
+        public async Task<ResponseModel<bool>> AddReviewRestaurant([FromForm] AddReviewRequestModel request)
+        {
+            var response = new ResponseModel<bool>();
+            try
+            {
+                var isSuccess = await _logicUnitOfWork.ReviewerService.AddReviewRestaurant(request);
+                response = new ResponseModel<bool>
+                {
+                    Data = isSuccess,
+                    Message = "success",
+                    Status = 200
+                };
+            }
+            catch (ArgumentException ae)
+            {
+                response = new ResponseModel<bool>
+                {
+                    Data = false,
+                    Message = ae.Message,
+                    Status = 400
+                };
+            }
+            catch (Exception e)
+            {
+                response = new ResponseModel<bool>
+                {
+                    Data = false,
+                    Message = e.Message,
+                    Status = 500
+                };
+            }
+            return response;
+        }
     }
 }
