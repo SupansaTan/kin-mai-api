@@ -134,7 +134,7 @@ namespace KinMai.Logic.Services
                 throw new ArgumentException("This user is not exists.");
             if (restaurant is null)
                 throw new ArgumentException("This restaurant is not exists.");
-            
+
             var newReview = new Review()
             {
                 Id = Guid.NewGuid(),
@@ -157,6 +157,26 @@ namespace KinMai.Logic.Services
             _entityUnitOfWork.ReviewRepository.Add(newReview);
             await _entityUnitOfWork.SaveAsync();
             return true;
+        }
+        public async Task<ReviewInfoModel> GetReviewInfo(GetReviewInfoRequest model)
+        {
+            var review = await _entityUnitOfWork.ReviewRepository.GetSingleAsync(x => x.UserId == model.UserId && x.RestaurantId == model.RestaurantId);
+            if (review != null)
+            {
+                return new ReviewInfoModel()
+                {
+                    ReviewId = review.Id,
+                    Rating = review.Rating,
+                    Comment = review.Comment,
+                    ImageLink = review.ImageLink?.ToList() ?? new List<string>(),
+                    FoodRecommendList = review.FoodRecommendList?.ToList() ?? new List<string>(),
+                    ReviewLabelList = review.ReviewLabelRecommend?.ToList() ?? new List<int>(),
+                };
+            }
+            else
+            {
+                throw new ArgumentException("This review does not exists.");
+            }
         }
         private async Task<List<string>> CompressImage(List<IFormFile> files, Guid userId, Guid restaurantId)
         {
