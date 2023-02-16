@@ -22,7 +22,7 @@ namespace KinMai.Logic.Models
 
     public class ReviewModel
     {
-        public Reviewer Reviews { get; set; }
+        public Review Reviews { get; set; }
         public IFormFile UserImageFiles { get; set; }
         public string UserName { get; set; }
     }

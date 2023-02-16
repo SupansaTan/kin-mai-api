@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -27,9 +27,9 @@ public partial class Restaurant
 
     public DateTime CreateAt { get; set; }
 
-    public int[] DeliveryType { get; set; } = null!;
+    public int[]? DeliveryType { get; set; }
 
-    public int[] PaymentMethod { get; set; } = null!;
+    public int[]? PaymentMethod { get; set; }
 
     public int RestaurantType { get; set; }
 
@@ -55,7 +55,7 @@ public partial class Restaurant
     public virtual ICollection<Related> Relateds { get; } = new List<Related>();
 
     [InverseProperty("Restaurant")]
-    public virtual ICollection<Reviewer> Reviewers { get; } = new List<Reviewer>();
+    public virtual ICollection<Review> Reviews { get; } = new List<Review>();
 
     [InverseProperty("Restaurant")]
     public virtual ICollection<SocialContact> SocialContacts { get; } = new List<SocialContact>();
