@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,5 +21,16 @@ namespace KinMai.Logic.Models
     {
         public Guid UserId { get; set; }
         public Guid RestaurantId { get; set; }
+    }
+
+    public class UpdateReviewInfoRequest
+    {
+        public Guid ReviewId { get; set; }
+        public int Rating { get; set; }
+        public string Comment { get; set; }
+        public List<string>? RemoveImageLink { get; set; }
+        public List<IFormFile>? NewImageFile { get; set; }
+        public List<string>? FoodRecommendList { get; set; }
+        public List<int>? ReviewLabelList { get; set; }
     }
 }

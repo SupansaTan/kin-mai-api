@@ -178,6 +178,44 @@ namespace KinMai.Logic.Services
                 throw new ArgumentException("This review does not exists.");
             }
         }
+        public async Task<bool> UpdateReviewInfo(UpdateReviewInfoRequest model)
+        {
+            var review = await _entityUnitOfWork.ReviewRepository.GetSingleAsync(x => x.Id == model.ReviewId);
+            if (review != null)
+            {
+                review.Rating = model.Rating;
+                review.Comment = model.Comment;
+                review.FoodRecommendList = model.FoodRecommendList?.ToArray() ?? null;
+                review.ReviewLabelRecommend = model.ReviewLabelList?.ToArray() ?? null;
+                
+                // remove image of old review
+                if (model.RemoveImageLink != null && model.RemoveImageLink.Any())
+                {
+                    var imageLink = review.ImageLink?.ToList();
+                    model.RemoveImageLink.ForEach((x) =>
+                    {
+                        imageLink.Remove(x);
+                    });
+                    review.ImageLink = imageLink.ToArray();
+                }
+
+                // add new image
+                if (model.NewImageFile != null && model.NewImageFile.Any())
+                {
+                    var images = await CompressImage(model.NewImageFile, review.UserId, review.RestaurantId);
+                    var currentImageLink = review.ImageLink?.ToList() ?? new List<string>();
+                    currentImageLink.AddRange(images);
+                    review.ImageLink = currentImageLink.ToArray();
+                }
+                _entityUnitOfWork.ReviewRepository.Update(review);
+                await _entityUnitOfWork.SaveAsync();
+                return true;
+            }
+            else
+            {
+                throw new ArgumentException("This review does not exists.");
+            }
+        }
         private async Task<List<string>> CompressImage(List<IFormFile> files, Guid userId, Guid restaurantId)
         {
             List<string> uploadImageList = new List<string>();
