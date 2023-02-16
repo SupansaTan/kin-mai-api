@@ -58,7 +58,7 @@ SELECT DISTINCT
     "Restaurant"."Description" as "Description",
 	to_char("BusinessHours"."OpenTime", 'HH:mm') AS "StartTime",
 	to_char("BusinessHours"."CloseTime", 'HH:mm') AS "EndTime",
-    (SELECT COUNT(*) FROM "Review" WHERE "Review"."RestaurantId" = "Id") AS "TotalReview",
+    (SELECT COUNT(*) FROM "Review" WHERE "Review"."RestaurantId" = "Restaurant"."Id") AS "TotalReview",
     exists(SELECT * from "FavoriteRestaurant" fr WHERE fr."UserId" = '_userId' and fr."RestaurantId" = "Restaurant"."Id") AS "IsFavorite",
     exists(SELECT * from "Review" rv WHERE rv."UserId" = '_userId' and rv."RestaurantId" = "Restaurant"."Id") AS "IsReview",
     calculate_rating("Restaurant"."Id") AS "Rating",
