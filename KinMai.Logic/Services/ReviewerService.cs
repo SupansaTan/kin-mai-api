@@ -141,9 +141,9 @@ namespace KinMai.Logic.Services
                 UserId = model.UserId,
                 RestaurantId = model.RestaurantId,
                 Rating = model.Rating,
-                Comment = model.Comment,
-                FoodRecommendList = model.FoodRecommendList.ToArray(),
-                ReviewLabelRecommend = model.ReviewLabelList.ToArray(),
+                Comment = string.IsNullOrEmpty(model.Comment) ? null : model.Comment,
+                FoodRecommendList = model.FoodRecommendList?.ToArray() ?? null,
+                ReviewLabelRecommend = model.ReviewLabelList?.ToArray() ?? null,
                 CreateAt = DateTime.UtcNow
             };
 
