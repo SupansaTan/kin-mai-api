@@ -11,6 +11,7 @@ namespace KinMai.Logic.Models
     {
         public Guid UserId { get; set; }
         public string UserName { get; set; }
+        public Guid RestaurantId { get; set; }
         public string RestaurantName { get; set; }
         public UserType UserType { get; set; }
     }
