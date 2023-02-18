@@ -184,7 +184,7 @@ namespace KinMai.Logic.Services
             if (review != null)
             {
                 review.Rating = model.Rating;
-                review.Comment = model.Comment;
+                review.Comment = string.IsNullOrEmpty(model.Comment) ? null : model.Comment;
                 review.FoodRecommendList = model.FoodRecommendList?.ToArray() ?? null;
                 review.ReviewLabelRecommend = model.ReviewLabelList?.ToArray() ?? null;
                 
