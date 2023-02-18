@@ -26,26 +26,70 @@ namespace KinMai.Logic.Services
             _dapperUnitOfWork = dapperUnitOfWork;
         }
 
-        public List<RestaurantDetailInfoModel> GetAllRestaurant()
+        public async Task<RestaurantDetailModel> GetRestaurantDetail(GetReviewInfoRequest model)
         {
-            var AllInfo = _entityUnitOfWork.RestaurantRepository.GetAll()
-                                                                .Select(x => new RestaurantDetailInfoModel()
-                                                                {
-                                                                    RestaurantInfo = new Restaurant() {
-                                                                            Id = x.Id,
-                                                                            OwnerId = x.OwnerId,
-                                                                            Name = x.Name,
-                                                                            Description = x.Description,
-                                                                            Address = JsonConvert.SerializeObject(x.Address),
-                                                                            CreateAt = x.CreateAt,
-                                                                            DeliveryType = x.DeliveryType.ToArray(),
-                                                                            PaymentMethod = x.PaymentMethod.ToArray(),
-                                                                            RestaurantType = (int)x.RestaurantType,
-                                                                    },
-                                                                    IsFavorite = false
-                                                                }).ToList();
-            return AllInfo;
+            var resInfo = await _entityUnitOfWork.RestaurantRepository.GetSingleAsync(x => x.Id == model.RestaurantId);
+            if (resInfo != null)
+            {
+                var reviews = GetAllReviews(model);
+                var socialContact = _entityUnitOfWork.SocialContactRepository.GetAll(x => x.RestaurantId == model.RestaurantId)
+                    .Select(x => new SocialContactModel()
+                    {
+                        SocialType = x.SocialType,
+                        ContactValue = x.ContactValue
+                    }).ToList();
+                var isFav = await _entityUnitOfWork.FavoriteRestaurantRepository.GetSingleAsync(x => x.UserId == model.UserId && x.RestaurantId == model.RestaurantId);
+                return new RestaurantDetailModel()
+                {
+                    RestaurantInfo = new Restaurant()
+                    {
+                        Id = resInfo.Id,
+                        OwnerId = resInfo.OwnerId,
+                        Name = resInfo.Name,
+                        ImageLink = resInfo.ImageLink,
+                        Description = resInfo.Description,
+                        Address = JsonConvert.SerializeObject(resInfo.Address),
+                        CreateAt = resInfo.CreateAt,
+                        DeliveryType = resInfo.DeliveryType?.ToArray(),
+                        PaymentMethod = resInfo.PaymentMethod?.ToArray(),
+                        RestaurantType = (int)resInfo.RestaurantType,
+                        Owner = resInfo.Owner,
+                        Latitude = resInfo.Latitude,
+                        Longitude = resInfo.Longitude,
+                        MinPriceRate = resInfo.MinPriceRate,
+                        MaxPriceRate = resInfo.MaxPriceRate
+                    },
+                    SocialContact = socialContact,
+                    IsFavorite = (isFav != null),
+                    Reviews = reviews
+                };
+            }
+            else
+            {
+                throw new ArgumentException("This restaurant does not exists.");
+            }
         }
 
+        public List<ReviewInfoModel> GetAllReviews (GetReviewInfoRequest model)
+        {
+            var reviews = _entityUnitOfWork.ReviewRepository.GetAll(x => x.RestaurantId == model.RestaurantId);
+            if (reviews != null)
+            {
+                var myReview = reviews.Select(x => new ReviewInfoModel()
+                    {
+                        ReviewId = x.Id,
+                        Rating = x.Rating,
+                        Comment = x.Comment,
+                        ImageLink = x.ImageLink.ToList() ?? new List<string>(),
+                        FoodRecommendList = x.FoodRecommendList.ToList() ?? new List<string>(),
+                        ReviewLabelList = x.ReviewLabelRecommend.ToList() ?? new List<int>(),
+                    }).ToList();
+                return myReview;
+            }
+            else
+            {
+                return new List<ReviewInfoModel>();
+            }
+        }
     }
 }
