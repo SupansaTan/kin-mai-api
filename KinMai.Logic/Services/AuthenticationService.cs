@@ -180,28 +180,34 @@ namespace KinMai.Logic.Services
                 businessHourList.Add(item);
             }
 
-            foreach (var contact in restaurantInfo.Contact)
+            if (restaurantInfo.Contact is not null && restaurantInfo.Contact.Any())
             {
-                SocialContact item = new SocialContact()
+                foreach (var contact in restaurantInfo.Contact)
                 {
-                    Id = Guid.NewGuid(),
-                    RestaurantId = restaurantId,
-                    SocialType = (int)contact.Social,
-                    ContactValue = contact.ContactValue,
-                };
-                socialContactList.Add(item);
+                    SocialContact item = new SocialContact()
+                    {
+                        Id = Guid.NewGuid(),
+                        RestaurantId = restaurantId,
+                        SocialType = (int)contact.Social,
+                        ContactValue = contact.ContactValue,
+                    };
+                    socialContactList.Add(item);
+                }
             }
 
-            foreach (var category in restaurantInfo.Categories)
+            if (restaurantInfo.Categories is not null && restaurantInfo.Categories.Any())
             {
-                var categoryItem = await _entityUnitOfWork.CategoryRepository.GetSingleAsync(x => x.Type == (int)category);
-                Related item = new Related()
+                foreach (var category in restaurantInfo.Categories)
                 {
-                    Id = Guid.NewGuid(),
-                    RestaurantId = restaurantId,
-                    CategoriesId = categoryItem.Id
-                };
-                categoryRelatedList.Add(item);
+                    var categoryItem = await _entityUnitOfWork.CategoryRepository.GetSingleAsync(x => x.Type == (int)category);
+                    Related item = new Related()
+                    {
+                        Id = Guid.NewGuid(),
+                        RestaurantId = restaurantId,
+                        CategoriesId = categoryItem.Id
+                    };
+                    categoryRelatedList.Add(item);
+                }
             }
 
             Restaurant restaurant = new Restaurant()
@@ -216,10 +222,18 @@ namespace KinMai.Logic.Services
                 MinPriceRate = restaurantInfo.minPriceRate,
                 MaxPriceRate = restaurantInfo.maxPriceRate,
                 CreateAt = DateTime.UtcNow,
-                DeliveryType = restaurantInfo.DeliveryType.ToArray(),
-                PaymentMethod = restaurantInfo.PaymentMethods.ToArray(),
                 RestaurantType = (int)restaurantInfo.RestaurantType,
             };
+            
+            if (restaurantInfo.DeliveryType is not null && restaurantInfo.DeliveryType.Any())
+            {
+                restaurant.DeliveryType = restaurantInfo.DeliveryType.ToArray();
+            }
+
+            if (restaurantInfo.PaymentMethods is not null && restaurantInfo.PaymentMethods.Any())
+            {
+                restaurant.PaymentMethod = restaurantInfo.PaymentMethods.ToArray();
+            }
 
             // upload image
             var images = await CompressImage(additionInfo.ImageFiles, restaurantId);

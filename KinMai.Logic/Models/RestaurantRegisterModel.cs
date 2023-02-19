@@ -22,10 +22,10 @@ namespace KinMai.Logic.Models
         public int maxPriceRate { get; set; }
         public RestaurantAddressModel Address { get; set; }
         public RestaurantType RestaurantType { get; set; }
-        public List<int> DeliveryType { get; set; }
-        public List<RestaurantCategories> Categories { get; set; }
-        public List<int> PaymentMethods { get; set; }
-        public List<RestaurantContactModel> Contact { get; set; }
+        public List<int>? DeliveryType { get; set; }
+        public List<RestaurantCategories>? Categories { get; set; }
+        public List<int>? PaymentMethods { get; set; }
+        public List<RestaurantContactModel>? Contact { get; set; }
         public List<BusinessHourModel> BusinessHours { get; set; }
     }
 
@@ -52,6 +52,6 @@ namespace KinMai.Logic.Models
     public class RestaurantPhotoModel
     {
         public List<IFormFile> ImageFiles { get; set; }
-        public string RestaurantStatus { get; set; }
+        public string? RestaurantStatus { get; set; }
     }
 }
