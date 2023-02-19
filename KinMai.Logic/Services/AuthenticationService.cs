@@ -75,7 +75,7 @@ namespace KinMai.Logic.Services
                 LastName = model.LastName,
                 Username = model.Username,
                 UserType = (int)UserType.Reviewer,
-                IsLoginWithGoogle = !string.IsNullOrEmpty(model.Password)
+                IsLoginWithGoogle = string.IsNullOrEmpty(model.Password)
             };
 
             if (!(string.IsNullOrEmpty(model.Password) && string.IsNullOrEmpty(model.ConfirmPassword)))
@@ -144,7 +144,7 @@ namespace KinMai.Logic.Services
                 LastName = model.LastName,
                 Username = model.Username,
                 UserType = (int)userType,
-                IsLoginWithGoogle = !string.IsNullOrEmpty(model.Password)
+                IsLoginWithGoogle = string.IsNullOrEmpty(model.Password)
             };
 
             if (!(string.IsNullOrEmpty(model.Password) && string.IsNullOrEmpty(model.ConfirmPassword)))
