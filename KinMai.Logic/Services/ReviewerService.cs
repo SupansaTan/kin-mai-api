@@ -6,12 +6,6 @@ using KinMai.EntityFramework.UnitOfWork.Interface;
 using KinMai.Logic.Interface;
 using KinMai.Logic.Models;
 using KinMai.S3.UnitOfWork.Interface;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using ImageMagick;
 using KinMai.S3.Models;
 using Microsoft.AspNetCore.Http;
@@ -215,6 +209,22 @@ namespace KinMai.Logic.Services
             {
                 throw new ArgumentException("This review does not exists.");
             }
+        }
+        public async Task<GetRestaurantDetailModel> GetRestaurantDetail(GetRestaurantDetailRequestModel model)
+        {
+            var restaurantIsExist = await _entityUnitOfWork.RestaurantRepository.GetSingleAsync(x => x.Id == model.RestaurantId);
+            if (restaurantIsExist is null)
+            {
+                throw new ArgumentException("Restaurant does not exist.");
+            }
+
+            var query = QueryService.GetCommand(QUERY_PATH + "GetRestaurantDetail",
+                            new ParamCommand { Key = "_userId", Value = model.UserId.ToString() },
+                            new ParamCommand { Key = "_latitude", Value = model.Latitude.ToString() },
+                            new ParamCommand { Key = "_longitude", Value = model.Longitude.ToString() },
+                            new ParamCommand { Key = "_restaurantId", Value = model.RestaurantId.ToString() }
+                        );
+            return (GetRestaurantDetailModel) await _dapperUnitOfWork.KinMaiRepository.QueryAsync<GetRestaurantDetailModel>(query);
         }
         private async Task<List<string>> CompressImage(List<IFormFile> files, Guid userId, Guid restaurantId)
         {

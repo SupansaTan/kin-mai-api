@@ -221,5 +221,39 @@ namespace KinMai.Api.Controllers
             }
             return response;
         }
+        [HttpGet("GetRestaurantDetail")]
+        public async Task<ResponseModel<GetRestaurantDetailModel>> GetRestaurantDetail([FromQuery] GetRestaurantDetailRequestModel request)
+        {
+            var response = new ResponseModel<GetRestaurantDetailModel>();
+            try
+            {
+                var restaurantDetail = await _logicUnitOfWork.ReviewerService.GetRestaurantDetail(request);
+                response = new ResponseModel<GetRestaurantDetailModel>
+                {
+                    Data = restaurantDetail,
+                    Message = "success",
+                    Status = 200
+                };
+            }
+            catch (ArgumentException ae)
+            {
+                response = new ResponseModel<GetRestaurantDetailModel>
+                {
+                    Data = null,
+                    Message = ae.Message,
+                    Status = 400
+                };
+            }
+            catch (Exception e)
+            {
+                response = new ResponseModel<GetRestaurantDetailModel>
+                {
+                    Data = null,
+                    Message = e.Message,
+                    Status = 500
+                };
+            }
+            return response;
+        }
     }
 }

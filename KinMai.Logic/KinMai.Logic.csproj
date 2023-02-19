@@ -8,10 +8,14 @@
 
   <ItemGroup>
     <None Remove="QueryCommand\GetRestaurantNearMeList.sql" />
+    <None Remove="QueryCommand\Reviewer\GetRestaurantDetail.sql" />
     <None Remove="QueryCommand\Reviewer\GetRestaurantListFromFilter.sql" />
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="QueryCommand\Reviewer\GetRestaurantDetail.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="QueryCommand\Reviewer\GetRestaurantListFromFilter.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
