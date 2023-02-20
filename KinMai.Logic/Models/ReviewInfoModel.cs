@@ -15,6 +15,7 @@ namespace KinMai.Logic.Models
         public List<string> ImageLink { get; set; }
         public List<string> FoodRecommendList { get; set; }
         public List<int> ReviewLabelList { get; set; }
+        public DateTime? CreateAt { get; set; }
     }
 
     public class GetReviewInfoRequest

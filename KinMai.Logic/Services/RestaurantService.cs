@@ -84,6 +84,7 @@ namespace KinMai.Logic.Services
                             ImageLink = x.ImageLink.ToList() ?? new List<string>(),
                             FoodRecommendList = x.FoodRecommendList.ToList() ?? new List<string>(),
                             ReviewLabelList = x.ReviewLabelRecommend.ToList() ?? new List<int>(),
+                            CreateAt = x.CreateAt,
                         }).ToList();
                     return AllReview;
                 }
