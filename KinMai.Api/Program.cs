@@ -1,11 +1,9 @@
 ﻿using Dapper;
-using KinMai.Api.Models;
 using KinMai.Authentication.Model;
 using KinMai.Authentication.UnitOfWork;
 using KinMai.Common.Resolver;
 using KinMai.Dapper.Implement;
 using KinMai.Dapper.Interface;
-using KinMai.Dapper.Models;
 using KinMai.EntityFramework.Models;
 using KinMai.EntityFramework.UnitOfWork.Implement;
 using KinMai.EntityFramework.UnitOfWork.Interface;
