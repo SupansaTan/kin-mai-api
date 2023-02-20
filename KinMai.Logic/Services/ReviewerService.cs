@@ -254,17 +254,20 @@ namespace KinMai.Logic.Services
                             new ParamCommand { Key = "_restaurantId", Value = model.RestaurantId.ToString() }
                         );
             var reviewList = (await _dapperUnitOfWork.KinMaiRepository.QueryAsync<GetReviewInfoModel>(query)).ToList();
-            reviewList.ForEach(x => { x.Username = ReplaceUsername(x.Username); });
+            if (reviewList.Any())
+            {
+                reviewList?.ForEach(x => { x.Username = ReplaceUsername(x.Username); });
+            }
 
             // get total review
             var queryGetTotalReview = QueryService.GetCommand(QUERY_PATH + "GetTotalReview",
                             new ParamCommand { Key = "_restaurantId", Value = model.RestaurantId.ToString() }
                         );
-            var totalReview = (await _dapperUnitOfWork.KinMaiRepository.QueryAsync<GetReviewInfoListModel>(query)).ToList().First();
+            var totalReview = (await _dapperUnitOfWork.KinMaiRepository.QueryAsync<GetTotalReviewModel>(queryGetTotalReview)).ToList().First();
             
             return new GetReviewInfoListModel()
             {
-                ReviewList = reviewList,
+                ReviewList = reviewList ?? new List<GetReviewInfoModel>(),
                 TotalReview = totalReview.TotalReview,
                 TotalReviewHaveImage = totalReview.TotalReviewHaveImage,
                 TotalReviewHaveComment = totalReview.TotalReviewHaveComment,

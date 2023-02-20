@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace KinMai.Logic.Models
+﻿namespace KinMai.Logic.Models
 {
     public class GetReviewInfoModel
     {
@@ -26,10 +20,18 @@ namespace KinMai.Logic.Models
         public int TotalReviewHaveFoodRecommend { get; set; }
     }
 
+    public class GetTotalReviewModel
+    {
+        public int TotalReview { get; set; }
+        public int TotalReviewHaveImage { get; set; }
+        public int TotalReviewHaveComment { get; set; }
+        public int TotalReviewHaveFoodRecommend { get; set; }
+    }
+
     public class GetReviewInfoFilterModel
     {
         public Guid RestaurantId { get; set; }
-        public string Keywords { get; set;}
+        public string? Keywords { get; set;}
         public int Rating { get; set; }
         public bool IsOnlyReviewHaveImage { get; set; }
         public bool IsOnlyReviewHaveComment { get; set; }

@@ -1,25 +1,22 @@
-﻿select
-	(select
-		COUNT(*)
-	from "Review"
-	where "Review"."RestaurantId" = '_restaurantId') as "TotalReview",
+﻿SELECT
+	COUNT(*) AS "TotalReview",
 
-	(select
+	(SELECT
 		COUNT(*)
-	from "Review"
-	where "Review"."RestaurantId" = '_restaurantId'
-	and "Review"."ImageLink" is not null) as "TotalReviewHaveImage",
+	FROM "Review"
+	WHERE "Review"."RestaurantId" = '_restaurantId'
+	AND "Review"."ImageLink" IS NOT NULL) AS "TotalReviewHaveImage",
 
-	(select
+	(SELECT
 		COUNT(*)
-	from "Review"
-	where "Review"."RestaurantId" = '_restaurantId'
-	and "Review"."Comment" is not null) as "TotalReviewHaveComment",
+	FROM "Review"
+	WHERE "Review"."RestaurantId" = '_restaurantId'
+	AND "Review"."Comment" IS NOT NULL) AS "TotalReviewHaveComment",
 
-	(select
+	(SELECT
 		COUNT(*)
-	from "Review"
-	where "Review"."RestaurantId" = '_restaurantId'
-	and "Review"."FoodRecommendList" is not null) as "TotalReviewHaveFoodRecommend"
-from "Review"
-where "Review"."RestaurantId" = '_restaurantId';
+	FROM "Review"
+	WHERE "Review"."RestaurantId" = '_restaurantId'
+	AND "Review"."FoodRecommendList" IS NOT NULL) AS "TotalReviewHaveFoodRecommend"
+FROM "Review"
+WHERE "Review"."RestaurantId" = '_restaurantId';
