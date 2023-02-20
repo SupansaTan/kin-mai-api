@@ -88,7 +88,7 @@ select
 			from "Restaurant"
 			left join "SocialContact" sc on sc."RestaurantId" = "Restaurant"."Id" 
 			where "Restaurant"."Id" = '_restaurantId'
-		)
+		)::json[]
 	) as "SocialContactList"
 from "Restaurant"
 left join "BusinessHours" on "BusinessHours"."RestaurantId" = "Restaurant"."Id"

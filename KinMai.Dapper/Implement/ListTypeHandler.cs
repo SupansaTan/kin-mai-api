@@ -1,10 +1,5 @@
 ﻿using Dapper;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KinMai.Dapper.Implement
 {
@@ -16,6 +11,19 @@ namespace KinMai.Dapper.Implement
         }
 
         public override void SetValue(IDbDataParameter parameter, List<string> value)
+        {
+            parameter.Value = value.ToArray();
+        }
+    }
+
+    public class IntListTypeHandler<T> : SqlMapper.TypeHandler<List<int>>
+    {
+        public override List<int> Parse(object value)
+        {
+            return ((int[])value).ToList();
+        }
+
+        public override void SetValue(IDbDataParameter parameter, List<int> value)
         {
             parameter.Value = value.ToArray();
         }

@@ -224,7 +224,8 @@ namespace KinMai.Logic.Services
                             new ParamCommand { Key = "_longitude", Value = model.Longitude.ToString() },
                             new ParamCommand { Key = "_restaurantId", Value = model.RestaurantId.ToString() }
                         );
-            return (GetRestaurantDetailModel) await _dapperUnitOfWork.KinMaiRepository.QueryAsync<GetRestaurantDetailModel>(query);
+            var restaurant = (await _dapperUnitOfWork.KinMaiRepository.QueryAsync<GetRestaurantDetailModel>(query)).ToList();
+            return restaurant[0];
         }
         private async Task<List<string>> CompressImage(List<IFormFile> files, Guid userId, Guid restaurantId)
         {

@@ -20,10 +20,10 @@ namespace KinMai.Logic.Models
         public double Longitude { get; set; }
         public List<string> FoodRecommendList { get; set; } 
         public List<string> ImageCover { get; set; }
-        public List<RestaurantCategories> CategoryList { get; set; }
-        public List<DeliveryType> DeliveryTypeList { get; set; }
-        public List<PaymentMethod> PaymentMethodList { get; set; }
-        public List<SocialContactItemModel> SocialContactList { get; set; }
+        public List<int> CategoryList { get; set; }
+        public List<int> DeliveryTypeList { get; set; }
+        public List<int> PaymentMethodList { get; set; }
+        public List<string> SocialContactList { get; set; }
     }
 
     public class SocialContactItemModel
