@@ -30,7 +30,7 @@ where "Review"."RestaurantId" = '_restaurantId'
     ("Review"."FoodRecommendList" is not null))
     and 
     
-    -- filter by get only review that have food recommend
+    -- filter by rating
     ('_rating' = 6 OR 
-    ("Review"."Rating" = 5))
+    ("Review"."Rating" = '_rating'))
 order by "CreatedDateDiff", "Rating" DESC;
