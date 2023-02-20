@@ -31,7 +31,6 @@ namespace KinMai.Logic.Services
             var resInfo = await _entityUnitOfWork.RestaurantRepository.GetSingleAsync(x => x.Id == model.RestaurantId);
             if (resInfo != null)
             {
-                var reviews = GetAllReviews(model);
                 var socialContact = _entityUnitOfWork.SocialContactRepository.GetAll(x => x.RestaurantId == model.RestaurantId)
                     .Select(x => new SocialContactModel()
                     {
@@ -61,7 +60,6 @@ namespace KinMai.Logic.Services
                     },
                     SocialContact = socialContact,
                     IsFavorite = (isFav != null),
-                    Reviews = reviews
                 };
             }
             else
@@ -70,25 +68,34 @@ namespace KinMai.Logic.Services
             }
         }
 
-        public List<ReviewInfoModel> GetAllReviews (GetReviewInfoRequest model)
+        public List<ReviewInfoModel> GetAllReviews(Guid restuarantId)
         {
-            var reviews = _entityUnitOfWork.ReviewRepository.GetAll(x => x.RestaurantId == model.RestaurantId);
-            if (reviews != null)
+            var isExist = _entityUnitOfWork.RestaurantRepository.GetSingle(x => x.Id == restuarantId);
+            var reviews = _entityUnitOfWork.ReviewRepository.GetAll(x => x.RestaurantId == restuarantId);
+            if (isExist != null)
             {
-                var myReview = reviews.Select(x => new ReviewInfoModel()
-                    {
-                        ReviewId = x.Id,
-                        Rating = x.Rating,
-                        Comment = x.Comment,
-                        ImageLink = x.ImageLink.ToList() ?? new List<string>(),
-                        FoodRecommendList = x.FoodRecommendList.ToList() ?? new List<string>(),
-                        ReviewLabelList = x.ReviewLabelRecommend.ToList() ?? new List<int>(),
-                    }).ToList();
-                return myReview;
+                if (reviews.Count() != 0)
+                {
+                    var AllReview = reviews.Select(x => new ReviewInfoModel()
+                        {
+                            ReviewId = x.Id,
+                            Rating = x.Rating,
+                            Comment = x.Comment,
+                            ImageLink = x.ImageLink.ToList() ?? new List<string>(),
+                            FoodRecommendList = x.FoodRecommendList.ToList() ?? new List<string>(),
+                            ReviewLabelList = x.ReviewLabelRecommend.ToList() ?? new List<int>(),
+                        }).ToList();
+                    return AllReview;
+                }
+                else
+                {
+                    throw new Exception("This reviews does not exists.");
+                }
+                
             }
             else
             {
-                return new List<ReviewInfoModel>();
+                throw new ArgumentException("This restaurant does not exists.");
             }
         }
     }

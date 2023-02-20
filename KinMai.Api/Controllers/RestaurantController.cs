@@ -51,5 +51,44 @@ namespace KinMai.Api.Controllers
             }
             return response;
         }
+
+
+        [HttpGet("GetRestaurantReviews")]
+        public ResponseModel<List<ReviewInfoModel>> GetRestaurantReviews([FromQuery] Guid restaurantId)
+        {
+            var response = new ResponseModel<List<ReviewInfoModel>>();
+            try
+            {
+                var payload = _logicUnitOfWork.RestaurantService.GetAllReviews(restaurantId);
+                if (payload != null)
+                {
+                    response = new ResponseModel<List<ReviewInfoModel>>
+                    {
+                        Data = payload,
+                        Message = "success",
+                        Status = 200
+                    };
+                }
+            }
+            catch (ArgumentException ae)
+            {
+                response = new ResponseModel<List<ReviewInfoModel>>
+                {
+                    Data = null,
+                    Message = ae.Message,
+                    Status = 400
+                };
+            }
+            catch (Exception e)
+            {
+                response = new ResponseModel<List<ReviewInfoModel>>
+                {
+                    Data = null,
+                    Message = e.Message,
+                    Status = 500
+                };
+            }
+            return response;
+        }
     }
 }

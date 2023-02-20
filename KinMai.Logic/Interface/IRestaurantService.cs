@@ -10,6 +10,6 @@ namespace KinMai.Logic.Interface
     public interface IRestaurantService
     {
         Task<RestaurantDetailModel> GetRestaurantDetail(GetReviewInfoRequest model);
-        List<ReviewInfoModel> GetAllReviews(GetReviewInfoRequest model);
+        List<ReviewInfoModel> GetAllReviews(Guid restaurantId);
     }
 }
