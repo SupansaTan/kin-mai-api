@@ -72,6 +72,7 @@ namespace KinMai.Logic.Services
         {
             var isExist = _entityUnitOfWork.RestaurantRepository.GetSingle(x => x.Id == restuarantId);
             var reviews = _entityUnitOfWork.ReviewRepository.GetAll(x => x.RestaurantId == restuarantId);
+            var Users = _entityUnitOfWork.UserRepository.GetAll();
             if (isExist != null)
             {
                 if (reviews.Count() != 0)
@@ -85,7 +86,9 @@ namespace KinMai.Logic.Services
                             FoodRecommendList = x.FoodRecommendList.ToList() ?? new List<string>(),
                             ReviewLabelList = x.ReviewLabelRecommend.ToList() ?? new List<int>(),
                             CreateAt = x.CreateAt,
-                        }).ToList();
+                            UserId = x.UserId,
+                            UserName = Users.FirstOrDefault(n => n.Id == x.UserId).Username
+                }).ToList();
                     return AllReview;
                 }
                 else
