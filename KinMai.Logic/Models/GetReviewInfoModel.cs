@@ -5,7 +5,7 @@
         public string Username { get; set; }
         public int Rating { get; set; }
         public string Comment { get; set;}
-        public string CreatedDateDiff { get; set; }
+        public double CreatedDateDiff { get; set; }
         public List<string> ImageReviewList { get; set; }
         public List<string> FoodRecommendList { get; set; }
         public List<int> ReviewLabelList { get; set; }

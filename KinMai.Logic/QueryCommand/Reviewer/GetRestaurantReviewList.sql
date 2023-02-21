@@ -2,7 +2,7 @@
 	u."Username" as "Username",
 	"Review"."Rating" as "Rating",
 	"Review"."Comment" as "Comment",
-	(now() - "Review"."CreateAt")::text as "CreatedDateDiff",
+	EXTRACT(EPOCH FROM (now() - "Review"."CreateAt")) * 1000 as "CreatedDateDiff",
 	"Review"."ImageLink" as "ImageReviewList",
 	"Review"."FoodRecommendList" as "FoodRecommendList",
 	"Review"."ReviewLabelRecommend" as "ReviewLabelList"
@@ -33,4 +33,4 @@ where "Review"."RestaurantId" = '_restaurantId'
     -- filter by rating
     ('_rating' = '6' OR 
     ("Review"."Rating" = '_rating'::int))
-order by (now() - "Review"."CreateAt"), "Rating" DESC;
+order by "CreatedDateDiff", "Rating" DESC;
