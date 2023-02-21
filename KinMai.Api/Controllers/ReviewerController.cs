@@ -221,5 +221,73 @@ namespace KinMai.Api.Controllers
             }
             return response;
         }
+        [HttpGet("GetRestaurantDetail")]
+        public async Task<ResponseModel<GetRestaurantDetailModel>> GetRestaurantDetail([FromQuery] GetRestaurantDetailRequestModel request)
+        {
+            var response = new ResponseModel<GetRestaurantDetailModel>();
+            try
+            {
+                var restaurantDetail = await _logicUnitOfWork.ReviewerService.GetRestaurantDetail(request);
+                response = new ResponseModel<GetRestaurantDetailModel>
+                {
+                    Data = restaurantDetail,
+                    Message = "success",
+                    Status = 200
+                };
+            }
+            catch (ArgumentException ae)
+            {
+                response = new ResponseModel<GetRestaurantDetailModel>
+                {
+                    Data = null,
+                    Message = ae.Message,
+                    Status = 400
+                };
+            }
+            catch (Exception e)
+            {
+                response = new ResponseModel<GetRestaurantDetailModel>
+                {
+                    Data = null,
+                    Message = e.Message,
+                    Status = 500
+                };
+            }
+            return response;
+        }
+        [HttpGet("GetRestaurantReviewList")]
+        public async Task<ResponseModel<GetReviewInfoListModel>> GetRestaurantReviewList([FromQuery] GetReviewInfoFilterModel request)
+        {
+            var response = new ResponseModel<GetReviewInfoListModel>();
+            try
+            {
+                var reviewInfo = await _logicUnitOfWork.ReviewerService.GetRestaurantReviewList(request);
+                response = new ResponseModel<GetReviewInfoListModel>
+                {
+                    Data = reviewInfo,
+                    Message = "success",
+                    Status = 200
+                };
+            }
+            catch (ArgumentException ae)
+            {
+                response = new ResponseModel<GetReviewInfoListModel>
+                {
+                    Data = null,
+                    Message = ae.Message,
+                    Status = 400
+                };
+            }
+            catch (Exception e)
+            {
+                response = new ResponseModel<GetReviewInfoListModel>
+                {
+                    Data = null,
+                    Message = e.Message,
+                    Status = 500
+                };
+            }
+            return response;
+        }
     }
 }

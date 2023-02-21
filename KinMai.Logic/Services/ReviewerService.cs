@@ -6,16 +6,11 @@ using KinMai.EntityFramework.UnitOfWork.Interface;
 using KinMai.Logic.Interface;
 using KinMai.Logic.Models;
 using KinMai.S3.UnitOfWork.Interface;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using ImageMagick;
 using KinMai.S3.Models;
 using Microsoft.AspNetCore.Http;
 using MimeKit;
+using System.Text;
 
 namespace KinMai.Logic.Services
 {
@@ -141,9 +136,9 @@ namespace KinMai.Logic.Services
                 UserId = model.UserId,
                 RestaurantId = model.RestaurantId,
                 Rating = model.Rating,
-                Comment = model.Comment,
-                FoodRecommendList = model.FoodRecommendList.ToArray(),
-                ReviewLabelRecommend = model.ReviewLabelList.ToArray(),
+                Comment = string.IsNullOrEmpty(model.Comment) ? null : model.Comment,
+                FoodRecommendList = model.FoodRecommendList?.ToArray() ?? null,
+                ReviewLabelRecommend = model.ReviewLabelList?.ToArray() ?? null,
                 CreateAt = DateTime.UtcNow
             };
 
@@ -184,7 +179,7 @@ namespace KinMai.Logic.Services
             if (review != null)
             {
                 review.Rating = model.Rating;
-                review.Comment = model.Comment;
+                review.Comment = string.IsNullOrEmpty(model.Comment) ? null : model.Comment;
                 review.FoodRecommendList = model.FoodRecommendList?.ToArray() ?? null;
                 review.ReviewLabelRecommend = model.ReviewLabelList?.ToArray() ?? null;
                 
@@ -215,6 +210,75 @@ namespace KinMai.Logic.Services
             {
                 throw new ArgumentException("This review does not exists.");
             }
+        }
+        public async Task<GetRestaurantDetailModel> GetRestaurantDetail(GetRestaurantDetailRequestModel model)
+        {
+            var restaurantIsExist = await _entityUnitOfWork.RestaurantRepository.GetSingleAsync(x => x.Id == model.RestaurantId);
+            if (restaurantIsExist is null)
+            {
+                throw new ArgumentException("Restaurant does not exist.");
+            }
+
+            var query = QueryService.GetCommand(QUERY_PATH + "GetRestaurantDetail",
+                            new ParamCommand { Key = "_userId", Value = model.UserId.ToString() },
+                            new ParamCommand { Key = "_latitude", Value = model.Latitude.ToString() },
+                            new ParamCommand { Key = "_longitude", Value = model.Longitude.ToString() },
+                            new ParamCommand { Key = "_restaurantId", Value = model.RestaurantId.ToString() }
+                        );
+            var restaurant = (await _dapperUnitOfWork.KinMaiRepository.QueryAsync<GetRestaurantDetailModel>(query)).ToList();
+            return restaurant[0];
+        }
+
+        public async Task<GetReviewInfoListModel> GetRestaurantReviewList(GetReviewInfoFilterModel model)
+        {
+            var restaurantIsExist = await _entityUnitOfWork.RestaurantRepository.GetSingleAsync(x => x.Id == model.RestaurantId);
+            if (restaurantIsExist is null)
+            {
+                throw new ArgumentException("Restaurant does not exist.");
+            }
+
+            // get review list
+            string keyword = "";
+            if (!string.IsNullOrEmpty(model.Keywords))
+            {
+                var keywords = model.Keywords.Split();
+                keywords = keywords.Select(x => x = $"%{x.ToLower()}%").ToArray();
+                keyword = string.Join(" ", keywords);
+            }
+            var query = QueryService.GetCommand(QUERY_PATH + "GetRestaurantReviewList",
+                            new ParamCommand { Key = "_rating", Value = model.Rating.ToString() },
+                            new ParamCommand { Key = "_keyword", Value = keyword },
+                            new ParamCommand { Key = "_isOnlyReviewHaveImage", Value = model.IsOnlyReviewHaveImage? "1":"0" },
+                            new ParamCommand { Key = "_isOnlyReviewHaveComment", Value = model.IsOnlyReviewHaveComment ? "1" : "0" },
+                            new ParamCommand { Key = "_isOnlyReviewHaveFoodRecommend", Value = model.IsOnlyReviewHaveFoodRecommend ? "1" : "0" },
+                            new ParamCommand { Key = "_restaurantId", Value = model.RestaurantId.ToString() }
+                        );
+            var reviewList = (await _dapperUnitOfWork.KinMaiRepository.QueryAsync<GetReviewInfoModel>(query)).ToList();
+            if (reviewList.Any())
+            {
+                reviewList?.ForEach(x => { x.Username = ReplaceUsername(x.Username); });
+            }
+
+            // get total review
+            var queryGetTotalReview = QueryService.GetCommand(QUERY_PATH + "GetTotalReview",
+                            new ParamCommand { Key = "_restaurantId", Value = model.RestaurantId.ToString() }
+                        );
+            var totalReview = (await _dapperUnitOfWork.KinMaiRepository.QueryAsync<GetTotalReviewModel>(queryGetTotalReview)).ToList().First();
+            
+            return new GetReviewInfoListModel()
+            {
+                ReviewList = reviewList ?? new List<GetReviewInfoModel>(),
+                TotalReview = totalReview.TotalReview,
+                TotalReviewHaveImage = totalReview.TotalReviewHaveImage,
+                TotalReviewHaveComment = totalReview.TotalReviewHaveComment,
+                TotalReviewHaveFoodRecommend = totalReview.TotalReviewHaveFoodRecommend,
+            };
+        }
+        private string ReplaceUsername(string username)
+        {
+            var characters = username[1..(username.Length - 2)].ToCharArray();
+            var replace = Array.ConvertAll<char, string>(characters, i => "*");
+            return $"{username.First()}{String.Join("", replace)}{username.Last()}";
         }
         private async Task<List<string>> CompressImage(List<IFormFile> files, Guid userId, Guid restaurantId)
         {
