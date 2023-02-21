@@ -70,6 +70,7 @@ select
 	from (
 		select unnest("FoodRecommendList")
 		from "Review"
+		where "Review"."RestaurantId" = '_restaurantId'
 	) as dt(foodRecommend)) as "FoodRecommendList",
 	(select 
 		array_agg(category)::int[]
