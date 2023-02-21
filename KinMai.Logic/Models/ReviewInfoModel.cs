@@ -13,9 +13,9 @@ namespace KinMai.Logic.Models
         public int Rating { get; set; }
         public string Comment { get; set; }
         public List<string> ImageLink { get; set; }
-        public List<string> FoodRecommendList { get; set; }
+        public List<string>? FoodRecommendList { get; set; }
         public List<int> ReviewLabelList { get; set; }
-        public DateTime? CreateAt { get; set; }
+        public DateTime CreateAt { get; set; }
         public Guid UserId { get; set; }
         public string UserName { get; set; }
 
