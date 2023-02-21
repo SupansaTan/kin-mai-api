@@ -14,16 +14,16 @@ namespace KinMai.Api.Controllers
         {
             _logicUnitOfWork = logicUnitOfWork;
         }
-        [HttpGet("AllRestaurant")]
-        public ResponseModel<List<RestaurantDetailInfoModel>> GetAllRestaurant()
+        [HttpGet("GetRestaurantDetail")]
+        public async Task<ResponseModel<RestaurantDetailModel>> GetRestaurantDetail([FromQuery] GetReviewInfoRequest request)
         {
-            var response = new ResponseModel<List<RestaurantDetailInfoModel>>();
+            var response = new ResponseModel<RestaurantDetailModel>();
             try
             {
-                var payload = _logicUnitOfWork.RestaurantService.GetAllRestaurant();
+                var payload = await _logicUnitOfWork.RestaurantService.GetRestaurantDetail(request);
                 if (payload != null)
                 {
-                    response = new ResponseModel<List<RestaurantDetailInfoModel>>
+                    response = new ResponseModel<RestaurantDetailModel>
                     {
                         Data = payload,
                         Message = "success",
@@ -33,7 +33,7 @@ namespace KinMai.Api.Controllers
             }
             catch (ArgumentException ae)
             {
-                response = new ResponseModel<List<RestaurantDetailInfoModel>>
+                response = new ResponseModel<RestaurantDetailModel>
                 {
                     Data = null,
                     Message = ae.Message,
@@ -42,7 +42,46 @@ namespace KinMai.Api.Controllers
             }
             catch (Exception e)
             {
-                response = new ResponseModel<List<RestaurantDetailInfoModel>>
+                response = new ResponseModel<RestaurantDetailModel>
+                {
+                    Data = null,
+                    Message = e.Message,
+                    Status = 500
+                };
+            }
+            return response;
+        }
+
+
+        [HttpGet("GetRestaurantReviews")]
+        public ResponseModel<List<ReviewInfoModel>> GetRestaurantReviews([FromQuery] Guid restaurantId)
+        {
+            var response = new ResponseModel<List<ReviewInfoModel>>();
+            try
+            {
+                var payload = _logicUnitOfWork.RestaurantService.GetAllReviews(restaurantId);
+                if (payload != null)
+                {
+                    response = new ResponseModel<List<ReviewInfoModel>>
+                    {
+                        Data = payload,
+                        Message = "success",
+                        Status = 200
+                    };
+                }
+            }
+            catch (ArgumentException ae)
+            {
+                response = new ResponseModel<List<ReviewInfoModel>>
+                {
+                    Data = null,
+                    Message = ae.Message,
+                    Status = 400
+                };
+            }
+            catch (Exception e)
+            {
+                response = new ResponseModel<List<ReviewInfoModel>>
                 {
                     Data = null,
                     Message = e.Message,

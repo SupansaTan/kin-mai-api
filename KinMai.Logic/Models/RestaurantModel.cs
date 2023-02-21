@@ -8,22 +8,18 @@ using System.Threading.Tasks;
 
 namespace KinMai.Logic.Models
 {
-    public class RestaurantDetailInfoModel
+    public class RestaurantDetailModel
     {
         public Restaurant RestaurantInfo { get; set; }
+        public List<SocialContactModel> SocialContact { get; set; }
         public bool IsFavorite { get; set; }
     }
 
-    public class RestaurantReviewsModel
+    public class SocialContactModel
     {
-        public int TotalReview { get; set; }
-        public List<ReviewModel> Reviews { get; set; }
+        public int SocialType { get; set; }
+        public string ContactValue { get; set; }
     }
 
-    public class ReviewModel
-    {
-        public Review Reviews { get; set; }
-        public IFormFile UserImageFiles { get; set; }
-        public string UserName { get; set; }
-    }
+
 }

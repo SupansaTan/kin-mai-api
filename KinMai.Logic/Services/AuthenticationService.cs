@@ -107,10 +107,12 @@ namespace KinMai.Logic.Services
             }
 
             var restaurantName = "";
+            var restaurantId = new Guid();
             if (user.UserType == (int)UserType.RestaurantOwner)
             {
                 var restaurant = await _entityUnitOfWork.RestaurantRepository.GetSingleAsync(x => x.OwnerId == user.Id);
                 restaurantName = restaurant.Name;
+                restaurantId = restaurant.Id;
             }
                     
             var userInfo = new UserInfoModel()
@@ -118,6 +120,7 @@ namespace KinMai.Logic.Services
                 UserId = user.Id,
                 UserName = user.Username,
                 RestaurantName = restaurantName,
+                RestaurantId = restaurantId,
                 UserType = (UserType)user.UserType
             };
             return userInfo;
