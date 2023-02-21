@@ -64,8 +64,8 @@ SELECT
     END AS "AnotherImageCover",
     "Restaurant"."MinPriceRate" as "MinPriceRate",
 	"Restaurant"."MaxPriceRate" as "MaxPriceRate",
-	to_char("BusinessHours"."OpenTime", 'HH:mm') AS "StartTime",
-	to_char("BusinessHours"."CloseTime", 'HH:mm') AS "EndTime",
+	to_char("BusinessHours"."OpenTime", 'HH24:MI') AS "StartTime",
+	to_char("BusinessHours"."CloseTime", 'HH24:MI') AS "EndTime",
     exists(SELECT * from "FavoriteRestaurant" fr WHERE fr."UserId" = '_userId' and fr."RestaurantId" = "Restaurant"."Id") AS "IsFavorite",
     calculate_rating("Restaurant"."Id") AS "Rating",
 	calculate_distance("Restaurant"."Latitude", "Restaurant"."Longitude", '_latitude', '_longitude') AS "Distance"
