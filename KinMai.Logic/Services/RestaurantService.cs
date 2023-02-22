@@ -82,9 +82,9 @@ namespace KinMai.Logic.Services
                             ReviewId = x.Id,
                             Rating = x.Rating,
                             Comment = x.Comment ?? "",
-                            ImageLink = x.ImageLink.ToList() ?? new List<string>(),
+                            ImageLink = (x.ImageLink != null)? x.ImageLink.ToList() : new List<string>(),
                             FoodRecommendList = (x.FoodRecommendList != null)? x.FoodRecommendList.ToList() : new List<string>(),
-                            ReviewLabelList = x.ReviewLabelRecommend.ToList() ?? new List<int>(),
+                            ReviewLabelList = (x.ReviewLabelRecommend != null)? x.ReviewLabelRecommend.ToList() : new List<int>(),
                             CreateAt = x.CreateAt,
                             UserId = x.UserId,
                             UserName = Users.FirstOrDefault(n => n.Id == x.UserId).Username
