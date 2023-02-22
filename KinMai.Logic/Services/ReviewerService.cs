@@ -126,10 +126,13 @@ namespace KinMai.Logic.Services
             var user = await _entityUnitOfWork.UserRepository.GetSingleAsync(x => x.Id == model.UserId);
             var restaurant =
                 await _entityUnitOfWork.RestaurantRepository.GetSingleAsync(x => x.Id == model.RestaurantId);
+            var review = await _entityUnitOfWork.ReviewRepository.GetSingleAsync(x => x.UserId == model.UserId && x.RestaurantId == model.RestaurantId);
             if (user is null)
                 throw new ArgumentException("This user is not exists.");
             if (restaurant is null)
                 throw new ArgumentException("This restaurant is not exists.");
+            if (review is not null)
+                throw new ArgumentException("You already review this restaurant.");
 
             var newReview = new Review()
             {
