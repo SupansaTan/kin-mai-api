@@ -196,7 +196,7 @@ namespace KinMai.Api.Controllers
             return response;
         }
         [HttpPut("UpdateUserProfile")]
-        public async Task<ResponseModel<bool>> UpdateUserProfile(UpdateUserProfileModel request)
+        public async Task<ResponseModel<bool>> UpdateUserProfile([FromBody] UpdateUserProfileModel request)
         {
             var response = new ResponseModel<bool>();
             try
