@@ -142,7 +142,7 @@ namespace KinMai.Logic.Services
                 CreateAt = DateTime.UtcNow
             };
 
-            if (model.ImageFiles.Any())
+            if (model.ImageFiles is not null && model.ImageFiles.Any())
             {
                 // upload images
                 var images = await CompressImage(model.ImageFiles, model.UserId, model.RestaurantId);
