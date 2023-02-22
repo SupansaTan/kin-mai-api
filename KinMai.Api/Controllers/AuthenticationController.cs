@@ -160,6 +160,40 @@ namespace KinMai.Api.Controllers
             }
             return response;
         }
+        [HttpGet("GetUserProfile")]
+        public async Task<ResponseModel<GetUserProfileModel>> GetUserProfile([FromQuery] Guid userId)
+        {
+            var response = new ResponseModel<GetUserProfileModel>();
+            try
+            {
+                var userInfo = await _logicUnitOfWork.AuthenticationService.GetUserProfile(userId);
+                response = new ResponseModel<GetUserProfileModel>
+                {
+                    Data = userInfo,
+                    Message = "success",
+                    Status = 200
+                };
+            }
+            catch (ArgumentException ae)
+            {
+                response = new ResponseModel<GetUserProfileModel>
+                {
+                    Data = null,
+                    Message = ae.Message,
+                    Status = 400
+                };
+            }
+            catch (Exception e)
+            {
+                response = new ResponseModel<GetUserProfileModel>
+                {
+                    Data = null,
+                    Message = e.Message,
+                    Status = 500
+                };
+            }
+            return response;
+        }
         [HttpGet("CheckIsLoginWithGoogleFirstTimes")]
         public async Task<ResponseModel<bool>> CheckIsLoginWithGoogleFirstTimes([FromQuery] string email)
         {

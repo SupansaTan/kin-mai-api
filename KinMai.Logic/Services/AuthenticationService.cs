@@ -122,6 +122,19 @@ namespace KinMai.Logic.Services
             };
             return userInfo;
         }
+        public async Task<GetUserProfileModel> GetUserProfile(Guid userId)
+        {
+            var user = await _entityUnitOfWork.UserRepository.GetSingleAsync(x => x.Id == userId) ?? throw new ArgumentException("User does not exists.");
+            return new GetUserProfileModel()
+            {
+                UserId = user.Id,
+                Username = user.Username,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                IsLoginWithGoogle = user.IsLoginWithGoogle
+            };
+        }
         public async Task<bool> CheckIsLoginWithGoogleFirstTimes(string email)
         {
             var user = await _entityUnitOfWork.UserRepository.GetSingleAsync(x => x.Email == email);
