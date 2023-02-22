@@ -8,14 +8,26 @@
 
   <ItemGroup>
     <None Remove="QueryCommand\GetRestaurantNearMeList.sql" />
+    <None Remove="QueryCommand\Reviewer\GetRestaurantDetail.sql" />
     <None Remove="QueryCommand\Reviewer\GetRestaurantListFromFilter.sql" />
+    <None Remove="QueryCommand\Reviewer\GetRestaurantReviewList.sql" />
+    <None Remove="QueryCommand\Reviewer\GetTotalReview.sql" />
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="QueryCommand\Reviewer\GetRestaurantDetail.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="QueryCommand\Reviewer\GetRestaurantListFromFilter.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="QueryCommand\Reviewer\GetRestaurantNearMeList.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="QueryCommand\Reviewer\GetRestaurantReviewList.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="QueryCommand\Reviewer\GetTotalReview.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

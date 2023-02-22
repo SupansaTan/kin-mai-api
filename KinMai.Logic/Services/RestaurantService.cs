@@ -71,24 +71,25 @@ namespace KinMai.Logic.Services
         public List<ReviewInfoModel> GetAllReviews(Guid restuarantId)
         {
             var isExist = _entityUnitOfWork.RestaurantRepository.GetSingle(x => x.Id == restuarantId);
-            var reviews = _entityUnitOfWork.ReviewRepository.GetAll(x => x.RestaurantId == restuarantId);
-            var Users = _entityUnitOfWork.UserRepository.GetAll();
             if (isExist != null)
             {
+                var reviews = _entityUnitOfWork.ReviewRepository.GetAll(x => x.RestaurantId == restuarantId);
+                var Users = _entityUnitOfWork.UserRepository.GetAll();
                 if (reviews.Count() != 0)
                 {
                     var AllReview = reviews.Select(x => new ReviewInfoModel()
                         {
                             ReviewId = x.Id,
                             Rating = x.Rating,
-                            Comment = x.Comment,
+                            Comment = x.Comment ?? "",
                             ImageLink = x.ImageLink.ToList() ?? new List<string>(),
-                            FoodRecommendList = x.FoodRecommendList.ToList() ?? new List<string>(),
+                            FoodRecommendList = (x.FoodRecommendList != null)? x.FoodRecommendList.ToList() : new List<string>(),
                             ReviewLabelList = x.ReviewLabelRecommend.ToList() ?? new List<int>(),
                             CreateAt = x.CreateAt,
                             UserId = x.UserId,
                             UserName = Users.FirstOrDefault(n => n.Id == x.UserId).Username
-                }).ToList();
+                    }).ToList();
+                    Console.WriteLine(AllReview);
                     return AllReview;
                 }
                 else

@@ -1,5 +1,4 @@
 ﻿using Dapper;
-using KinMai.Api.Models;
 using KinMai.Authentication.Model;
 using KinMai.Authentication.UnitOfWork;
 using KinMai.Common.Resolver;
@@ -60,6 +59,7 @@ builder.Services.AddScoped<ILogicUnitOfWork, LogicUnitOfWork>();
 builder.Services.AddScoped<IS3UnitOfWork, S3UnitOfWork>();
 
 SqlMapper.AddTypeHandler(new StringListTypeHandler<List<string>>());
+SqlMapper.AddTypeHandler(new IntListTypeHandler<List<int>>());
 
 var app = builder.Build();
 
