@@ -135,6 +135,21 @@ namespace KinMai.Logic.Services
                 IsLoginWithGoogle = user.IsLoginWithGoogle
             };
         }
+        public async Task<bool> UpdateUserProfile(UpdateUserProfileModel model)
+        {
+            var user = await _entityUnitOfWork.UserRepository.GetSingleAsync(x => x.Id == model.UserId);
+            if (user == null)
+            {
+                throw new ArgumentException("User does not exists.");
+            }
+
+            user.Username = model.Username;
+            model.FirstName = model.FirstName;
+            model.LastName = model.LastName;
+            _entityUnitOfWork.UserRepository.Update(user);
+            await _entityUnitOfWork.SaveAsync();
+            return true;
+        }
         public async Task<bool> CheckIsLoginWithGoogleFirstTimes(string email)
         {
             var user = await _entityUnitOfWork.UserRepository.GetSingleAsync(x => x.Email == email);
