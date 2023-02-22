@@ -85,5 +85,15 @@ namespace KinMai.S3.Service.Implement
             PutObjectResponse response = await S3Client.PutObjectAsync(request);
             return response.HttpStatusCode == HttpStatusCode.OK;
         }
+        public async Task<bool> DeleteFile(string bucketName, string fileName)
+        {
+            DeleteObjectRequest request = new DeleteObjectRequest()
+            {
+                BucketName = bucketName,
+                Key = fileName
+            };
+            DeleteObjectResponse response = await S3Client.DeleteObjectAsync(request);
+            return response.HttpStatusCode == HttpStatusCode.OK;
+        }
     }
 }

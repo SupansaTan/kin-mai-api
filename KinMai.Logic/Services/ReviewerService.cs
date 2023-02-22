@@ -11,6 +11,7 @@ using KinMai.S3.Models;
 using Microsoft.AspNetCore.Http;
 using MimeKit;
 using System.Text;
+using Amazon.S3.Model;
 
 namespace KinMai.Logic.Services
 {
@@ -187,8 +188,9 @@ namespace KinMai.Logic.Services
                 if (model.RemoveImageLink != null && model.RemoveImageLink.Any())
                 {
                     var imageLink = review.ImageLink?.ToList();
-                    model.RemoveImageLink.ForEach((x) =>
+                    model.RemoveImageLink.ForEach(async (x) =>
                     {
+                        var response = await _S3UnitOfWork.S3FileService.DeleteFile("kinmai", x);
                         imageLink.Remove(x);
                     });
                     review.ImageLink = imageLink.ToArray();
@@ -228,7 +230,6 @@ namespace KinMai.Logic.Services
             var restaurant = (await _dapperUnitOfWork.KinMaiRepository.QueryAsync<GetRestaurantDetailModel>(query)).ToList();
             return restaurant[0];
         }
-
         public async Task<GetReviewInfoListModel> GetRestaurantReviewList(GetReviewInfoFilterModel model)
         {
             var restaurantIsExist = await _entityUnitOfWork.RestaurantRepository.GetSingleAsync(x => x.Id == model.RestaurantId);
