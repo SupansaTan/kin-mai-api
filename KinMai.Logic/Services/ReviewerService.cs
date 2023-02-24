@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Http;
 using MimeKit;
 using System.Text;
 using Amazon.S3.Model;
+using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 
 namespace KinMai.Logic.Services
 {
@@ -278,6 +279,19 @@ namespace KinMai.Logic.Services
                 TotalReviewHaveComment = totalReview.TotalReviewHaveComment,
                 TotalReviewHaveFoodRecommend = totalReview.TotalReviewHaveFoodRecommend,
             };
+        }
+        public async Task<List<GetFavoriteRestaurantList>> GetFavoriteRestaurantList(GetFavoriteRestaurantRequest model)
+        {
+            var user = await _entityUnitOfWork.UserRepository.GetSingleAsync(x => x.Id == model.UserId);
+            if (user is null)
+                throw new ArgumentException("User does not exists.");
+
+            var query = QueryService.GetCommand(QUERY_PATH + "FavoriteRestaurantList",
+                            new ParamCommand { Key = "_userId", Value = model.UserId.ToString() },
+                            new ParamCommand { Key = "_latitude", Value = model.Latitude.ToString() },
+                            new ParamCommand { Key = "_longitude", Value = model.Longitude.ToString() }
+                        );
+            return (await _dapperUnitOfWork.KinMaiRepository.QueryAsync<GetFavoriteRestaurantList>(query)).ToList();
         }
         private string ReplaceUsername(string username)
         {
