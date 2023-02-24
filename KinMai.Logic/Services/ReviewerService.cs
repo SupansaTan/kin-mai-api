@@ -108,6 +108,7 @@ namespace KinMai.Logic.Services
                     Id = Guid.NewGuid(),
                     UserId = model.UserId,
                     RestaurantId = model.RestaurantId,
+                    CreateAt = DateTime.UtcNow
                 };
                 _entityUnitOfWork.FavoriteRestaurantRepository.Add(favoriteItem);
             }
