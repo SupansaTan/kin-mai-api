@@ -140,7 +140,7 @@ namespace KinMai.Logic.Services
                 UserId = model.UserId,
                 RestaurantId = model.RestaurantId,
                 Rating = model.Rating,
-                Comment = string.IsNullOrEmpty(model.Comment) ? null : model.Comment,
+                Comment = string.IsNullOrEmpty(model.Comment) ? String.Empty : model.Comment,
                 FoodRecommendList = model.FoodRecommendList?.ToArray() ?? null,
                 ReviewLabelRecommend = model.ReviewLabelList?.ToArray() ?? null,
                 CreateAt = DateTime.UtcNow
@@ -183,7 +183,7 @@ namespace KinMai.Logic.Services
             if (review != null)
             {
                 review.Rating = model.Rating;
-                review.Comment = string.IsNullOrEmpty(model.Comment) ? null : model.Comment;
+                review.Comment = string.IsNullOrEmpty(model.Comment) ? String.Empty : model.Comment;
                 review.FoodRecommendList = model.FoodRecommendList?.ToArray() ?? null;
                 review.ReviewLabelRecommend = model.ReviewLabelList?.ToArray() ?? null;
                 
