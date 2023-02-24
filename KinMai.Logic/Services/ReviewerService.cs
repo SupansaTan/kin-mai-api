@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Http;
 using MimeKit;
 using System.Text;
 using Amazon.S3.Model;
+using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 
 namespace KinMai.Logic.Services
 {
@@ -108,6 +109,7 @@ namespace KinMai.Logic.Services
                     Id = Guid.NewGuid(),
                     UserId = model.UserId,
                     RestaurantId = model.RestaurantId,
+                    CreateAt = DateTime.UtcNow
                 };
                 _entityUnitOfWork.FavoriteRestaurantRepository.Add(favoriteItem);
             }
@@ -140,7 +142,7 @@ namespace KinMai.Logic.Services
                 UserId = model.UserId,
                 RestaurantId = model.RestaurantId,
                 Rating = model.Rating,
-                Comment = string.IsNullOrEmpty(model.Comment) ? null : model.Comment,
+                Comment = string.IsNullOrEmpty(model.Comment) ? String.Empty : model.Comment,
                 FoodRecommendList = model.FoodRecommendList?.ToArray() ?? null,
                 ReviewLabelRecommend = model.ReviewLabelList?.ToArray() ?? null,
                 CreateAt = DateTime.UtcNow
@@ -183,7 +185,7 @@ namespace KinMai.Logic.Services
             if (review != null)
             {
                 review.Rating = model.Rating;
-                review.Comment = string.IsNullOrEmpty(model.Comment) ? null : model.Comment;
+                review.Comment = string.IsNullOrEmpty(model.Comment) ? String.Empty : model.Comment;
                 review.FoodRecommendList = model.FoodRecommendList?.ToArray() ?? null;
                 review.ReviewLabelRecommend = model.ReviewLabelList?.ToArray() ?? null;
                 
@@ -277,6 +279,19 @@ namespace KinMai.Logic.Services
                 TotalReviewHaveComment = totalReview.TotalReviewHaveComment,
                 TotalReviewHaveFoodRecommend = totalReview.TotalReviewHaveFoodRecommend,
             };
+        }
+        public async Task<List<GetFavoriteRestaurantList>> GetFavoriteRestaurantList(GetFavoriteRestaurantRequest model)
+        {
+            var user = await _entityUnitOfWork.UserRepository.GetSingleAsync(x => x.Id == model.UserId);
+            if (user is null)
+                throw new ArgumentException("User does not exists.");
+
+            var query = QueryService.GetCommand(QUERY_PATH + "FavoriteRestaurantList",
+                            new ParamCommand { Key = "_userId", Value = model.UserId.ToString() },
+                            new ParamCommand { Key = "_latitude", Value = model.Latitude.ToString() },
+                            new ParamCommand { Key = "_longitude", Value = model.Longitude.ToString() }
+                        );
+            return (await _dapperUnitOfWork.KinMaiRepository.QueryAsync<GetFavoriteRestaurantList>(query)).ToList();
         }
         private string ReplaceUsername(string username)
         {

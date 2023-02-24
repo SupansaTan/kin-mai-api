@@ -16,6 +16,8 @@ public partial class FavoriteRestaurant
 
     public Guid RestaurantId { get; set; }
 
+    public DateTime CreateAt { get; set; }
+
     [ForeignKey("RestaurantId")]
     [InverseProperty("FavoriteRestaurants")]
     public virtual Restaurant Restaurant { get; set; } = null!;
