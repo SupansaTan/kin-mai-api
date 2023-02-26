@@ -7,7 +7,7 @@ namespace Rakmao.Extenal.Mail.Models
     public class MailModel
     {
         public Dictionary<string, string> Parameters { get; set; }
-        public string EmailReceiver { get; set; }
+        public string ReceiverEmail { get; set; }
         public string Language { get; set; }
         public List<StreamAttachment> StreamAttachments { get; set; }
     }
