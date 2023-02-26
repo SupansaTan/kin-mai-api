@@ -9,6 +9,7 @@ using KinMai.EntityFramework.UnitOfWork.Implement;
 using KinMai.EntityFramework.UnitOfWork.Interface;
 using KinMai.Logic.UnitOfWork.Implement;
 using KinMai.Logic.UnitOfWork.Interface;
+using KinMai.Mail.UnitOfWork;
 using KinMai.S3.UnitOfWork.Implement;
 using KinMai.S3.UnitOfWork.Interface;
 using Microsoft.EntityFrameworkCore;
@@ -57,6 +58,7 @@ builder.Services.AddScoped<IEntityUnitOfWork, EntityUnitOfWork>();
 builder.Services.AddScoped<IDapperUnitOfWork>(_ => new DapperUnitOfWork(ConnectionResolver.KinMaiConnection));
 builder.Services.AddScoped<ILogicUnitOfWork, LogicUnitOfWork>();
 builder.Services.AddScoped<IS3UnitOfWork, S3UnitOfWork>();
+builder.Services.AddScoped<IMailUnitOfWork, MailUnitOfWork>();
 
 SqlMapper.AddTypeHandler(new StringListTypeHandler<List<string>>());
 SqlMapper.AddTypeHandler(new IntListTypeHandler<List<int>>());
