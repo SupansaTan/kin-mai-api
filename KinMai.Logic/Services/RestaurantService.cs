@@ -104,5 +104,21 @@ namespace KinMai.Logic.Services
                 throw new ArgumentException("This restaurant does not exists.");
             }
         }
+
+        public async Task<bool> UpdateReplyReviewInfo(UpdateReplyReviewInfoRequest model)
+        {
+            var review = await _entityUnitOfWork.ReviewRepository.GetSingleAsync(x => x.Id == model.ReviewId);
+            if (review != null)
+            {
+                review.ReplyComment = model.ReplyComment;
+                _entityUnitOfWork.ReviewRepository.Update(review);
+                await _entityUnitOfWork.SaveAsync();
+                return true;
+            }
+            else
+            {
+                throw new ArgumentException("This review does not exists.");
+            }
+        }
     }
 }

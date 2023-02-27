@@ -38,4 +38,10 @@ namespace KinMai.Logic.Models
         public List<string>? FoodRecommendList { get; set; }
         public List<int>? ReviewLabelList { get; set; }
     }
+
+    public class UpdateReplyReviewInfoRequest
+    {
+        public Guid ReviewId { get; set; }
+        public string ReplyComment { get; set; }
+    }
 }
