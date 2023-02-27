@@ -29,6 +29,9 @@ public partial class Review
 
     public int[]? ReviewLabelRecommend { get; set; }
 
+    [StringLength(255)]
+    public string? ReplyComment { get; set; }
+
     [ForeignKey("RestaurantId")]
     [InverseProperty("Reviews")]
     public virtual Restaurant Restaurant { get; set; } = null!;
