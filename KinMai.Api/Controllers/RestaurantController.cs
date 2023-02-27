@@ -92,7 +92,7 @@ namespace KinMai.Api.Controllers
         }
 
         [HttpPut("UpdateReplyReviewInfo")]
-        public async Task<ResponseModel<bool>> UpdateReplyReviewInfo([FromForm] UpdateReplyReviewInfoRequest request)
+        public async Task<ResponseModel<bool>> UpdateReplyReviewInfo([FromBody] UpdateReplyReviewInfoRequest request)
         {
             var response = new ResponseModel<bool>();
             try

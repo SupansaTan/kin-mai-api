@@ -74,6 +74,11 @@ namespace KinMai.Logic.Services
             if (isExist != null)
             {
                 var reviews = _entityUnitOfWork.ReviewRepository.GetAll(x => x.RestaurantId == restuarantId);
+
+                reviews = from p in reviews
+                            orderby p.CreateAt
+                            select p;
+
                 var Users = _entityUnitOfWork.UserRepository.GetAll();
                 if (reviews.Count() != 0)
                 {
