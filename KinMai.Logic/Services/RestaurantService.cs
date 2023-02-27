@@ -74,20 +74,26 @@ namespace KinMai.Logic.Services
             if (isExist != null)
             {
                 var reviews = _entityUnitOfWork.ReviewRepository.GetAll(x => x.RestaurantId == restuarantId);
+
+                reviews = from p in reviews
+                            orderby p.CreateAt
+                            select p;
+
                 var Users = _entityUnitOfWork.UserRepository.GetAll();
                 if (reviews.Count() != 0)
                 {
                     var AllReview = reviews.Select(x => new ReviewInfoModel()
-                        {
-                            ReviewId = x.Id,
-                            Rating = x.Rating,
-                            Comment = x.Comment ?? "",
-                            ImageLink = (x.ImageLink != null)? x.ImageLink.ToList() : new List<string>(),
-                            FoodRecommendList = (x.FoodRecommendList != null)? x.FoodRecommendList.ToList() : new List<string>(),
-                            ReviewLabelList = (x.ReviewLabelRecommend != null)? x.ReviewLabelRecommend.ToList() : new List<int>(),
-                            CreateAt = x.CreateAt,
-                            UserId = x.UserId,
-                            UserName = Users.FirstOrDefault(n => n.Id == x.UserId).Username
+                    {
+                        ReviewId = x.Id,
+                        Rating = x.Rating,
+                        Comment = x.Comment ?? "",
+                        ImageLink = (x.ImageLink != null) ? x.ImageLink.ToList() : new List<string>(),
+                        FoodRecommendList = (x.FoodRecommendList != null) ? x.FoodRecommendList.ToList() : new List<string>(),
+                        ReviewLabelList = (x.ReviewLabelRecommend != null) ? x.ReviewLabelRecommend.ToList() : new List<int>(),
+                        CreateAt = x.CreateAt,
+                        UserId = x.UserId,
+                        UserName = Users.FirstOrDefault(n => n.Id == x.UserId).Username,
+                        ReplyComment = x.ReplyComment ?? ""
                     }).ToList();
                     Console.WriteLine(AllReview);
                     return AllReview;
@@ -101,6 +107,22 @@ namespace KinMai.Logic.Services
             else
             {
                 throw new ArgumentException("This restaurant does not exists.");
+            }
+        }
+
+        public async Task<bool> UpdateReplyReviewInfo(UpdateReplyReviewInfoRequest model)
+        {
+            var review = await _entityUnitOfWork.ReviewRepository.GetSingleAsync(x => x.Id == model.ReviewId);
+            if (review != null)
+            {
+                review.ReplyComment = model.ReplyComment;
+                _entityUnitOfWork.ReviewRepository.Update(review);
+                await _entityUnitOfWork.SaveAsync();
+                return true;
+            }
+            else
+            {
+                throw new ArgumentException("This review does not exists.");
             }
         }
     }

@@ -18,6 +18,7 @@ namespace KinMai.Logic.Models
         public DateTime CreateAt { get; set; }
         public Guid UserId { get; set; }
         public string UserName { get; set; }
+        public string ReplyComment { get; set; }
 
     }
 
@@ -36,5 +37,11 @@ namespace KinMai.Logic.Models
         public List<IFormFile>? NewImageFile { get; set; }
         public List<string>? FoodRecommendList { get; set; }
         public List<int>? ReviewLabelList { get; set; }
+    }
+
+    public class UpdateReplyReviewInfoRequest
+    {
+        public Guid ReviewId { get; set; }
+        public string ReplyComment { get; set; }
     }
 }
