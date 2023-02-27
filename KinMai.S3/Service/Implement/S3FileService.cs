@@ -85,15 +85,25 @@ namespace KinMai.S3.Service.Implement
             PutObjectResponse response = await S3Client.PutObjectAsync(request);
             return response.HttpStatusCode == HttpStatusCode.OK;
         }
-        public async Task<bool> DeleteFile(string bucketName, string fileName)
+        public async Task DeleteFile(string bucketName, string fileName)
         {
-            DeleteObjectRequest request = new DeleteObjectRequest()
+            try
             {
-                BucketName = bucketName,
-                Key = fileName
-            };
-            DeleteObjectResponse response = await S3Client.DeleteObjectAsync(request);
-            return response.HttpStatusCode == HttpStatusCode.OK;
+                DeleteObjectRequest request = new DeleteObjectRequest()
+                {
+                    BucketName = bucketName,
+                    Key = fileName
+                };
+                await S3Client.DeleteObjectAsync(request).ConfigureAwait(false);
+            }
+            catch (AmazonS3Exception e)
+            {
+                throw new ArgumentException("Error encountered on server. Message:'{0}' when deleting an object", e.Message);
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Unknown encountered on server when deleting an object, '{0}", e);
+            }
         }
     }
 }
