@@ -18,6 +18,7 @@ namespace KinMai.Logic.Models
         public DateTime CreateAt { get; set; }
         public Guid UserId { get; set; }
         public string UserName { get; set; }
+        public string ReplyComment { get; set; }
 
     }
 

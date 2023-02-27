@@ -78,16 +78,17 @@ namespace KinMai.Logic.Services
                 if (reviews.Count() != 0)
                 {
                     var AllReview = reviews.Select(x => new ReviewInfoModel()
-                        {
-                            ReviewId = x.Id,
-                            Rating = x.Rating,
-                            Comment = x.Comment ?? "",
-                            ImageLink = (x.ImageLink != null)? x.ImageLink.ToList() : new List<string>(),
-                            FoodRecommendList = (x.FoodRecommendList != null)? x.FoodRecommendList.ToList() : new List<string>(),
-                            ReviewLabelList = (x.ReviewLabelRecommend != null)? x.ReviewLabelRecommend.ToList() : new List<int>(),
-                            CreateAt = x.CreateAt,
-                            UserId = x.UserId,
-                            UserName = Users.FirstOrDefault(n => n.Id == x.UserId).Username
+                    {
+                        ReviewId = x.Id,
+                        Rating = x.Rating,
+                        Comment = x.Comment ?? "",
+                        ImageLink = (x.ImageLink != null) ? x.ImageLink.ToList() : new List<string>(),
+                        FoodRecommendList = (x.FoodRecommendList != null) ? x.FoodRecommendList.ToList() : new List<string>(),
+                        ReviewLabelList = (x.ReviewLabelRecommend != null) ? x.ReviewLabelRecommend.ToList() : new List<int>(),
+                        CreateAt = x.CreateAt,
+                        UserId = x.UserId,
+                        UserName = Users.FirstOrDefault(n => n.Id == x.UserId).Username,
+                        ReplyComment = x.ReplyComment ?? ""
                     }).ToList();
                     Console.WriteLine(AllReview);
                     return AllReview;
