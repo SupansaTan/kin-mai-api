@@ -1,7 +1,11 @@
 ﻿select
 	u."Username" as "Username",
 	"Review"."Rating" as "Rating",
-	"Review"."Comment" as "Comment",
+	CASE
+		WHEN "Review"."Comment" = 'null'
+		THEN ''
+		ELSE "Review"."Comment"
+	END AS "Comment",
 	EXTRACT(EPOCH FROM (now() - "Review"."CreateAt")) * 1000 as "CreatedDateDiff",
 	"Review"."ImageLink" as "ImageReviewList",
 	"Review"."FoodRecommendList" as "FoodRecommendList",

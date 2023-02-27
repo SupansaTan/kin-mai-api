@@ -4,6 +4,7 @@ using KinMai.EntityFramework.UnitOfWork.Interface;
 using KinMai.Logic.Interface;
 using KinMai.Logic.Services;
 using KinMai.Logic.UnitOfWork.Interface;
+using KinMai.Mail.UnitOfWork;
 using KinMai.S3.UnitOfWork.Interface;
 using System;
 using System.Collections.Generic;
@@ -19,18 +20,21 @@ namespace KinMai.Logic.UnitOfWork.Implement
         private IDapperUnitOfWork _dapperUnitOfWork { get; set; }
         private IAuthenticationUnitOfWork _authenticationUnitOfWork { get; set; }
         private IS3UnitOfWork _s3UnitOfWork { get; set; }
+        private IMailUnitOfWork _mailUnitOfWork { get; set; }
 
         public LogicUnitOfWork(
             IEntityUnitOfWork entityUnitOfWork
             , IDapperUnitOfWork dapperUnitOfWork
             , IAuthenticationUnitOfWork authenticationUnitOfWork
             , IS3UnitOfWork s3UnitOfWork
+            , IMailUnitOfWork mailUnitOfWork
             )
         {
             _entityUnitOfWork = entityUnitOfWork;
             _dapperUnitOfWork = dapperUnitOfWork;
             _authenticationUnitOfWork = authenticationUnitOfWork;
             _s3UnitOfWork = s3UnitOfWork;
+            _mailUnitOfWork = mailUnitOfWork;
         }
 
         // instance

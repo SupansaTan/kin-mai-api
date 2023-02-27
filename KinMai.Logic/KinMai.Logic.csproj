@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <None Remove="QueryCommand\GetRestaurantNearMeList.sql" />
+    <None Remove="QueryCommand\Reviewer\FavoriteRestaurantList.sql" />
     <None Remove="QueryCommand\Reviewer\GetRestaurantDetail.sql" />
     <None Remove="QueryCommand\Reviewer\GetRestaurantListFromFilter.sql" />
     <None Remove="QueryCommand\Reviewer\GetRestaurantReviewList.sql" />
@@ -15,6 +16,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="QueryCommand\Reviewer\FavoriteRestaurantList.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="QueryCommand\Reviewer\GetRestaurantDetail.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -39,6 +43,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\KinMai.Common\KinMai.Common.csproj" />
+    <ProjectReference Include="..\KinMai.Mail\KinMai.Mail.csproj" />
     <ProjectReference Include="..\KinMai.S3\KinMai.S3.csproj" />
     <ProjectReference Include="..\KinMai.UnitTests\KinMai.UnitTests.csproj" />
     <ProjectReference Include="..\KinMai.Dapper\KinMai.Dapper.csproj" />

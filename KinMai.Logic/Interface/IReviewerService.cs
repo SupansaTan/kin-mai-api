@@ -18,5 +18,6 @@ namespace KinMai.Logic.Interface
         Task<bool> UpdateReviewInfo(UpdateReviewInfoRequest model);
         Task<GetRestaurantDetailModel> GetRestaurantDetail(GetRestaurantDetailRequestModel model);
         Task<GetReviewInfoListModel> GetRestaurantReviewList(GetReviewInfoFilterModel model);
+        Task<List<GetFavoriteRestaurantList>> GetFavoriteRestaurantList(GetFavoriteRestaurantRequest model);
     }
 }

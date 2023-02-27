@@ -3,7 +3,6 @@ using KinMai.Api.Models.Reviewer;
 using KinMai.Logic.Models;
 using KinMai.Logic.UnitOfWork.Interface;
 using Microsoft.AspNetCore.Mvc;
-using Org.BouncyCastle.Asn1.Ocsp;
 
 namespace KinMai.Api.Controllers
 {
@@ -281,6 +280,40 @@ namespace KinMai.Api.Controllers
             catch (Exception e)
             {
                 response = new ResponseModel<GetReviewInfoListModel>
+                {
+                    Data = null,
+                    Message = e.Message,
+                    Status = 500
+                };
+            }
+            return response;
+        }
+        [HttpGet("GetFavoriteRestaurantList")]
+        public async Task<ResponseModel<List<GetFavoriteRestaurantList>>> GetFavoriteRestaurantList([FromQuery] GetFavoriteRestaurantRequest request)
+        {
+            var response = new ResponseModel<List<GetFavoriteRestaurantList>>();
+            try
+            {
+                var restaurantList = await _logicUnitOfWork.ReviewerService.GetFavoriteRestaurantList(request);
+                response = new ResponseModel<List<GetFavoriteRestaurantList>>
+                {
+                    Data = restaurantList,
+                    Message = "success",
+                    Status = 200
+                };
+            }
+            catch (ArgumentException ae)
+            {
+                response = new ResponseModel<List<GetFavoriteRestaurantList>>
+                {
+                    Data = null,
+                    Message = ae.Message,
+                    Status = 400
+                };
+            }
+            catch (Exception e)
+            {
+                response = new ResponseModel<List<GetFavoriteRestaurantList>>
                 {
                     Data = null,
                     Message = e.Message,
