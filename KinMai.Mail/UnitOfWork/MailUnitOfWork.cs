@@ -1,4 +1,5 @@
-﻿using Amazon.SimpleEmail;
+﻿using Amazon;
+using Amazon.SimpleEmail;
 using KinMai.Authentication.Model;
 using KinMai.Mail.Implement;
 using KinMai.Mail.Interface;
@@ -18,7 +19,7 @@ namespace KinMai.Mail.UnitOfWork
 
         public MailUnitOfWork()
         {
-            amazonSimpleEmailServiceClient = new AmazonSimpleEmailServiceClient(AWSCredential.AccessKey, AWSCredential.SecretKey);
+            amazonSimpleEmailServiceClient = new AmazonSimpleEmailServiceClient(AWSCredential.AccessKey, AWSCredential.SecretKey, RegionEndpoint.APSoutheast1);
         }
 
         public IMailRepository MailRepository

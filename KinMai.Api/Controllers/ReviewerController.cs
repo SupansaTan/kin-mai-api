@@ -3,7 +3,6 @@ using KinMai.Api.Models.Reviewer;
 using KinMai.Logic.Models;
 using KinMai.Logic.UnitOfWork.Interface;
 using Microsoft.AspNetCore.Mvc;
-using Org.BouncyCastle.Asn1.Ocsp;
 
 namespace KinMai.Api.Controllers
 {
