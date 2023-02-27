@@ -158,6 +158,17 @@ namespace KinMai.Logic.Services
             var user = await _entityUnitOfWork.UserRepository.GetSingleAsync(x => x.Email == email);
             return user == null;
         }
+        public async Task<bool> ResetPassword(Guid userId, string password, string confirmPassword)
+        {
+            var user = await _entityUnitOfWork.UserRepository.GetSingleAsync(x => x.Id == userId);
+            if (user == null)
+                throw new ArgumentException("User does not exists.");
+            if (password != confirmPassword)
+                throw new ArgumentException("Password and Confirm password are not matching");
+
+            var isSuccess = await _authenticationUnitOfWork.AWSCognitoService.ResetPassword(user.Id, password);
+            return isSuccess;
+        }
         private async Task<User> CreateUser(ReviewerRegisterModel model, UserType userType)
         {
             // validate
