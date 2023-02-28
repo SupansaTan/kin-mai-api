@@ -23,6 +23,7 @@ namespace KinMai.Logic.Models
         public int Distance { get; set; }
         public int MinPriceRate { get; set; }
         public int MaxPriceRate { get; set; }
+        public int TotalReview { get; set; }
         public string ImageCover { get; set; }
         public List<string> AnotherImageCover { get; set; }
         public bool IsFavorite { get; set; }

@@ -54,8 +54,8 @@ SELECT
 	"Restaurant"."Name" AS "RestaurantName",
 	"Restaurant"."ImageLink"[1] AS "ImageCover",
     CASE
-        WHEN cardinality("Restaurant"."ImageLink") > 4
-        THEN "Restaurant"."ImageLink"[2:4]::text[]
+        WHEN cardinality("Restaurant"."ImageLink") > 3
+        THEN "Restaurant"."ImageLink"[2:3]::text[]
 
         WHEN cardinality("Restaurant"."ImageLink") < 2
         THEN ARRAY[]::text[]
@@ -66,7 +66,9 @@ SELECT
 	"Restaurant"."MaxPriceRate" as "MaxPriceRate",
 	to_char("BusinessHours"."OpenTime", 'HH24:MI') AS "StartTime",
 	to_char("BusinessHours"."CloseTime", 'HH24:MI') AS "EndTime",
+    (SELECT COUNT(*) FROM "Review" WHERE "Review"."RestaurantId" = "Restaurant"."Id") AS "TotalReview",
     exists(SELECT * from "FavoriteRestaurant" fr WHERE fr."UserId" = '_userId' and fr."RestaurantId" = "Restaurant"."Id") AS "IsFavorite",
+    exists(SELECT * from "Review" rv WHERE rv."UserId" = '_userId' and rv."RestaurantId" = "Restaurant"."Id") AS "IsReview",
     calculate_rating("Restaurant"."Id") AS "Rating",
 	calculate_distance("Restaurant"."Latitude", "Restaurant"."Longitude", '_latitude', '_longitude') AS "Distance"
 FROM "Restaurant"
