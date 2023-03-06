@@ -7,6 +7,20 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Contents\MailTypeEntries.csv" />
+    <None Remove="Contents\Templates\ForgotPassword.html" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Contents\MailTypeEntries.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Contents\Templates\ForgotPassword.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AWSSDK.SimpleEmail" Version="3.7.100.79" />
     <PackageReference Include="CsvHelper" Version="30.0.1" />
     <PackageReference Include="HtmlCleanser" Version="1.1.53" />
@@ -14,7 +28,6 @@
 
   <ItemGroup>
     <Folder Include="Contents\Css\" />
-    <Folder Include="Contents\Templates\" />
   </ItemGroup>
 
   <ItemGroup>
