@@ -297,5 +297,39 @@ namespace KinMai.Api.Controllers
             }
             return response;
         }
+        [HttpPost("SendEmailResetPassword")]
+        public async Task<ResponseModel<bool>> SendEmailResetPassword([FromBody] ForgotPasswordRequest request)
+        {
+            var response = new ResponseModel<bool>();
+            try
+            {
+                var isSuccess = await _logicUnitOfWork.AuthenticationService.SendEmailResetPassword(request.Email);
+                response = new ResponseModel<bool>
+                {
+                    Data = isSuccess,
+                    Message = "success",
+                    Status = 200
+                };
+            }
+            catch (ArgumentException ae)
+            {
+                response = new ResponseModel<bool>
+                {
+                    Data = false,
+                    Message = ae.Message,
+                    Status = 400
+                };
+            }
+            catch (Exception e)
+            {
+                response = new ResponseModel<bool>
+                {
+                    Data = false,
+                    Message = e.Message,
+                    Status = 500
+                };
+            }
+            return response;
+        }
     }
 }
