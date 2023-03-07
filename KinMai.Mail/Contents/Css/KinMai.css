@@ -1,0 +1,47 @@
+﻿* {
+    font-family: 'Comfortaa', 'Prompt', sans-serif !important;
+}
+
+.body-background {
+    top: 0;
+    right: 0;
+    left: 0;
+    position: absolute;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.mb-2 {
+    margin-bottom: .4rem;
+}
+
+.mb-4 {
+    margin-bottom: 1.5rem;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.flex-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+a.link {
+    color: black;
+    text-decoration: none;
+}
+
+.btn-reset {
+    padding: 8px 10px;
+    border-radius: 5px;
+    background-color: #FACE7F;
+}
+
+.content-body {
+    width: 100%;
+}
