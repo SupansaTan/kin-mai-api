@@ -3,16 +3,19 @@ using ImageMagick;
 using KinMai.Authentication.Model;
 using KinMai.Authentication.UnitOfWork;
 using KinMai.Common.Enum;
+using KinMai.Common.Resolver;
 using KinMai.Dapper.Interface;
 using KinMai.EntityFramework.Models;
 using KinMai.EntityFramework.UnitOfWork.Interface;
 using KinMai.Logic.Interface;
 using KinMai.Logic.Models;
+using KinMai.Mail.UnitOfWork;
 using KinMai.S3.Models;
 using KinMai.S3.UnitOfWork.Interface;
 using Microsoft.AspNetCore.Http;
 using MimeKit;
 using Newtonsoft.Json;
+using Rakmao.Extenal.Mail.Models;
 
 namespace KinMai.Logic.Services
 {
@@ -22,13 +25,15 @@ namespace KinMai.Logic.Services
         private readonly IDapperUnitOfWork _dapperUnitOfWork;
         private readonly IAuthenticationUnitOfWork _authenticationUnitOfWork;
         private readonly IS3UnitOfWork _S3UnitOfWork;
+        private readonly IMailUnitOfWork _mailUnitOfWork;
         private readonly string QUERY_PATH;
 
         public AuthenticationService(
             IEntityUnitOfWork entityUnitOfWork,
             IAuthenticationUnitOfWork authenticationUnitOfWork,
             IDapperUnitOfWork dapperUnitOfWork,
-            IS3UnitOfWork s3UnitOfWork
+            IS3UnitOfWork s3UnitOfWork,
+            IMailUnitOfWork mailUnitOfWork
         )
         {
             QUERY_PATH = this.GetType().Name.Split("Service")[0] + "/";
@@ -36,6 +41,7 @@ namespace KinMai.Logic.Services
             _authenticationUnitOfWork = authenticationUnitOfWork;
             _dapperUnitOfWork = dapperUnitOfWork;
             _S3UnitOfWork = s3UnitOfWork;
+            _mailUnitOfWork = mailUnitOfWork;
         }
         public async Task<TokenResponseModel> Login(string email, string password)
         {
@@ -168,6 +174,25 @@ namespace KinMai.Logic.Services
 
             var isSuccess = await _authenticationUnitOfWork.AWSCognitoService.ResetPassword(user.Id, password);
             return isSuccess;
+        }
+        public async Task<bool> SendEmailResetPassword(string email)
+        {
+            var user = await _entityUnitOfWork.UserRepository.GetSingleAsync(x => x.Email == email);
+            if (user == null)
+                throw new ArgumentException("This email have not registered KinMai account before.");
+
+            var mail = new MailModel()
+            {
+                ReceiverEmail = email,
+                Language = "th",
+                Parameters = new Dictionary<string, string>()
+                {
+                    { "SendSubject" , "เปลี่ยนรหัสผ่านระบบ KinMai" },
+                    { "ResetPasswordLink", $"{ConnectionResolver.KinMaiFrontendUrl}/auth/reset-password/{user.Id}" }
+                }
+            };
+            await _mailUnitOfWork.MailService.SendEmailAsync("KM000001", mail);
+            return true;
         }
         private async Task<User> CreateUser(ReviewerRegisterModel model, UserType userType)
         {

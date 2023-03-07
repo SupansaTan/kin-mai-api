@@ -42,6 +42,7 @@ AWSCredential.ClientSecret = builder.Configuration.GetSection("AWSCognito")["Use
 AWSCredential.AccessKey = builder.Configuration.GetSection("AWSCognito")["AccessKey"];
 AWSCredential.SecretKey = builder.Configuration.GetSection("AWSCognito")["SecretKey"];
 ConnectionResolver.KinMaiConnection = builder.Configuration.GetSection("ConnectionStrings")["KinMaiConnection"];
+ConnectionResolver.KinMaiFrontendUrl = builder.Configuration.GetSection("ConnectionStrings")["KinMaiFrontendUrl"];
 
 // aws
 var awsOptions = builder.Configuration.GetAWSOptions();

@@ -9,5 +9,6 @@ namespace KinMai.Common.Resolver
     public static class ConnectionResolver
     {
         public static string KinMaiConnection { get; set; }
+        public static string KinMaiFrontendUrl { get; set; }
     }
 }

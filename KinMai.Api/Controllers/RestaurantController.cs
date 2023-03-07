@@ -15,12 +15,12 @@ namespace KinMai.Api.Controllers
             _logicUnitOfWork = logicUnitOfWork;
         }
         [HttpGet("GetRestaurantDetail")]
-        public async Task<ResponseModel<RestaurantDetailModel>> GetRestaurantDetail([FromQuery] GetReviewInfoRequest request)
+        public async Task<ResponseModel<RestaurantDetailModel>> GetRestaurantDetail([FromQuery] Guid restaurantId)
         {
             var response = new ResponseModel<RestaurantDetailModel>();
             try
             {
-                var payload = await _logicUnitOfWork.RestaurantService.GetRestaurantDetail(request);
+                var payload = await _logicUnitOfWork.RestaurantService.GetRestaurantDetail(restaurantId);
                 if (payload != null)
                 {
                     response = new ResponseModel<RestaurantDetailModel>
