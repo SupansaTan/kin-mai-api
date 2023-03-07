@@ -12,7 +12,6 @@ namespace KinMai.Logic.Models
     {
         public Restaurant RestaurantInfo { get; set; }
         public List<SocialContactModel> SocialContact { get; set; }
-        public bool IsFavorite { get; set; }
     }
 
     public class SocialContactModel

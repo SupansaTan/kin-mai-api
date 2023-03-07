@@ -26,18 +26,17 @@ namespace KinMai.Logic.Services
             _dapperUnitOfWork = dapperUnitOfWork;
         }
 
-        public async Task<RestaurantDetailModel> GetRestaurantDetail(GetReviewInfoRequest model)
+        public async Task<RestaurantDetailModel> GetRestaurantDetail(Guid restuarantId)
         {
-            var resInfo = await _entityUnitOfWork.RestaurantRepository.GetSingleAsync(x => x.Id == model.RestaurantId);
+            var resInfo = await _entityUnitOfWork.RestaurantRepository.GetSingleAsync(x => x.Id == restuarantId);
             if (resInfo != null)
             {
-                var socialContact = _entityUnitOfWork.SocialContactRepository.GetAll(x => x.RestaurantId == model.RestaurantId)
+                var socialContact = _entityUnitOfWork.SocialContactRepository.GetAll(x => x.RestaurantId == restuarantId)
                     .Select(x => new SocialContactModel()
                     {
                         SocialType = x.SocialType,
                         ContactValue = x.ContactValue
                     }).ToList();
-                var isFav = await _entityUnitOfWork.FavoriteRestaurantRepository.GetSingleAsync(x => x.UserId == model.UserId && x.RestaurantId == model.RestaurantId);
                 return new RestaurantDetailModel()
                 {
                     RestaurantInfo = new Restaurant()
@@ -56,10 +55,9 @@ namespace KinMai.Logic.Services
                         Latitude = resInfo.Latitude,
                         Longitude = resInfo.Longitude,
                         MinPriceRate = resInfo.MinPriceRate,
-                        MaxPriceRate = resInfo.MaxPriceRate
+                        MaxPriceRate = resInfo.MaxPriceRate,
                     },
                     SocialContact = socialContact,
-                    IsFavorite = (isFav != null),
                 };
             }
             else
