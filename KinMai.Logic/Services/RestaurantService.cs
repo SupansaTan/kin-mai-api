@@ -37,6 +37,20 @@ namespace KinMai.Logic.Services
                         SocialType = x.SocialType,
                         ContactValue = x.ContactValue
                     }).ToList();
+                var allCategories = _entityUnitOfWork.CategoryRepository.GetAll();
+                var categories = _entityUnitOfWork.RelatedRepository.GetAll(x => x.RestaurantId == restuarantId)
+                    .Select(x => new CategoryModel()
+                    {
+                        CategoryType = allCategories.FirstOrDefault(n => n.Id == x.CategoriesId).Type,
+                        CategoryName = allCategories.FirstOrDefault(n => n.Id == x.CategoriesId).Name
+                    }).ToList();
+                var buHour = _entityUnitOfWork.BusinessHourRepository.GetAll(x => x.RestaurantId == restuarantId)
+                    .Select(x => new ResBusinessHourModel()
+                    {
+                        Day = x.Day,
+                        OpenTime = x.OpenTime,
+                        CloseTime = x.CloseTime
+                    }).ToList();
                 return new RestaurantDetailModel()
                 {
                     RestaurantInfo = new Restaurant()
@@ -58,6 +72,9 @@ namespace KinMai.Logic.Services
                         MaxPriceRate = resInfo.MaxPriceRate,
                     },
                     SocialContact = socialContact,
+                    Categories = categories,
+                    BusinessHours = buHour
+
                 };
             }
             else
