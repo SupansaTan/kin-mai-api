@@ -32,6 +32,9 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// AWS Lambda support
+builder.Services.AddAWSLambdaHosting(LambdaEventSource.HttpApi);
+
 // resolver
 AWSCredential.PoolId = builder.Configuration.GetSection("AWSCognito")["UserPoolId"];
 AWSCredential.ClientId = builder.Configuration.GetSection("AWSCognito")["UserPoolClientId"];
