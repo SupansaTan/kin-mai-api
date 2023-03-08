@@ -32,7 +32,6 @@
     <ProjectReference Include="..\KinMai.Logic\KinMai.Logic.csproj" />
     <ProjectReference Include="..\KinMai.Mail\KinMai.Mail.csproj" />
     <ProjectReference Include="..\KinMai.S3\KinMai.S3.csproj" />
-    <ProjectReference Include="..\KinMai.UnitTests\KinMai.UnitTests.csproj" />
   </ItemGroup>
 
 </Project>

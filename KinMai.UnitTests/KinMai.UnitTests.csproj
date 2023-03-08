@@ -35,4 +35,9 @@
     <Folder Include="Interface\Controllers\" />
     <Folder Include="Interface\Services\" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\KinMai.Api\KinMai.Api.csproj" />
+    <ProjectReference Include="..\KinMai.EntityFramework\KinMai.EntityFramework.csproj" />
+    <ProjectReference Include="..\KinMai.Logic\KinMai.Logic.csproj" />
+  </ItemGroup>
 </Project>
