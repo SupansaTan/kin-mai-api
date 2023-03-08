@@ -14,7 +14,6 @@ using KinMai.S3.Models;
 using KinMai.S3.UnitOfWork.Interface;
 using Microsoft.AspNetCore.Http;
 using MimeKit;
-using Newtonsoft.Json;
 using Rakmao.Extenal.Mail.Models;
 
 namespace KinMai.Logic.Services
