@@ -29,11 +29,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="Services\" />
-    <None Remove="Controllers\" />
-    <None Remove="Interface\" />
-  </ItemGroup>
-  <ItemGroup>
     <Folder Include="Controllers\AuthenticationControllerTest\" />
   </ItemGroup>
   <ItemGroup>

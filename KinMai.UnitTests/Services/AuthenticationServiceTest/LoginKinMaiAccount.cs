@@ -1,4 +1,5 @@
-﻿using KinMai.Authentication.UnitOfWork;
+﻿using KinMai.Authentication.Model;
+using KinMai.Authentication.UnitOfWork;
 using KinMai.Dapper.Interface;
 using KinMai.EntityFramework.Models;
 using KinMai.EntityFramework.UnitOfWork.Implement;
@@ -20,7 +21,7 @@ namespace KinMai.UnitTests.Services.AuthenticationServiceTest
 {
     public class LoginKinMaiAccount
     {
-        [Fact(DisplayName = "Login as kinmai account: ReturnTokenIfValidModel")]
+        [Fact(DisplayName = "Login as kinmai account: ReturnTokenModelIfValidModel")]
         public async Task TestLoginKinMaiAccount()
         {
             // use in-memory database for testing
@@ -28,6 +29,8 @@ namespace KinMai.UnitTests.Services.AuthenticationServiceTest
             var dbContext = new KinMaiContext(builder.Options);
 
             // mock data
+            Guid userId;
+            Guid.TryParse("9c16fe15-f21e-4071-94e8-c982b6c9c626", out userId);
             var email = "nampunch1@gmail.com";
             var password = "12345678";
 
@@ -50,10 +53,16 @@ namespace KinMai.UnitTests.Services.AuthenticationServiceTest
 
             // act
             var actualOutput = await authenticationService.Login(email, password);
-            var expectedOutput = "test";
+            var token = await mockAuthenticationUnitOfWork.Object.AWSCognitoService.Login(userId, password);
+            var expectedOutput = new TokenResponseModel
+            {
+                Token = token.AuthenticationResult.AccessToken,
+                ExpiredToken = (DateTime.UtcNow).AddSeconds(token.AuthenticationResult.ExpiresIn),
+                RefreshToken = token.AuthenticationResult.RefreshToken
+            };
 
             // assert
-            Assert.Equal(expectedOutput, actualOutput.Token);
+            Assert.Equal(expectedOutput, actualOutput);
         }
     }
 }
