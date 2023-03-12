@@ -171,7 +171,7 @@ namespace KinMai.Logic.Services
         public async Task<bool> ResetPassword(ResetPasswordModel model)
         {
             Guid userId;
-            Guid.TryParse(model.ResetToken, out userId);
+            Guid.TryParse(DecodeBase64String(model.ResetToken), out userId);
             var user = await _entityUnitOfWork.UserRepository.GetSingleAsync(x => x.Id == userId);
             if (user == null)
                 throw new ArgumentException("User does not exists.");
