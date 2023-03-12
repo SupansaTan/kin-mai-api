@@ -1,0 +1,21 @@
+
+{
+    "region" : "ap-southeast-1",
+    "profile" : "cognito",
+    "configuration" : "Release",
+    "framework"     : "net6.0",
+    "function-name" : "kinmai-api",
+    "package-type"  : "Zip",
+    "function-handler" : "KinMai.Api",
+    "function-memory-size" : 256,
+    "function-role"        : "arn:aws:iam::324983683938:role/lambda_exec_kinmai-api",
+    "function-timeout"     : 10,
+    "function-runtime"     : "dotnet6",
+    "function-architecture" : "x86_64",
+    "function-subnets"      : "",
+    "function-security-groups" : "",
+    "tracing-mode"             : "PassThrough",
+    "environment-variables"    : "",
+    "dockerfile"               : "Dockerfile",
+    "image-tag"                : ""
+}
