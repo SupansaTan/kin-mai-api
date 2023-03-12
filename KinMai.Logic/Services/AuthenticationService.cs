@@ -14,7 +14,6 @@ using KinMai.S3.Models;
 using KinMai.S3.UnitOfWork.Interface;
 using Microsoft.AspNetCore.Http;
 using MimeKit;
-using Newtonsoft.Json;
 using Rakmao.Extenal.Mail.Models;
 
 namespace KinMai.Logic.Services
@@ -53,16 +52,20 @@ namespace KinMai.Logic.Services
                 throw new ArgumentException("This email is registered by Google provider, Please login by Google instead");
 
             // validate auth
-            var access = await _authenticationUnitOfWork.AWSCognitoService.Login(user.Id, password);
-            if (access.HttpStatusCode != HttpStatusCode.OK)
-                throw new ArgumentException("Invalid Email or password.");
-
-            return new TokenResponseModel
+            try
             {
-                Token = access.AuthenticationResult.AccessToken,
-                ExpiredToken = (DateTime.UtcNow).AddSeconds(access.AuthenticationResult.ExpiresIn),
-                RefreshToken = access.AuthenticationResult.RefreshToken
-            };
+                var access = await _authenticationUnitOfWork.AWSCognitoService.Login(user.Id, password);
+                return new TokenResponseModel
+                {
+                    Token = access.AuthenticationResult.AccessToken,
+                    ExpiredToken = (DateTime.UtcNow).AddSeconds(access.AuthenticationResult.ExpiresIn),
+                    RefreshToken = access.AuthenticationResult.RefreshToken
+                };
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Invalid Email or password.");
+            }
         }
         public async Task<bool> ReviewerRegister(ReviewerRegisterModel model)
         {

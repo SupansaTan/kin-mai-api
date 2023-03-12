@@ -39,13 +39,13 @@
   <ItemGroup>
     <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="12.2.2" />
     <PackageReference Include="MimeKit" Version="3.4.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\KinMai.Common\KinMai.Common.csproj" />
     <ProjectReference Include="..\KinMai.Mail\KinMai.Mail.csproj" />
     <ProjectReference Include="..\KinMai.S3\KinMai.S3.csproj" />
-    <ProjectReference Include="..\KinMai.UnitTests\KinMai.UnitTests.csproj" />
     <ProjectReference Include="..\KinMai.Dapper\KinMai.Dapper.csproj" />
     <ProjectReference Include="..\KinMai.Authentication\KinMai.Authentication.csproj" />
     <ProjectReference Include="..\KinMai.EntityFramework\KinMai.EntityFramework.csproj" />
