@@ -24,8 +24,8 @@ namespace KinMai.UnitTests.Services.AuthenticationServiceTest
             var initConfiguration = new InitConfiguration();
         }
 
-        [Fact(DisplayName = "LoginKinMaiAccount_ReturnTokenModel_ByValidModel")]
-        public async Task TestLoginKinMaiAccount_ReturnTokenModel_ByValidModel()
+        [Fact(DisplayName = "LoginKinMaiAccount_ReturnTokenModel_ByExistUser")]
+        public async Task TestLoginKinMaiAccount_ReturnTokenModel_ByExistUser()
         {
             // mock data
             Guid userId;
