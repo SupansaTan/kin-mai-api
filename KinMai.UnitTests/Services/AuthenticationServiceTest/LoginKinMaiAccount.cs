@@ -24,8 +24,8 @@ namespace KinMai.UnitTests.Services.AuthenticationServiceTest
             var initConfiguration = new InitConfiguration();
         }
 
-        [Fact(DisplayName = "LoginKinMaiAccount_ReturnTokenModel_LoginByExistUser")]
-        public async Task TestLoginKinMaiAccount_ReturnTokenModel_LoginByExistUser()
+        [Fact(DisplayName = "Login_ReturnTokenModel_LoginByExistUser")]
+        public async Task TestLogin_ReturnTokenModel_LoginByExistUser()
         {
             // mock data
             Guid userId;
@@ -77,8 +77,62 @@ namespace KinMai.UnitTests.Services.AuthenticationServiceTest
             }
         }
 
-        [Fact(DisplayName = "LoginKinMaiAccount_ThrowArgumentException_LoginByNewUser")]
-        public async Task TestLoginKinMaiAccount_ThrowArgumentException_LoginByNewUser()
+        [Fact(DisplayName = "Login_ThrowArgumentException_LoginByIncorrectPassword")]
+        public async Task TestLogin_ThrowArgumentException_LoginByIncorrectPassword()
+        {
+            // mock data
+            Guid userId;
+            Guid.TryParse("9c16fe15-f21e-4071-94e8-c982b6c9c626", out userId);
+            var password = "11111111";
+
+            // mock unit of work
+            var mockDapperUnitOfWork = new Mock<IDapperUnitOfWork>();
+            var mockS3UnitOfWork = new Mock<IS3UnitOfWork>();
+            var mockMailUnitOfWork = new Mock<IMailUnitOfWork>();
+
+            // add user
+            var mockUser = new User()
+            {
+                Id = userId,
+                Email = "nampunch1@gmail.com",
+                FirstName = "Supansa",
+                LastName = "Tantulset",
+                Username = "littlepunchhz",
+                CreateAt = DateTime.UtcNow,
+                UserType = 1,
+                IsLoginWithGoogle = false
+            };
+
+            using (var context = new KinMaiContext(NewDbContextService.CreateNewContextOptions()))
+            {
+                // add user to mock db
+                context.Users.Add(mockUser);
+                context.SaveChanges();
+
+                IEntityUnitOfWork mockEntityUnitOfWork = new EntityUnitOfWork(context);
+                IAuthenticationUnitOfWork mockAuthenticationUnitOfWork = new AuthenticationUnitOfWork();
+
+                // init service
+                IAuthenticationService authenticationService =
+                    new AuthenticationService(
+                        mockEntityUnitOfWork,
+                        mockAuthenticationUnitOfWork,
+                        mockDapperUnitOfWork.Object,
+                        mockS3UnitOfWork.Object,
+                        mockMailUnitOfWork.Object
+                   );
+
+                // act
+                Func<Task> act = () => authenticationService.Login(mockUser.Email, password);
+
+                // assert
+                var exception = await Assert.ThrowsAsync<Exception>(act);
+                Assert.Equal("Invalid Email or password.", exception.Message);
+            }
+        }
+
+        [Fact(DisplayName = "Login_ThrowArgumentException_LoginByNewUser")]
+        public async Task TestLogin_ThrowArgumentException_LoginByNewUser()
         {
             // mock data
             var email = "nampunch1@gmail.com";
@@ -113,8 +167,8 @@ namespace KinMai.UnitTests.Services.AuthenticationServiceTest
             }
         }
 
-        [Fact(DisplayName = "LoginKinMaiAccount_ThrowArgumentException_LoginByUserIsRegisteredByGoogleAccount")]
-        public async Task TestLoginKinMaiAccount_ThrowArgumentException_LoginByUserIsRegisteredByGoogleAccount()
+        [Fact(DisplayName = "Login_ThrowArgumentException_LoginByUserRegisteredByGoogleAccount")]
+        public async Task TestLogin_ThrowArgumentException_LoginByUserRegisteredByGoogleAccount()
         {
             // mock data
             var password = "11111111";
