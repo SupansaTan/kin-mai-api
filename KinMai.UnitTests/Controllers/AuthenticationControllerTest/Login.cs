@@ -202,5 +202,69 @@ namespace KinMai.UnitTests.Controllers.AuthenticationControllerTest
                 Assert.Equal(actualOutput.Status, expectOutput.Status);
             }
         }
+
+        [Fact]
+        public async Task Login_ReturnStatus400_WhenLoginByUserRegisteredWithGoogleAccount()
+        {
+            // mock unit of work
+            var mockDapperUnitOfWork = new Mock<IDapperUnitOfWork>();
+            var mockS3UnitOfWork = new Mock<IS3UnitOfWork>();
+            var mockMailUnitOfWork = new Mock<IMailUnitOfWork>();
+            IAuthenticationUnitOfWork mockAuthenticationUnitOfWork = new AuthenticationUnitOfWork();
+
+            // mock user
+            Guid userId;
+            Guid.TryParse("9c16fe15-f21e-4071-94e8-c982b6c9c626", out userId);
+            var mockUser = new User()
+            {
+                Id = userId,
+                Email = "nampunch1@gmail.com",
+                FirstName = "Supansa",
+                LastName = "Tantulset",
+                Username = "littlepunchhz",
+                CreateAt = DateTime.UtcNow,
+                UserType = 1,
+                IsLoginWithGoogle = true
+            };
+
+            // mock login model
+            var mockRequest = new LoginModel()
+            {
+                Email = mockUser.Email,
+                Password = "11111111",
+            };
+
+            using (var context = new KinMaiContext(NewDbContextService.CreateNewContextOptions()))
+            {
+                // add user to mock db
+                context.Users.Add(mockUser);
+                context.SaveChanges();
+
+                // init controller
+                IEntityUnitOfWork mockEntityUnitOfWork = new EntityUnitOfWork(context);
+                ILogicUnitOfWork logicUnitOfWork = new LogicUnitOfWork(
+                    mockEntityUnitOfWork,
+                    mockDapperUnitOfWork.Object,
+                    mockAuthenticationUnitOfWork,
+                    mockS3UnitOfWork.Object,
+                    mockMailUnitOfWork.Object
+                );
+                var authenticationController = new AuthenticationController(logicUnitOfWork);
+
+                // act
+                var actualOutput = await authenticationController.Login(mockRequest);
+                var expectOutput = new ResponseModel<TokenResponseModel>()
+                {
+                    Data = null,
+                    Message = "This email is registered by Google provider, Please login by Google instead",
+                    Status = 400
+                };
+
+                // assert
+                Assert.Equal(actualOutput.Data, expectOutput.Data);
+                Assert.Equal(actualOutput.Message, expectOutput.Message);
+                Assert.Equal(actualOutput.Status, expectOutput.Status);
+            }
+        }
     }
 }
