@@ -157,5 +157,50 @@ namespace KinMai.UnitTests.Controllers.AuthenticationControllerTest
                 Assert.Equal(actualOutput.Status, expectOutput.Status);
             }
         }
+
+        [Fact]
+        public async Task Login_ReturnStatus400_WhenLoginByNewUser()
+        {
+            // arrange
+            var mockRequest = new LoginModel()
+            {
+                Email = "nampunch1@gmail.com",
+                Password = "11111111",
+            };
+
+            // mock unit of work
+            var mockDapperUnitOfWork = new Mock<IDapperUnitOfWork>();
+            var mockS3UnitOfWork = new Mock<IS3UnitOfWork>();
+            var mockMailUnitOfWork = new Mock<IMailUnitOfWork>();
+            IAuthenticationUnitOfWork mockAuthenticationUnitOfWork = new AuthenticationUnitOfWork();
+
+            using (var context = new KinMaiContext(NewDbContextService.CreateNewContextOptions()))
+            {
+                // init controller
+                IEntityUnitOfWork mockEntityUnitOfWork = new EntityUnitOfWork(context);
+                ILogicUnitOfWork logicUnitOfWork = new LogicUnitOfWork(
+                    mockEntityUnitOfWork,
+                    mockDapperUnitOfWork.Object,
+                    mockAuthenticationUnitOfWork,
+                    mockS3UnitOfWork.Object,
+                    mockMailUnitOfWork.Object
+                );
+                var authenticationController = new AuthenticationController(logicUnitOfWork);
+
+                // act
+                var actualOutput = await authenticationController.Login(mockRequest);
+                var expectOutput = new ResponseModel<TokenResponseModel>()
+                {
+                    Data = null,
+                    Message = "Email does not exist.",
+                    Status = 400
+                };
+
+                // assert
+                Assert.Equal(actualOutput.Data, expectOutput.Data);
+                Assert.Equal(actualOutput.Message, expectOutput.Message);
+                Assert.Equal(actualOutput.Status, expectOutput.Status);
+            }
+        }
     }
 }
