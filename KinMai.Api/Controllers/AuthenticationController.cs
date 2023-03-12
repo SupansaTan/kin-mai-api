@@ -264,12 +264,12 @@ namespace KinMai.Api.Controllers
             return response;
         }
         [HttpPost("ResetPassword")]
-        public async Task<ResponseModel<bool>> ResetPassword([FromBody] string resetToken, string password, string confirmPassword)
+        public async Task<ResponseModel<bool>> ResetPassword([FromBody] ResetPasswordModel request)
         {
             var response = new ResponseModel<bool>();
             try
             {
-                var isSuccess = await _logicUnitOfWork.AuthenticationService.ResetPassword(resetToken, password, confirmPassword);
+                var isSuccess = await _logicUnitOfWork.AuthenticationService.ResetPassword(request);
                 response = new ResponseModel<bool>
                 {
                     Data = isSuccess,

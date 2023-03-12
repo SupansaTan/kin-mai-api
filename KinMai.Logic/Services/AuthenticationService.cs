@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Text;
 using ImageMagick;
 using KinMai.Authentication.Model;
@@ -168,17 +168,17 @@ namespace KinMai.Logic.Services
             var user = await _entityUnitOfWork.UserRepository.GetSingleAsync(x => x.Email == email);
             return user == null;
         }
-        public async Task<bool> ResetPassword(string resetToken, string password, string confirmPassword)
+        public async Task<bool> ResetPassword(ResetPasswordModel model)
         {
             Guid userId;
-            Guid.TryParse(resetToken, out userId);
+            Guid.TryParse(model.ResetToken, out userId);
             var user = await _entityUnitOfWork.UserRepository.GetSingleAsync(x => x.Id == userId);
             if (user == null)
                 throw new ArgumentException("User does not exists.");
-            if (password != confirmPassword)
+            if (model.Password != model.ConfirmPassword)
                 throw new ArgumentException("Password and Confirm password are not matching");
 
-            var isSuccess = await _authenticationUnitOfWork.AWSCognitoService.ResetPassword(user.Id, password);
+            var isSuccess = await _authenticationUnitOfWork.AWSCognitoService.ResetPassword(user.Id, model.Password);
             return isSuccess;
         }
         public async Task<bool> SendEmailResetPassword(string email)
