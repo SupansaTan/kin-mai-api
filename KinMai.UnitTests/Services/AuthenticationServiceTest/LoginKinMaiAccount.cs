@@ -24,8 +24,8 @@ namespace KinMai.UnitTests.Services.AuthenticationServiceTest
             var initConfiguration = new InitConfiguration();
         }
 
-        [Fact(DisplayName = "LoginKinMaiAccount_ReturnTokenModel_ByExistUser")]
-        public async Task TestLoginKinMaiAccount_ReturnTokenModel_ByExistUser()
+        [Fact(DisplayName = "LoginKinMaiAccount_ReturnTokenModel_LoginByExistUser")]
+        public async Task TestLoginKinMaiAccount_ReturnTokenModel_LoginByExistUser()
         {
             // mock data
             Guid userId;
@@ -74,6 +74,42 @@ namespace KinMai.UnitTests.Services.AuthenticationServiceTest
 
                 // assert
                 Assert.NotNull(actualOutput);
+            }
+        }
+
+        [Fact(DisplayName = "LoginKinMaiAccount_ThrowArgumentException_LoginByNewUser")]
+        public async Task TestLoginKinMaiAccount_ThrowArgumentException_LoginByNewUser()
+        {
+            // mock data
+            var email = "nampunch1@gmail.com";
+            var password = "12345678";
+
+            // mock unit of work
+            var mockDapperUnitOfWork = new Mock<IDapperUnitOfWork>();
+            var mockS3UnitOfWork = new Mock<IS3UnitOfWork>();
+            var mockMailUnitOfWork = new Mock<IMailUnitOfWork>();
+
+            using (var context = new KinMaiContext(NewDbContextService.CreateNewContextOptions()))
+            {
+                IEntityUnitOfWork mockEntityUnitOfWork = new EntityUnitOfWork(context);
+                IAuthenticationUnitOfWork mockAuthenticationUnitOfWork = new AuthenticationUnitOfWork();
+
+                // init service
+                IAuthenticationService authenticationService =
+                    new AuthenticationService(
+                        mockEntityUnitOfWork,
+                        mockAuthenticationUnitOfWork,
+                        mockDapperUnitOfWork.Object,
+                        mockS3UnitOfWork.Object,
+                        mockMailUnitOfWork.Object
+                   );
+
+                // act
+                Func<Task> act = () => authenticationService.Login(email, password);
+
+                // assert
+                var exception = await Assert.ThrowsAsync<ArgumentException>(act);
+                Assert.Equal("Email does not exist.", exception.Message);
             }
         }
     }   
