@@ -112,5 +112,55 @@ namespace KinMai.UnitTests.Services.AuthenticationServiceTest
                 Assert.Equal("Email does not exist.", exception.Message);
             }
         }
+
+        [Fact(DisplayName = "LoginKinMaiAccount_ThrowArgumentException_LoginByUserIsRegisteredByGoogleAccount")]
+        public async Task TestLoginKinMaiAccount_ThrowArgumentException_LoginByUserIsRegisteredByGoogleAccount()
+        {
+            // mock data
+            var password = "11111111";
+            var mockUser = new User()
+            {
+                Id = Guid.NewGuid(),
+                Email = "nampunch1@gmail.com",
+                FirstName = "Supansa",
+                LastName = "Tantulset",
+                Username = "littlepunchhz",
+                CreateAt = DateTime.UtcNow,
+                UserType = 1,
+                IsLoginWithGoogle = true
+            };
+
+            // mock unit of work
+            var mockDapperUnitOfWork = new Mock<IDapperUnitOfWork>();
+            var mockS3UnitOfWork = new Mock<IS3UnitOfWork>();
+            var mockMailUnitOfWork = new Mock<IMailUnitOfWork>();
+
+            using (var context = new KinMaiContext(NewDbContextService.CreateNewContextOptions()))
+            {
+                // add user to mock db
+                context.Users.Add(mockUser);
+                context.SaveChanges();
+
+                IEntityUnitOfWork mockEntityUnitOfWork = new EntityUnitOfWork(context);
+                IAuthenticationUnitOfWork mockAuthenticationUnitOfWork = new AuthenticationUnitOfWork();
+
+                // init service
+                IAuthenticationService authenticationService =
+                    new AuthenticationService(
+                        mockEntityUnitOfWork,
+                        mockAuthenticationUnitOfWork,
+                        mockDapperUnitOfWork.Object,
+                        mockS3UnitOfWork.Object,
+                        mockMailUnitOfWork.Object
+                   );
+
+                // act
+                Func<Task> act = () => authenticationService.Login(mockUser.Email, password);
+
+                // assert
+                var exception = await Assert.ThrowsAsync<ArgumentException>(act);
+                Assert.Equal("This email is registered by Google provider, Please login by Google instead", exception.Message);
+            }
+        }
     }   
 }
