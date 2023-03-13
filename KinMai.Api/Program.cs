@@ -52,7 +52,7 @@ builder.Services.AddDefaultAWSOptions(awsOptions);
 builder.Services.AddDbContext<KinMaiContext>(options =>
 {
     options.UseNpgsql(ConnectionResolver.KinMaiConnection)
-            .EnableSensitiveDataLogging()
+            .EnableSensitiveDataLogging(builder.Environment.IsDevelopment())
             .UseLoggerFactory(LoggerFactory.Create(builder => { builder.AddConsole(); }));
 });
 

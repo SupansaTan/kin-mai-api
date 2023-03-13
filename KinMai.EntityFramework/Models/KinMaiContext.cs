@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using KinMai.Common.Resolver;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Newtonsoft.Json;
@@ -97,16 +99,32 @@ public partial class KinMaiContext : DbContext
             entity.Property(e => e.Id).ValueGeneratedNever();
 
             entity.Property(e => e.DeliveryType).HasConversion(
-                     v => JsonConvert.SerializeObject(v),
-                     v => JsonConvert.DeserializeObject<List<int>>(v).ToArray());
+                    v => string.Join(',', v),
+                    v => v.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(int.Parse).ToList()
+                            .ToArray(), new ValueComparer<int[]>(
+                                (c1, c2) => c1.SequenceEqual(c2),
+                                c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+                                c => c.ToArray()
+                            ));
 
             entity.Property(e => e.PaymentMethod).HasConversion(
-                     v => JsonConvert.SerializeObject(v),
-                     v => JsonConvert.DeserializeObject<List<int>>(v).ToArray());
+                    v => string.Join(',', v),
+                    v => v.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(int.Parse).ToList()
+                            .ToArray(), new ValueComparer<int[]>(
+                                (c1, c2) => c1.SequenceEqual(c2),
+                                c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+                                c => c.ToArray()
+                            ));
 
             entity.Property(e => e.ImageLink).HasConversion(
-                     v => JsonConvert.SerializeObject(v),
-                     v => JsonConvert.DeserializeObject<List<string>>(v).ToArray());
+                    v => string.Join(',', v),
+                    v => v.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList()
+                            .Distinct(StringComparer.OrdinalIgnoreCase)
+                            .ToArray(), new ValueComparer<string[]>(
+                                (c1, c2) => c1.SequenceEqual(c2),
+                                c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+                                c => c.ToArray()
+                            ));
 
             entity.HasOne(d => d.Owner).WithMany(p => p.Restaurants)
                 .OnDelete(DeleteBehavior.SetNull)
@@ -120,16 +138,33 @@ public partial class KinMaiContext : DbContext
             entity.Property(e => e.Id).ValueGeneratedNever();
 
             entity.Property(e => e.ImageLink).HasConversion(
-                     v => JsonConvert.SerializeObject(v),
-                     v => JsonConvert.DeserializeObject<List<string>>(v).ToArray());
+                    v => string.Join(',', v),
+                    v => v.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList()
+                            .Distinct(StringComparer.OrdinalIgnoreCase)
+                            .ToArray(), new ValueComparer<string[]>(
+                                (c1, c2) => c1.SequenceEqual(c2),
+                                c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+                                c => c.ToArray()
+                            ));
 
             entity.Property(e => e.FoodRecommendList).HasConversion(
-                     v => JsonConvert.SerializeObject(v),
-                     v => JsonConvert.DeserializeObject<List<string>>(v).ToArray());
+                    v => string.Join(',', v),
+                    v => v.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList()
+                            .Distinct(StringComparer.OrdinalIgnoreCase)
+                            .ToArray(), new ValueComparer<string[]>(
+                                (c1, c2) => c1.SequenceEqual(c2),
+                                c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+                                c => c.ToArray()
+                            ));
 
             entity.Property(e => e.ReviewLabelRecommend).HasConversion(
-                     v => JsonConvert.SerializeObject(v),
-                     v => JsonConvert.DeserializeObject<List<int>>(v).ToArray());
+                    v => string.Join(',', v),
+                    v => v.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(int.Parse).ToList()
+                            .ToArray(), new ValueComparer<int[]>(
+                                (c1, c2) => c1.SequenceEqual(c2),
+                                c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+                                c => c.ToArray()
+                            ));
 
             entity.HasOne(d => d.Restaurant).WithMany(p => p.Reviews)
                 .OnDelete(DeleteBehavior.SetNull)
