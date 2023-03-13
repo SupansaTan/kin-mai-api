@@ -20,5 +20,13 @@ namespace KinMai.Logic.Models
         public string ContactValue { get; set; }
     }
 
+    public class RestaurantUpdateModel
+    {
+        public Guid RestaurantId { get; set; }
+        public RestaurantInfoModel ResUpdateInfo { get; set; }
+        public List<string>? RemoveImageLink { get; set; }
+        public List<IFormFile> NewImageFile { get; set; }
+        public string? RestaurantStatus { get; set; }
+    }
 
 }
