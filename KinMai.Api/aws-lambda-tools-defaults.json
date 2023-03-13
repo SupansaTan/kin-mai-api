@@ -12,10 +12,11 @@
     "function-timeout"     : 10,
     "function-runtime"     : "dotnet6",
     "function-architecture" : "x86_64",
-    "function-subnets"      : "",
-    "function-security-groups" : "",
+    "function-subnets"      : "subnet-0627fdf869194ccdc,subnet-011292e96dc8253ae,subnet-0ca25ed74012fbea3",
+    "function-security-groups" : "sg-016e85440ec3c3826,sg-01981f6265f54e110",
     "tracing-mode"             : "PassThrough",
     "environment-variables"    : "",
     "dockerfile"               : "Dockerfile",
-    "image-tag"                : ""
+    "image-tag"                : "",
+    "function-description"     : ""
 }
