@@ -21,7 +21,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy(allowOrigin, policy =>
     {
-        policy.WithOrigins("http://localhost:4200").AllowAnyHeader().AllowAnyMethod();
+        policy.WithOrigins("http://localhost:4200","https://kinmai.net").AllowAnyHeader().AllowAnyMethod();
     });
 });
 
@@ -31,6 +31,9 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// AWS Lambda support
+builder.Services.AddAWSLambdaHosting(LambdaEventSource.HttpApi);
 
 // resolver
 AWSCredential.PoolId = builder.Configuration.GetSection("AWSCognito")["UserPoolId"];
@@ -49,7 +52,7 @@ builder.Services.AddDefaultAWSOptions(awsOptions);
 builder.Services.AddDbContext<KinMaiContext>(options =>
 {
     options.UseNpgsql(ConnectionResolver.KinMaiConnection)
-            .EnableSensitiveDataLogging()
+            .EnableSensitiveDataLogging(builder.Environment.IsDevelopment())
             .UseLoggerFactory(LoggerFactory.Create(builder => { builder.AddConsole(); }));
 });
 
