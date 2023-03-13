@@ -21,7 +21,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy(allowOrigin, policy =>
     {
-        policy.WithOrigins("http://localhost:4200").AllowAnyHeader().AllowAnyMethod();
+        policy.WithOrigins("http://localhost:4200","https://kinmai.net").AllowAnyHeader().AllowAnyMethod();
     });
 });
 
