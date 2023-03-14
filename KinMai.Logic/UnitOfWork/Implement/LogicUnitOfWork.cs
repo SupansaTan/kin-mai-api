@@ -65,7 +65,7 @@ namespace KinMai.Logic.UnitOfWork.Implement
 
         public IRestaurantService RestaurantService
         {
-            get { return _restaurantService ?? (_restaurantService = new RestaurantService(_entityUnitOfWork,  _dapperUnitOfWork)); }
+            get { return _restaurantService ?? (_restaurantService = new RestaurantService(_entityUnitOfWork, _dapperUnitOfWork, _s3UnitOfWork)); }
 
             set { _restaurantService = value; }
         }

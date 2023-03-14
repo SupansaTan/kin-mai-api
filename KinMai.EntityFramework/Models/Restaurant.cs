@@ -17,6 +17,7 @@ public partial class Restaurant
     [StringLength(255)]
     public string Name { get; set; } = null!;
 
+    [NotMapped]
     public string[]? ImageLink { get; set; }
 
     [StringLength(255)]
@@ -27,8 +28,10 @@ public partial class Restaurant
 
     public DateTime CreateAt { get; set; }
 
+    [NotMapped]
     public int[]? DeliveryType { get; set; }
 
+    [NotMapped]
     public int[]? PaymentMethod { get; set; }
 
     public int RestaurantType { get; set; }
