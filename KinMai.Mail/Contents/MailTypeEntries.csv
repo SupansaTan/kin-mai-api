@@ -1,1 +1,2 @@
 ﻿CodeName,SubjectEmail,SenderName,SenderEmail,ReceiverDetail,ReceiverEmail,Language,HtmlFile,CssFile
+KM000001,{SubjectEmail},KinMai,admin@kinmai.net,,,th,ForgotPassword.html,KinMai.css

@@ -15,6 +15,8 @@ namespace KinMai.Logic.Interface
         Task<GetUserProfileModel> GetUserProfile(Guid userId);
         Task<bool> UpdateUserProfile(UpdateUserProfileModel model);
         Task<bool> CheckIsLoginWithGoogleFirstTimes(string email);
+        Task<bool> ResetPassword(ResetPasswordModel model);
+        Task<bool> SendEmailResetPassword(string email);
     }
 }
 

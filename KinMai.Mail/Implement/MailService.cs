@@ -77,7 +77,7 @@ namespace KinMai.Mail.Implement
                                 Data = subject
                             }
                         },
-                        Source = senderMail
+                        Source = $"{senderName} <{senderMail}>"
                     };
                     await awsSimpleEmailServiceClient.SendEmailAsync(request);
                 }

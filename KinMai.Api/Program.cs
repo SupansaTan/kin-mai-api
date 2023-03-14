@@ -21,7 +21,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy(allowOrigin, policy =>
     {
-        policy.WithOrigins("http://localhost:4200").AllowAnyHeader().AllowAnyMethod();
+        policy.WithOrigins("http://localhost:4200","https://kinmai.net").AllowAnyHeader().AllowAnyMethod();
     });
 });
 
@@ -32,6 +32,9 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// AWS Lambda support
+builder.Services.AddAWSLambdaHosting(LambdaEventSource.HttpApi);
+
 // resolver
 AWSCredential.PoolId = builder.Configuration.GetSection("AWSCognito")["UserPoolId"];
 AWSCredential.ClientId = builder.Configuration.GetSection("AWSCognito")["UserPoolClientId"];
@@ -39,6 +42,7 @@ AWSCredential.ClientSecret = builder.Configuration.GetSection("AWSCognito")["Use
 AWSCredential.AccessKey = builder.Configuration.GetSection("AWSCognito")["AccessKey"];
 AWSCredential.SecretKey = builder.Configuration.GetSection("AWSCognito")["SecretKey"];
 ConnectionResolver.KinMaiConnection = builder.Configuration.GetSection("ConnectionStrings")["KinMaiConnection"];
+ConnectionResolver.KinMaiFrontendUrl = builder.Configuration.GetSection("ConnectionStrings")["KinMaiFrontendUrl"];
 
 // aws
 var awsOptions = builder.Configuration.GetAWSOptions();
@@ -48,7 +52,7 @@ builder.Services.AddDefaultAWSOptions(awsOptions);
 builder.Services.AddDbContext<KinMaiContext>(options =>
 {
     options.UseNpgsql(ConnectionResolver.KinMaiConnection)
-            .EnableSensitiveDataLogging()
+            .EnableSensitiveDataLogging(builder.Environment.IsDevelopment())
             .UseLoggerFactory(LoggerFactory.Create(builder => { builder.AddConsole(); }));
 });
 

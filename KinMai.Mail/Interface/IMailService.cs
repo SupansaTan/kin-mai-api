@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Rakmao.Extenal.Mail.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,6 @@ namespace KinMai.Mail.Interface
 {
     public interface IMailService
     {
-
+        Task SendEmailAsync(string emailCode, MailModel mailModel);
     }
 }

@@ -192,13 +192,11 @@ namespace KinMai.Logic.Services
                 // remove image of old review
                 if (model.RemoveImageLink != null && model.RemoveImageLink.Any())
                 {
-                    var imageLink = review.ImageLink?.ToList();
                     model.RemoveImageLink.ForEach(async (x) =>
                     {
-                        var response = await _S3UnitOfWork.S3FileService.DeleteFile("kinmai", x);
-                        imageLink.Remove(x);
+                        await _S3UnitOfWork.S3FileService.DeleteFile("kinmai", x).ConfigureAwait(false);
+                        review.ImageLink = review.ImageLink.Where(img => img != x).ToArray();
                     });
-                    review.ImageLink = imageLink.ToArray();
                 }
 
                 // add new image
