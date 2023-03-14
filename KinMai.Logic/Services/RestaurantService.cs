@@ -230,7 +230,7 @@ namespace KinMai.Logic.Services
                     var imageLink = restaurant.ImageLink?.ToList();
                     model.RemoveImageLink.ForEach(async (x) =>
                     {
-                        var response = await _S3UnitOfWork.S3FileService.DeleteFile("kinmai", x);
+                        await _S3UnitOfWork.S3FileService.DeleteFile("kinmai", x);
                         imageLink.Remove(x);
                     });
                     restaurant.ImageLink = imageLink.ToArray();

@@ -21,12 +21,15 @@ public partial class Review
     [StringLength(255)]
     public string? Comment { get; set; }
 
+    [NotMapped]
     public string[]? ImageLink { get; set; }
 
+    [NotMapped]
     public string[]? FoodRecommendList { get; set; }
 
     public DateTime CreateAt { get; set; }
 
+    [NotMapped]
     public int[]? ReviewLabelRecommend { get; set; }
 
     [StringLength(255)]
