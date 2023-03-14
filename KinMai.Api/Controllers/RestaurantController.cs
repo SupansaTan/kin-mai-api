@@ -125,5 +125,41 @@ namespace KinMai.Api.Controllers
             }
             return response;
         }
+
+        [HttpPut("UpdateRestaurantDetail")]
+        public async Task<ResponseModel<bool>> UpdateRestaurantDetail([FromBody] RestaurantUpdateModel request)
+        {
+            var response = new ResponseModel<bool>();
+            try
+            {
+                var updateSuccess = await _logicUnitOfWork.RestaurantService.UpdateRestuarantDatail(request);
+                response = new ResponseModel<bool>
+                {
+                    Data = updateSuccess,
+                    Message = "success",
+                    Status = 200
+                };
+            }
+            catch (ArgumentException ae)
+            {
+                response = new ResponseModel<bool>
+                {
+                    Data = false,
+                    Message = ae.Message,
+                    Status = 400
+                };
+            }
+            catch (Exception e)
+            {
+                response = new ResponseModel<bool>
+                {
+                    Data = false,
+                    Message = e.Message,
+                    Status = 500
+                };
+            }
+            return response;
+        }
+
     }
 }

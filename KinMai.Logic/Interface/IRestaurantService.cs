@@ -1,4 +1,5 @@
 ﻿using KinMai.Logic.Models;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,5 +13,6 @@ namespace KinMai.Logic.Interface
         Task<RestaurantDetailModel> GetRestaurantDetail(Guid restuarantId);
         List<ReviewInfoModel> GetAllReviews(Guid restaurantId);
         Task<bool> UpdateReplyReviewInfo(UpdateReplyReviewInfoRequest model);
+        Task<bool> UpdateRestuarantDatail(RestaurantUpdateModel model);
     }
 }

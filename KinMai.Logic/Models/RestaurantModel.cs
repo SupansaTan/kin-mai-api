@@ -1,4 +1,4 @@
-﻿using KinMai.EntityFramework.Models;
+using KinMai.EntityFramework.Models;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -22,6 +22,14 @@ namespace KinMai.Logic.Models
         public string ContactValue { get; set; }
     }
 
+    public class RestaurantUpdateModel
+    {
+        public Guid RestaurantId { get; set; }
+        public RestaurantInfoModel ResUpdateInfo { get; set; }
+        public List<string>? RemoveImageLink { get; set; }
+        public List<IFormFile> NewImageFile { get; set; }
+        public string? RestaurantStatus { get; set; }
+    }
     public class CategoryModel
     {
         public int CategoryType { get; set; }
