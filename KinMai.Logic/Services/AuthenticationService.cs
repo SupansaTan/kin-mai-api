@@ -1,4 +1,5 @@
-﻿using System.Net;
+using System.Net;
+using System.Text;
 using ImageMagick;
 using KinMai.Authentication.Model;
 using KinMai.Authentication.UnitOfWork;
@@ -167,15 +168,17 @@ namespace KinMai.Logic.Services
             var user = await _entityUnitOfWork.UserRepository.GetSingleAsync(x => x.Email == email);
             return user == null;
         }
-        public async Task<bool> ResetPassword(Guid userId, string password, string confirmPassword)
+        public async Task<bool> ResetPassword(ResetPasswordModel model)
         {
+            Guid userId;
+            Guid.TryParse(DecodeBase64String(model.ResetToken), out userId);
             var user = await _entityUnitOfWork.UserRepository.GetSingleAsync(x => x.Id == userId);
             if (user == null)
                 throw new ArgumentException("User does not exists.");
-            if (password != confirmPassword)
+            if (model.Password != model.ConfirmPassword)
                 throw new ArgumentException("Password and Confirm password are not matching");
 
-            var isSuccess = await _authenticationUnitOfWork.AWSCognitoService.ResetPassword(user.Id, password);
+            var isSuccess = await _authenticationUnitOfWork.AWSCognitoService.ResetPassword(user.Id, model.Password);
             return isSuccess;
         }
         public async Task<bool> SendEmailResetPassword(string email)
@@ -184,6 +187,7 @@ namespace KinMai.Logic.Services
             if (user == null)
                 throw new ArgumentException("This email have not registered KinMai account before.");
 
+            var resetPasswordToken = EncodeBase64String(user.Id.ToString());
             var mail = new MailModel()
             {
                 ReceiverEmail = email,
@@ -191,7 +195,7 @@ namespace KinMai.Logic.Services
                 Parameters = new Dictionary<string, string>()
                 {
                     { "SendSubject" , "เปลี่ยนรหัสผ่านระบบ KinMai" },
-                    { "ResetPasswordLink", $"{ConnectionResolver.KinMaiFrontendUrl}/auth/reset-password/{user.Id}" }
+                    { "ResetPasswordLink", $"{ConnectionResolver.KinMaiFrontendUrl}/auth/reset-password/{resetPasswordToken}" }
                 }
             };
             await _mailUnitOfWork.MailService.SendEmailAsync("KM000001", mail);
@@ -352,6 +356,14 @@ namespace KinMai.Logic.Services
                 }
             }
             return uploadImageList;
+        }
+        private string EncodeBase64String(string text)
+        {
+            return Convert.ToBase64String(Encoding.UTF8.GetBytes(text));
+        }
+        private string DecodeBase64String(string text)
+        {
+            return Encoding.UTF8.GetString(Convert.FromBase64String(text));
         }
     }
 }

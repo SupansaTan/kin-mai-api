@@ -1,10 +1,5 @@
-using System;
-using System.Collections.Generic;
 using KinMai.Common.Resolver;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Newtonsoft.Json;
 
 namespace KinMai.EntityFramework.Models;
 
@@ -96,18 +91,6 @@ public partial class KinMaiContext : DbContext
 
             entity.Property(e => e.Id).ValueGeneratedNever();
 
-            entity.Property(e => e.DeliveryType).HasConversion(
-                     v => JsonConvert.SerializeObject(v),
-                     v => JsonConvert.DeserializeObject<List<int>>(v).ToArray());
-
-            entity.Property(e => e.PaymentMethod).HasConversion(
-                     v => JsonConvert.SerializeObject(v),
-                     v => JsonConvert.DeserializeObject<List<int>>(v).ToArray());
-
-            entity.Property(e => e.ImageLink).HasConversion(
-                     v => JsonConvert.SerializeObject(v),
-                     v => JsonConvert.DeserializeObject<List<string>>(v).ToArray());
-
             entity.HasOne(d => d.Owner).WithMany(p => p.Restaurants)
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("user_fk");
@@ -118,18 +101,6 @@ public partial class KinMaiContext : DbContext
             entity.HasKey(e => e.Id).HasName("reviewer_pk");
 
             entity.Property(e => e.Id).ValueGeneratedNever();
-
-            entity.Property(e => e.ImageLink).HasConversion(
-                     v => JsonConvert.SerializeObject(v),
-                     v => JsonConvert.DeserializeObject<List<string>>(v).ToArray());
-
-            entity.Property(e => e.FoodRecommendList).HasConversion(
-                     v => JsonConvert.SerializeObject(v),
-                     v => JsonConvert.DeserializeObject<List<string>>(v).ToArray());
-
-            entity.Property(e => e.ReviewLabelRecommend).HasConversion(
-                     v => JsonConvert.SerializeObject(v),
-                     v => JsonConvert.DeserializeObject<List<int>>(v).ToArray());
 
             entity.HasOne(d => d.Restaurant).WithMany(p => p.Reviews)
                 .OnDelete(DeleteBehavior.SetNull)
@@ -158,7 +129,6 @@ public partial class KinMaiContext : DbContext
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.UserType).HasDefaultValueSql("1");
         });
-
         OnModelCreatingPartial(modelBuilder);
     }
 
