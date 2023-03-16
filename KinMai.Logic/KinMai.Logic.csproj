@@ -52,4 +52,13 @@
     <ProjectReference Include="..\KinMai.EntityFramework\KinMai.EntityFramework.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="QueryCommand\Restaurant\GetRestaurantArrayData.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="QueryCommand\Restaurant\GetReviewList.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
