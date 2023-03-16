@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using ImageMagick;
 using KinMai.Common.Enum;
+using KinMai.Common.ShareService;
 using KinMai.Dapper.Interface;
 using KinMai.EntityFramework.Models;
 using KinMai.EntityFramework.UnitOfWork.Implement;
@@ -39,6 +40,11 @@ namespace KinMai.Logic.Services
             var resInfo = await _entityUnitOfWork.RestaurantRepository.GetSingleAsync(x => x.Id == restuarantId);
             if (resInfo != null)
             {
+                var query = QueryService.GetCommand(QUERY_PATH + "GetRestaurantArrayData",
+                            new ParamCommand { Key = "_restaurantId", Value = restuarantId.ToString() }
+                        );
+                var data = (await _dapperUnitOfWork.KinMaiRepository.QueryAsync<ResArrayDataModel>(query)).ToList();
+                var arrayData = (ResArrayDataModel)data[0];
                 var socialContact = _entityUnitOfWork.SocialContactRepository.GetAll(x => x.RestaurantId == restuarantId)
                     .Select(x => new SocialContactModel()
                     {
@@ -66,22 +72,22 @@ namespace KinMai.Logic.Services
                         Id = resInfo.Id,
                         OwnerId = resInfo.OwnerId,
                         Name = resInfo.Name,
-                        ImageLink = resInfo.ImageLink,
                         Description = resInfo.Description,
                         Address = JsonConvert.SerializeObject(resInfo.Address),
                         CreateAt = resInfo.CreateAt,
-                        DeliveryType = resInfo.DeliveryType?.ToArray(),
-                        PaymentMethod = resInfo.PaymentMethod?.ToArray(),
                         RestaurantType = (int)resInfo.RestaurantType,
                         Owner = resInfo.Owner,
                         Latitude = resInfo.Latitude,
                         Longitude = resInfo.Longitude,
                         MinPriceRate = resInfo.MinPriceRate,
                         MaxPriceRate = resInfo.MaxPriceRate,
+                        ImageLink = arrayData.ImageLink,
+                        DeliveryType = arrayData.DeliveryType?.ToArray(),
+                        PaymentMethod = arrayData.PaymentMethod?.ToArray(),
                     },
                     SocialContact = socialContact,
                     Categories = categories,
-                    BusinessHours = buHour
+                    BusinessHours = buHour,
 
                 };
             }
@@ -91,35 +97,22 @@ namespace KinMai.Logic.Services
             }
         }
 
-        public List<ReviewInfoModel> GetAllReviews(Guid restuarantId)
+        public async Task<ListReviewInfoModel> GetAllReviews(Guid restuarantId)
         {
             var isExist = _entityUnitOfWork.RestaurantRepository.GetSingle(x => x.Id == restuarantId);
             if (isExist != null)
             {
-                var reviews = _entityUnitOfWork.ReviewRepository.GetAll(x => x.RestaurantId == restuarantId);
-
-                reviews = from p in reviews
-                            orderby p.CreateAt
-                            select p;
-
-                var Users = _entityUnitOfWork.UserRepository.GetAll();
-                if (reviews.Count() != 0)
+                var isReviewsExist = _entityUnitOfWork.ReviewRepository.GetAll(x => x.RestaurantId == restuarantId);
+                if (isReviewsExist != null)
                 {
-                    var AllReview = reviews.Select(x => new ReviewInfoModel()
+                    var query = QueryService.GetCommand(QUERY_PATH + "GetReviewList",
+                                new ParamCommand { Key = "_restaurantId", Value = restuarantId.ToString() }
+                            );
+                    var data = ( await _dapperUnitOfWork.KinMaiRepository.QueryAsync<ReviewInfoModel>(query)).ToList();
+                    return new ListReviewInfoModel()
                     {
-                        ReviewId = x.Id,
-                        Rating = x.Rating,
-                        Comment = x.Comment ?? "",
-                        ImageLink = (x.ImageLink != null) ? x.ImageLink.ToList() : new List<string>(),
-                        FoodRecommendList = (x.FoodRecommendList != null) ? x.FoodRecommendList.ToList() : new List<string>(),
-                        ReviewLabelList = (x.ReviewLabelRecommend != null) ? x.ReviewLabelRecommend.ToList() : new List<int>(),
-                        CreateAt = x.CreateAt,
-                        UserId = x.UserId,
-                        UserName = Users.FirstOrDefault(n => n.Id == x.UserId).Username,
-                        ReplyComment = x.ReplyComment ?? ""
-                    }).ToList();
-                    Console.WriteLine(AllReview);
-                    return AllReview;
+                        reviews = data
+                    };
                 }
                 else
                 {

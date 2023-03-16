@@ -2,6 +2,8 @@ using KinMai.EntityFramework.Models;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -42,5 +44,15 @@ namespace KinMai.Logic.Models
         public TimeOnly CloseTime { get; set; }
     }
 
+    public class ResArrayDataModel
+    {
+        public string[]? ImageLink { get; set; }
+        public int[]? DeliveryType { get; set; }
+        public int[]? PaymentMethod { get; set; }
+    }
 
+    public class ListReviewInfoModel
+    {
+        public List<ReviewInfoModel> reviews { get; set; }
+    }
 }

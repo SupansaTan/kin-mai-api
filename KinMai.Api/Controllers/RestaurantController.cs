@@ -54,15 +54,15 @@ namespace KinMai.Api.Controllers
 
 
         [HttpGet("GetRestaurantReviews")]
-        public ResponseModel<List<ReviewInfoModel>> GetRestaurantReviews([FromQuery] Guid restaurantId)
+        public async Task<ResponseModel<ListReviewInfoModel>> GetRestaurantReviews([FromQuery] Guid restaurantId)
         {
-            var response = new ResponseModel<List<ReviewInfoModel>>();
+            var response = new ResponseModel<ListReviewInfoModel>();
             try
             {
-                var payload = _logicUnitOfWork.RestaurantService.GetAllReviews(restaurantId);
+                var payload = await _logicUnitOfWork.RestaurantService.GetAllReviews(restaurantId);
                 if (payload != null)
                 {
-                    response = new ResponseModel<List<ReviewInfoModel>>
+                    response = new ResponseModel<ListReviewInfoModel>
                     {
                         Data = payload,
                         Message = "success",
@@ -72,7 +72,7 @@ namespace KinMai.Api.Controllers
             }
             catch (ArgumentException ae)
             {
-                response = new ResponseModel<List<ReviewInfoModel>>
+                response = new ResponseModel<ListReviewInfoModel>
                 {
                     Data = null,
                     Message = ae.Message,
@@ -81,7 +81,7 @@ namespace KinMai.Api.Controllers
             }
             catch (Exception e)
             {
-                response = new ResponseModel<List<ReviewInfoModel>>
+                response = new ResponseModel<ListReviewInfoModel>
                 {
                     Data = null,
                     Message = e.Message,
