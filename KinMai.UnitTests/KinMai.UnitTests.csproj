@@ -33,4 +33,7 @@
     <ProjectReference Include="..\KinMai.EntityFramework\KinMai.EntityFramework.csproj" />
     <ProjectReference Include="..\KinMai.Logic\KinMai.Logic.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Controllers\RestaurantControllerTest\" />
+  </ItemGroup>
 </Project>
