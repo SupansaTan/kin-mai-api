@@ -282,11 +282,10 @@ namespace KinMai.Logic.Services
                         );
                     var data = (await _dapperUnitOfWork.KinMaiRepository.QueryAsync<ResArrayDataModel>(query));
                 });
-
+                
                 // remove image of old review
                 if (model.RemoveImageLink != null && model.RemoveImageLink.Any())
                 {
-                    //var imageLink = restaurant.ImageLink?.ToList();
                     model.RemoveImageLink.ForEach(async (x) =>
                     {
                         await _S3UnitOfWork.S3FileService.DeleteFile("kinmai", x);
