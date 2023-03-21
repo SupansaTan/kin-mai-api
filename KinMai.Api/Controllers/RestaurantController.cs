@@ -127,7 +127,7 @@ namespace KinMai.Api.Controllers
         }
 
         [HttpPut("UpdateRestaurantDetail")]
-        public async Task<ResponseModel<bool>> UpdateRestaurantDetail([FromBody] RestaurantUpdateModel request)
+        public async Task<ResponseModel<bool>> UpdateRestaurantDetail([FromForm] RestaurantUpdateModel request)
         {
             var response = new ResponseModel<bool>();
             try
