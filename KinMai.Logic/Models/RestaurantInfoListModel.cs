@@ -27,5 +27,6 @@ namespace KinMai.Logic.Models
         public string ImageCover { get; set; }
         public List<string> AnotherImageCover { get; set; }
         public bool IsFavorite { get; set; }
+        public bool isReview { get; set; }
     }
 }
