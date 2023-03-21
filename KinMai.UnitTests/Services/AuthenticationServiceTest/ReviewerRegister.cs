@@ -1,7 +1,6 @@
 ﻿using KinMai.Authentication.UnitOfWork;
 using KinMai.Dapper.Interface;
 using KinMai.EntityFramework.Models;
-using KinMai.EntityFramework.UnitOfWork.Implement;
 using KinMai.EntityFramework.UnitOfWork.Interface;
 using KinMai.Logic.Interface;
 using KinMai.Logic.Models;
@@ -10,30 +9,31 @@ using KinMai.Mail.UnitOfWork;
 using KinMai.S3.UnitOfWork.Interface;
 using KinMai.UnitTests.Shared;
 using Moq;
+using System.Linq.Expressions;
 using Xunit.Abstractions;
 
 namespace KinMai.UnitTests.Services.AuthenticationServiceTest
 {
     public class ReviewerRegister
     {
-        private readonly ITestOutputHelper output;
         private readonly InitConfiguration initConfiguration;
+        private Mock<IDapperUnitOfWork> mockDapperUnitOfWork;
+        private Mock<IS3UnitOfWork> mockS3UnitOfWork;
+        private Mock<IMailUnitOfWork> mockMailUnitOfWork;
+        private IAuthenticationUnitOfWork mockAuthenticationUnitOfWork;
 
-        public ReviewerRegister(ITestOutputHelper output)
+        public ReviewerRegister()
         {
-            this.output = output;
             var initConfiguration = new InitConfiguration();
+            mockDapperUnitOfWork = new Mock<IDapperUnitOfWork>();
+            mockS3UnitOfWork = new Mock<IS3UnitOfWork>();
+            mockMailUnitOfWork = new Mock<IMailUnitOfWork>();
+            mockAuthenticationUnitOfWork = new AuthenticationUnitOfWork();
         }
 
         [Fact]
         public async Task ReviewerRegister_ReturnTrue_WhenRegisterWithValidModel()
         {
-            // mock unit of work
-            var mockDapperUnitOfWork = new Mock<IDapperUnitOfWork>();
-            var mockS3UnitOfWork = new Mock<IS3UnitOfWork>();
-            var mockMailUnitOfWork = new Mock<IMailUnitOfWork>();
-            IAuthenticationUnitOfWork mockAuthenticationUnitOfWork = new AuthenticationUnitOfWork();
-
             // arrange
             var mockRequest = new ReviewerRegisterModel()
             {
@@ -45,36 +45,31 @@ namespace KinMai.UnitTests.Services.AuthenticationServiceTest
                 ConfirmPassword = "12345678"
             };
 
-            using (var context = new KinMaiContext(NewDbContextService.CreateNewContextOptions()))
-            {
-                // init service
-                IEntityUnitOfWork mockEntityUnitOfWork = new EntityUnitOfWork(context);
-                IAuthenticationService authenticationService =
-                    new AuthenticationService(
-                        mockEntityUnitOfWork,
-                        mockAuthenticationUnitOfWork,
-                        mockDapperUnitOfWork.Object,
-                        mockS3UnitOfWork.Object,
-                        mockMailUnitOfWork.Object
-                   );
+            // mock db repository & service
+            var mockEntityUnitOfWork = new Mock<IEntityUnitOfWork>();
+            mockEntityUnitOfWork.Setup(x => x.UserRepository.GetSingleAsync(It.IsAny<Expression<Func<User,bool>>>())).ReturnsAsync(() => null);
+            mockEntityUnitOfWork.Setup(x => x.UserRepository.Add(It.IsAny<User>()));
 
-                // act
-                var actualOutput = await authenticationService.ReviewerRegister(mockRequest);
+            IAuthenticationService authenticationService =
+                new AuthenticationService(
+                    mockEntityUnitOfWork.Object,
+                    mockAuthenticationUnitOfWork,
+                    mockDapperUnitOfWork.Object,
+                    mockS3UnitOfWork.Object,
+                    mockMailUnitOfWork.Object
+               );
 
-                // assert
-                Assert.True(actualOutput);
-            }
+            // act
+            var actualOutput = await authenticationService.ReviewerRegister(mockRequest);
+
+            // assert
+            mockEntityUnitOfWork.VerifyAll();
+            Assert.True(actualOutput);
         }
 
         [Fact]
         public async Task ReviewerRegister_ReturnTrue_WhenRegisterWithGoogleAccount()
         {
-            // mock unit of work
-            var mockDapperUnitOfWork = new Mock<IDapperUnitOfWork>();
-            var mockS3UnitOfWork = new Mock<IS3UnitOfWork>();
-            var mockMailUnitOfWork = new Mock<IMailUnitOfWork>();
-            IAuthenticationUnitOfWork mockAuthenticationUnitOfWork = new AuthenticationUnitOfWork();
-
             // arrange
             var mockRequest = new ReviewerRegisterModel()
             {
@@ -84,35 +79,43 @@ namespace KinMai.UnitTests.Services.AuthenticationServiceTest
                 Username = "littlepunchhz"
             };
 
-            using (var context = new KinMaiContext(NewDbContextService.CreateNewContextOptions()))
-            {
-                // init service
-                IEntityUnitOfWork mockEntityUnitOfWork = new EntityUnitOfWork(context);
-                IAuthenticationService authenticationService =
-                    new AuthenticationService(
-                        mockEntityUnitOfWork,
-                        mockAuthenticationUnitOfWork,
-                        mockDapperUnitOfWork.Object,
-                        mockS3UnitOfWork.Object,
-                        mockMailUnitOfWork.Object
-                   );
+            // mock db repository & service
+            var mockEntityUnitOfWork = new Mock<IEntityUnitOfWork>();
+            mockEntityUnitOfWork.Setup(x => x.UserRepository.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>())).ReturnsAsync(() => null);
+            mockEntityUnitOfWork.Setup(x => x.UserRepository.Add(It.IsAny<User>()));
 
-                // act
-                var actualOutput = await authenticationService.ReviewerRegister(mockRequest);
+            IAuthenticationService authenticationService =
+                new AuthenticationService(
+                    mockEntityUnitOfWork.Object,
+                    mockAuthenticationUnitOfWork,
+                    mockDapperUnitOfWork.Object,
+                    mockS3UnitOfWork.Object,
+                    mockMailUnitOfWork.Object
+               );
 
-                // assert
-                Assert.True(actualOutput);
-            }
+            // act
+            var actualOutput = await authenticationService.ReviewerRegister(mockRequest);
+
+            // assert
+            mockEntityUnitOfWork.VerifyAll();
+            Assert.True(actualOutput);
         }
 
         [Fact]
         public async Task ReviewerRegister_ThrowArgumentException_WhenPasswordDoNotMatch()
         {
-            // mock unit of work
-            var mockDapperUnitOfWork = new Mock<IDapperUnitOfWork>();
-            var mockS3UnitOfWork = new Mock<IS3UnitOfWork>();
-            var mockMailUnitOfWork = new Mock<IMailUnitOfWork>();
-            IAuthenticationUnitOfWork mockAuthenticationUnitOfWork = new AuthenticationUnitOfWork();
+            // mock db repository & service
+            var mockEntityUnitOfWork = new Mock<IEntityUnitOfWork>();
+            mockEntityUnitOfWork.Setup(x => x.UserRepository.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>())).ReturnsAsync(() => null);
+
+            IAuthenticationService authenticationService =
+                new AuthenticationService(
+                    mockEntityUnitOfWork.Object,
+                    mockAuthenticationUnitOfWork,
+                    mockDapperUnitOfWork.Object,
+                    mockS3UnitOfWork.Object,
+                    mockMailUnitOfWork.Object
+               );
 
             // arrange
             var mockRequest = new ReviewerRegisterModel()
@@ -125,38 +128,18 @@ namespace KinMai.UnitTests.Services.AuthenticationServiceTest
                 ConfirmPassword = "123456789"
             };
 
-            using (var context = new KinMaiContext(NewDbContextService.CreateNewContextOptions()))
-            {
-                // init service
-                IEntityUnitOfWork mockEntityUnitOfWork = new EntityUnitOfWork(context);
-                IAuthenticationService authenticationService =
-                    new AuthenticationService(
-                        mockEntityUnitOfWork,
-                        mockAuthenticationUnitOfWork,
-                        mockDapperUnitOfWork.Object,
-                        mockS3UnitOfWork.Object,
-                        mockMailUnitOfWork.Object
-                   );
+            // act
+            Func<Task> act = () => authenticationService.ReviewerRegister(mockRequest);
 
-                // act
-                Func<Task> act = () => authenticationService.ReviewerRegister(mockRequest);
-
-                // assert
-                var exception = await Assert.ThrowsAsync<ArgumentException>(act);
-                Assert.Equal("Password and Confirm password are not matching", exception.Message);
-            }
+            // assert
+            var exception = await Assert.ThrowsAsync<ArgumentException>(act);
+            mockEntityUnitOfWork.VerifyAll();
+            Assert.Equal("Password and Confirm password are not matching", exception.Message);
         }
 
         [Fact]
         public async Task ReviewerRegister_ThrowArgumentException_WhenRegisterWithExistEmail()
         {
-            // mock unit of work
-            var mockDapperUnitOfWork = new Mock<IDapperUnitOfWork>();
-            var mockS3UnitOfWork = new Mock<IS3UnitOfWork>();
-            var mockMailUnitOfWork = new Mock<IMailUnitOfWork>();
-            IAuthenticationUnitOfWork mockAuthenticationUnitOfWork = new AuthenticationUnitOfWork();
-
-            // arrange
             var mockExistUser = new User()
             {
                 Id = Guid.NewGuid(),
@@ -169,6 +152,20 @@ namespace KinMai.UnitTests.Services.AuthenticationServiceTest
                 IsLoginWithGoogle = false
             };
 
+            // mock db repository & service
+            var mockEntityUnitOfWork = new Mock<IEntityUnitOfWork>();
+            mockEntityUnitOfWork.Setup(x => x.UserRepository.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>())).ReturnsAsync(() => mockExistUser);
+
+            IAuthenticationService authenticationService =
+                new AuthenticationService(
+                    mockEntityUnitOfWork.Object,
+                    mockAuthenticationUnitOfWork,
+                    mockDapperUnitOfWork.Object,
+                    mockS3UnitOfWork.Object,
+                    mockMailUnitOfWork.Object
+               );
+
+            // arrange
             var mockRequest = new ReviewerRegisterModel()
             {
                 Email = "nampunch1@gmail.com",
@@ -179,30 +176,13 @@ namespace KinMai.UnitTests.Services.AuthenticationServiceTest
                 ConfirmPassword = "12345678"
             };
 
-            using (var context = new KinMaiContext(NewDbContextService.CreateNewContextOptions()))
-            {
-                // add exist user to mock db
-                context.Users.Add(mockExistUser);
-                context.SaveChanges();
+            // act
+            Func<Task> act = () => authenticationService.ReviewerRegister(mockRequest);
 
-                // init service
-                IEntityUnitOfWork mockEntityUnitOfWork = new EntityUnitOfWork(context);
-                IAuthenticationService authenticationService =
-                    new AuthenticationService(
-                        mockEntityUnitOfWork,
-                        mockAuthenticationUnitOfWork,
-                        mockDapperUnitOfWork.Object,
-                        mockS3UnitOfWork.Object,
-                        mockMailUnitOfWork.Object
-                   );
-
-                // act
-                Func<Task> act = () => authenticationService.ReviewerRegister(mockRequest);
-
-                // assert
-                var exception = await Assert.ThrowsAsync<ArgumentException>(act);
-                Assert.Equal("Email already exists.", exception.Message);
-            }
+            // assert
+            var exception = await Assert.ThrowsAsync<ArgumentException>(act);
+            mockEntityUnitOfWork.VerifyAll();
+            Assert.Equal("Email already exists.", exception.Message);
         }
     }
 }
