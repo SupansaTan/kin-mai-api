@@ -94,6 +94,27 @@ public partial class KinMaiContext : DbContext
             entity.HasOne(d => d.Owner).WithMany(p => p.Restaurants)
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("user_fk");
+
+            if (!Database.IsNpgsql())
+            {
+                entity.Property(e => e.DeliveryType)
+                .HasConversion(
+                    v => string.Join(",", v),
+                    v => Array.ConvertAll(v.Split(",", StringSplitOptions.RemoveEmptyEntries), c => int.Parse(c))
+                );
+
+                entity.Property(e => e.PaymentMethod)
+                .HasConversion(
+                    v => string.Join(",", v),
+                    v => Array.ConvertAll(v.Split(",", StringSplitOptions.RemoveEmptyEntries), c => int.Parse(c))
+                );
+
+                entity.Property(e => e.ImageLink)
+                .HasConversion(
+                     v => string.Join(',', v),
+                     v => v.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                );
+            }
         });
 
         modelBuilder.Entity<Review>(entity =>
@@ -109,6 +130,27 @@ public partial class KinMaiContext : DbContext
             entity.HasOne(d => d.User).WithMany(p => p.Reviews)
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("user_fk");
+
+            if (!Database.IsNpgsql())
+            {
+                entity.Property(e => e.ReviewLabelRecommend)
+                .HasConversion(
+                    v => string.Join(",", v),
+                    v => Array.ConvertAll(v.Split(",", StringSplitOptions.RemoveEmptyEntries), c => int.Parse(c))
+                );
+
+                entity.Property(e => e.FoodRecommendList)
+                .HasConversion(
+                    v => string.Join(',', v),
+                    v => v.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                );
+
+                entity.Property(e => e.ImageLink)
+                .HasConversion(
+                     v => string.Join(',', v),
+                     v => v.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                );
+            }
         });
 
         modelBuilder.Entity<SocialContact>(entity =>
