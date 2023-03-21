@@ -35,7 +35,7 @@ namespace KinMai.UnitTests.Controllers.AuthenticationControllerTest
         [Fact]
         public async Task ReviewerRegister_ReturnStatus200_WhenRegisterWithValidModel()
         {
-            // mock db repository & service
+            // mock db repository
             var mockEntityUnitOfWork = new Mock<IEntityUnitOfWork>();
             mockEntityUnitOfWork.Setup(x => x.UserRepository.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>())).ReturnsAsync(() => null);
             mockEntityUnitOfWork.Setup(x => x.UserRepository.Add(It.IsAny<User>()));
