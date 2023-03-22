@@ -1,12 +1,14 @@
 ﻿using Amazon.CognitoIdentityProvider.Model;
+using KinMai.Api.Controllers;
+using KinMai.Api.Models;
 using KinMai.Authentication.UnitOfWork;
 using KinMai.Common.Enum;
 using KinMai.Dapper.Interface;
 using KinMai.EntityFramework.Models;
 using KinMai.EntityFramework.UnitOfWork.Interface;
-using KinMai.Logic.Interface;
 using KinMai.Logic.Models;
-using KinMai.Logic.Services;
+using KinMai.Logic.UnitOfWork.Implement;
+using KinMai.Logic.UnitOfWork.Interface;
 using KinMai.Mail.UnitOfWork;
 using KinMai.S3.Models;
 using KinMai.S3.UnitOfWork.Interface;
@@ -16,17 +18,18 @@ using Moq;
 using System.Linq.Expressions;
 using System.Net;
 
-namespace KinMai.UnitTests.Services.AuthenticationServiceTest
+namespace KinMai.UnitTests.Controllers.AuthenticationControllerTest
 {
     public class RestaurantRegister
     {
         private readonly InitConfiguration initConfiguration;
-        private Mock<IDapperUnitOfWork> mockDapperUnitOfWork;
-        private Mock<IS3UnitOfWork> mockS3UnitOfWork;
-        private Mock<IMailUnitOfWork> mockMailUnitOfWork;
-        private Mock<IAuthenticationUnitOfWork> mockAuthenticationUnitOfWork;
-        private Mock<IEntityUnitOfWork> mockEntityUnitOfWork;
-        private IAuthenticationService authenticationService;
+        private readonly Mock<IDapperUnitOfWork> mockDapperUnitOfWork;
+        private readonly Mock<IS3UnitOfWork> mockS3UnitOfWork;
+        private readonly Mock<IMailUnitOfWork> mockMailUnitOfWork;
+        private readonly Mock<IAuthenticationUnitOfWork> mockAuthenticationUnitOfWork;
+        private readonly Mock<IEntityUnitOfWork> mockEntityUnitOfWork;
+        private readonly ILogicUnitOfWork logicUnitOfWork;
+        private readonly AuthenticationController authenticationController;
 
         public RestaurantRegister()
         {
@@ -36,17 +39,18 @@ namespace KinMai.UnitTests.Services.AuthenticationServiceTest
             mockMailUnitOfWork = new Mock<IMailUnitOfWork>();
             mockAuthenticationUnitOfWork = new Mock<IAuthenticationUnitOfWork>();
             mockEntityUnitOfWork = new Mock<IEntityUnitOfWork>();
-            authenticationService = new AuthenticationService(
+            logicUnitOfWork = new LogicUnitOfWork(
                 mockEntityUnitOfWork.Object,
-                mockAuthenticationUnitOfWork.Object,
                 mockDapperUnitOfWork.Object,
+                mockAuthenticationUnitOfWork.Object,
                 mockS3UnitOfWork.Object,
                 mockMailUnitOfWork.Object
             );
+            authenticationController = new AuthenticationController(logicUnitOfWork);
         }
 
         [Fact]
-        public async Task RestaurantRegister_ReturnTrue_WhenRegisterWithValidModel()
+        public async Task RestaurantRegister_ReturnStatus200_WhenRegisterWithValidModel()
         {
             // arrange
             var mockUserInfo = new ReviewerRegisterModel()
@@ -74,20 +78,20 @@ namespace KinMai.UnitTests.Services.AuthenticationServiceTest
                 DeliveryType = new List<int> { 1, 2 },
                 Categories = new List<RestaurantCategories> { RestaurantCategories.Cafe, RestaurantCategories.Bakery },
                 PaymentMethods = new List<int> { 1, 2 },
-                Contact = new List<RestaurantContactModel> { 
-                    new RestaurantContactModel() 
+                Contact = new List<RestaurantContactModel> {
+                    new RestaurantContactModel()
                     {
                         Social = SocialContactType.Tel,
                         ContactValue = "0888888888"
-                    } 
+                    }
                 },
-                BusinessHours = new List<BusinessHourModel> { 
-                    new BusinessHourModel() 
+                BusinessHours = new List<BusinessHourModel> {
+                    new BusinessHourModel()
                     {
                         Day = 1,
                         StartTime = DateTime.Now,
                         EndTime = DateTime.Now.AddHours(7),
-                    } 
+                    }
                 }
             };
 
@@ -140,17 +144,22 @@ namespace KinMai.UnitTests.Services.AuthenticationServiceTest
                             .Returns(Task.FromResult("image link"));
 
             // act
-            var actualOutput = await authenticationService.RestaurantRegister(request);
+            var actualOutput = await authenticationController.RestaurantRegister(request);
+            var expectOutput = new ResponseModel<bool>()
+            {
+                Data = true,
+                Message = "success",
+                Status = 200
+            };
 
             // assert
-            mockEntityUnitOfWork.VerifyAll();
-            mockAuthenticationUnitOfWork.VerifyAll();
-            mockS3UnitOfWork.VerifyAll();
-            Assert.True(actualOutput);
+            Assert.Equal(actualOutput.Data, expectOutput.Data);
+            Assert.Equal(actualOutput.Message, expectOutput.Message);
+            Assert.Equal(actualOutput.Status, expectOutput.Status);
         }
 
         [Fact]
-        public async Task RestaurantRegister_ReturnTrue_WhenRegisterWithGoogleAccount()
+        public async Task RestaurantRegister_ReturnStatus200_WhenRegisterWithGoogleAccount()
         {
             // arrange
             var mockUserInfo = new ReviewerRegisterModel()
@@ -231,16 +240,22 @@ namespace KinMai.UnitTests.Services.AuthenticationServiceTest
                             .Returns(Task.FromResult("image link"));
 
             // act
-            var actualOutput = await authenticationService.RestaurantRegister(request);
+            var actualOutput = await authenticationController.RestaurantRegister(request);
+            var expectOutput = new ResponseModel<bool>()
+            {
+                Data = true,
+                Message = "success",
+                Status = 200
+            };
 
             // assert
-            mockEntityUnitOfWork.VerifyAll();
-            mockS3UnitOfWork.VerifyAll();
-            Assert.True(actualOutput);
+            Assert.Equal(actualOutput.Data, expectOutput.Data);
+            Assert.Equal(actualOutput.Message, expectOutput.Message);
+            Assert.Equal(actualOutput.Status, expectOutput.Status);
         }
 
         [Fact]
-        public async Task RestaurantRegister_ThrowArgumentException_WhenPasswordDoNotMatch()
+        public async Task RestaurantRegister_ReturnStatus400_WhenPasswordDoNotMatch()
         {
             // arrange
             var mockUserInfo = new ReviewerRegisterModel()
@@ -307,16 +322,22 @@ namespace KinMai.UnitTests.Services.AuthenticationServiceTest
                                 .ReturnsAsync(() => null);
 
             // act
-            Func<Task> act = () => authenticationService.RestaurantRegister(request);
+            var actualOutput = await authenticationController.RestaurantRegister(request);
+            var expectOutput = new ResponseModel<bool>()
+            {
+                Data = false,
+                Message = "Password and Confirm password are not matching",
+                Status = 400
+            };
 
             // assert
-            var exception = await Assert.ThrowsAsync<ArgumentException>(act);
-            mockEntityUnitOfWork.VerifyAll();
-            Assert.Equal("Password and Confirm password are not matching", exception.Message);
+            Assert.Equal(actualOutput.Data, expectOutput.Data);
+            Assert.Equal(actualOutput.Message, expectOutput.Message);
+            Assert.Equal(actualOutput.Status, expectOutput.Status);
         }
 
         [Fact]
-        public async Task RestaurantRegister_ThrowArgumentException_WhenRegisterWithExistEmail()
+        public async Task RestaurantRegister_ReturnStatus400_WhenRegisterWithExistEmail()
         {
             // arrange
             var mockUserInfo = new ReviewerRegisterModel()
@@ -391,12 +412,18 @@ namespace KinMai.UnitTests.Services.AuthenticationServiceTest
                                 });
 
             // act
-            Func<Task> act = () => authenticationService.RestaurantRegister(request);
+            var actualOutput = await authenticationController.RestaurantRegister(request);
+            var expectOutput = new ResponseModel<bool>()
+            {
+                Data = false,
+                Message = "Email already exists.",
+                Status = 400
+            };
 
             // assert
-            var exception = await Assert.ThrowsAsync<ArgumentException>(act);
-            mockEntityUnitOfWork.VerifyAll();
-            Assert.Equal("Email already exists.", exception.Message);
+            Assert.Equal(actualOutput.Data, expectOutput.Data);
+            Assert.Equal(actualOutput.Message, expectOutput.Message);
+            Assert.Equal(actualOutput.Status, expectOutput.Status);
         }
     }
 }
