@@ -15,7 +15,7 @@ using System.Linq.Expressions;
 
 namespace KinMai.UnitTests.Controllers.AuthenticationControllerTest
 {
-    public class GetUserInfo
+    public class GetUserProfile
     {
         private readonly InitConfiguration initConfiguration;
         private readonly Mock<IDapperUnitOfWork> mockDapperUnitOfWork;
@@ -26,7 +26,7 @@ namespace KinMai.UnitTests.Controllers.AuthenticationControllerTest
         private readonly ILogicUnitOfWork logicUnitOfWork;
         private readonly AuthenticationController authenticationController;
 
-        public GetUserInfo()
+        public GetUserProfile()
         {
             initConfiguration = new InitConfiguration();
             mockDapperUnitOfWork = new Mock<IDapperUnitOfWork>();
@@ -45,7 +45,7 @@ namespace KinMai.UnitTests.Controllers.AuthenticationControllerTest
         }
 
         [Fact]
-        public async Task GetUserInfo_ReturnStatus200_WhenEmailIsExist()
+        public async Task GetUserProfile_ReturnStatus200_WhenUserIsExist()
         {
             // arrange
             var mockUser = new User()
@@ -65,15 +65,17 @@ namespace KinMai.UnitTests.Controllers.AuthenticationControllerTest
                                 .ReturnsAsync(() => mockUser);
 
             // act
-            var actualOutput = await authenticationController.GetUserInfo("nampunch1@gmail.com");
-            var expectOutput = new ResponseModel<UserInfoModel>()
+            var actualOutput = await authenticationController.GetUserProfile(mockUser.Id);
+            var expectOutput = new ResponseModel<GetUserProfileModel>()
             {
-                Data = new UserInfoModel()
+                Data = new GetUserProfileModel()
                 {
                     UserId = mockUser.Id,
-                    UserName = mockUser.Username,
-                    RestaurantName = "",
-                    UserType = (Common.Enum.UserType)mockUser.UserType
+                    FirstName = "Supansa",
+                    LastName = "Tantulset",
+                    Username = "littlepunchhz",
+                    Email = "nampunch1@gmail.com",
+                    IsLoginWithGoogle = false
                 },
                 Message = "success",
                 Status = 200
@@ -81,26 +83,28 @@ namespace KinMai.UnitTests.Controllers.AuthenticationControllerTest
 
             // assert
             Assert.Equal(expectOutput.Data.UserId, actualOutput.Data.UserId);
-            Assert.Equal(expectOutput.Data.UserName, actualOutput.Data.UserName);
-            Assert.Equal(expectOutput.Data.RestaurantName, actualOutput.Data.RestaurantName);
-            Assert.Equal(expectOutput.Data.UserType, actualOutput.Data.UserType);
+            Assert.Equal(expectOutput.Data.FirstName, actualOutput.Data.FirstName);
+            Assert.Equal(expectOutput.Data.LastName, actualOutput.Data.LastName);
+            Assert.Equal(expectOutput.Data.Username, actualOutput.Data.Username);
+            Assert.Equal(expectOutput.Data.Email, actualOutput.Data.Email);
+            Assert.Equal(expectOutput.Data.IsLoginWithGoogle, actualOutput.Data.IsLoginWithGoogle);
             Assert.Equal(expectOutput.Message, actualOutput.Message);
             Assert.Equal(expectOutput.Status, actualOutput.Status);
         }
 
         [Fact]
-        public async Task GetUserInfo_ReturnStatus400_WhenEmailDoesNotExist()
+        public async Task GetUserProfile_ReturnStatus400_WhenUserDoesNotExist()
         {
             // setup database response
             mockEntityUnitOfWork.Setup(x => x.UserRepository.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>()))
                                 .ReturnsAsync(() => null);
 
             // act
-            var actualOutput = await authenticationController.GetUserInfo("nampunch1@gmail.com");
-            var expectOutput = new ResponseModel<UserInfoModel>()
+            var actualOutput = await authenticationController.GetUserProfile(Guid.NewGuid());
+            var expectOutput = new ResponseModel<GetUserProfileModel>()
             {
                 Data = null,
-                Message = "Email does not exist.",
+                Message = "User does not exists.",
                 Status = 400
             };
 
