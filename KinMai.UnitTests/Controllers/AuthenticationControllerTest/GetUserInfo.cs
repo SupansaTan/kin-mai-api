@@ -45,7 +45,7 @@ namespace KinMai.UnitTests.Controllers.AuthenticationControllerTest
         }
 
         [Fact]
-        public async Task RestaurantRegister_ReturnUserInfoModel_WhenEmailIsExist()
+        public async Task GetUserInfo_ReturnUserInfoModel_WhenEmailIsExist()
         {
             // arrange
             var mockUser = new User()
@@ -89,7 +89,7 @@ namespace KinMai.UnitTests.Controllers.AuthenticationControllerTest
         }
 
         [Fact]
-        public async Task RestaurantRegister_ThrowArgumentException_WhenEmailDoesNotExist()
+        public async Task GetUserInfo_ThrowArgumentException_WhenEmailDoesNotExist()
         {
             // setup database response
             mockEntityUnitOfWork.Setup(x => x.UserRepository.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>()))

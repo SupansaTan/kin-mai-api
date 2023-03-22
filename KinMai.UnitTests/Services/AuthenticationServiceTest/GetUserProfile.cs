@@ -13,7 +13,7 @@ using System.Linq.Expressions;
 
 namespace KinMai.UnitTests.Services.AuthenticationServiceTest
 {
-    public class GetUserInfo
+    public class GetUserProfile
     {
         private readonly InitConfiguration initConfiguration;
         private Mock<IDapperUnitOfWork> mockDapperUnitOfWork;
@@ -23,7 +23,7 @@ namespace KinMai.UnitTests.Services.AuthenticationServiceTest
         private Mock<IEntityUnitOfWork> mockEntityUnitOfWork;
         private IAuthenticationService authenticationService;
 
-        public GetUserInfo()
+        public GetUserProfile()
         {
             initConfiguration = new InitConfiguration();
             mockDapperUnitOfWork = new Mock<IDapperUnitOfWork>();
@@ -41,7 +41,7 @@ namespace KinMai.UnitTests.Services.AuthenticationServiceTest
         }
 
         [Fact]
-        public async Task GetUserInfo_ReturnUserInfoModel_WhenEmailIsExist()
+        public async Task GetUserProfile_ReturnGetUserProfileModel_WhenUserIsExist()
         {
             // arrange
             var mockUser = new User()
@@ -61,37 +61,41 @@ namespace KinMai.UnitTests.Services.AuthenticationServiceTest
                                 .ReturnsAsync(() => mockUser);
 
             // act
-            var actualOutput = await authenticationService.GetUserInfo("nampunch1@gmail.com");
-            var expectedOutput = new UserInfoModel()
+            var actualOutput = await authenticationService.GetUserProfile(mockUser.Id);
+            var expectedOutput = new GetUserProfileModel()
             {
                 UserId = mockUser.Id,
-                UserName = mockUser.Username,
-                RestaurantName = "",
-                UserType = (Common.Enum.UserType)mockUser.UserType
+                FirstName = "Supansa",
+                LastName = "Tantulset",
+                Username = "littlepunchhz",
+                Email = "nampunch1@gmail.com",
+                IsLoginWithGoogle = false
             };
 
             // assert
             mockEntityUnitOfWork.VerifyAll();
             Assert.Equal(expectedOutput.UserId, actualOutput.UserId);
-            Assert.Equal(expectedOutput.UserName, actualOutput.UserName);
-            Assert.Equal(expectedOutput.RestaurantName, actualOutput.RestaurantName);
-            Assert.Equal(expectedOutput.UserType, actualOutput.UserType);
+            Assert.Equal(expectedOutput.FirstName, actualOutput.FirstName);
+            Assert.Equal(expectedOutput.LastName, actualOutput.LastName);
+            Assert.Equal(expectedOutput.Username, actualOutput.Username);
+            Assert.Equal(expectedOutput.Email, actualOutput.Email);
+            Assert.Equal(expectedOutput.IsLoginWithGoogle, actualOutput.IsLoginWithGoogle);
         }
 
         [Fact]
-        public async Task GetUserInfo_ThrowArgumentException_WhenEmailDoesNotExist()
+        public async Task GetUserProfile_ThrowArgumentException_WhenUserDoesNotExist()
         {
             // setup database response
             mockEntityUnitOfWork.Setup(x => x.UserRepository.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>()))
                                 .ReturnsAsync(() => null);
 
             // act
-            Func<Task> act = () => authenticationService.GetUserInfo("nampunch1@gmail.com");
+            Func<Task> act = () => authenticationService.GetUserProfile(Guid.NewGuid());
 
             // assert
             var exception = await Assert.ThrowsAsync<ArgumentException>(act);
             mockEntityUnitOfWork.VerifyAll();
-            Assert.Equal("Email does not exist.", exception.Message);
+            Assert.Equal("User does not exists.", exception.Message);
         }
     }
 }
