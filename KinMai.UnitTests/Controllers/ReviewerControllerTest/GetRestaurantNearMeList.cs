@@ -39,6 +39,7 @@ namespace KinMai.UnitTests.Controllers.ReviewerControllerTest
 		[Fact]
 		public async Task GetRestaurantNearMeList_RetuenStatus200_WhenRequestWithValidModel()
 		{
+            //add restaurant info
             var mockRestaurantInfo = new List<RestaurantInfoItemModel>() {
                 new RestaurantInfoItemModel()
                 {
@@ -58,7 +59,7 @@ namespace KinMai.UnitTests.Controllers.ReviewerControllerTest
                 }
             };
 
-            // mock dapper & controller
+            // ** mock dapper & controller 
             mockEntityUnitOfWork.Setup(x => x.RestaurantRepository.GetAll()).Returns(() => It.IsAny<IQueryable<Restaurant>>());
             mockDapperUnitOfWork.Setup(x => x.KinMaiRepository.QueryAsync<RestaurantInfoItemModel>(It.IsAny<string>())).Returns(() => Task.FromResult<IEnumerable<RestaurantInfoItemModel>>(mockRestaurantInfo));
 
@@ -71,14 +72,14 @@ namespace KinMai.UnitTests.Controllers.ReviewerControllerTest
             );
             var reviewerController = new ReviewerController(logicUnitOfWork);
 
-            // arrange
+            // arrange mock req
             var mockRequest = new GetRestaurantNearMeRequestModel()
             {
-                userId = new Guid("9c16fe15-f21e-4071-94e8-c982b6c9c626"),
+                userId = new Guid("9c16fe15-f21e-4071-94e8-c982b6c9c626"), //nampunch1@gmail.com
                 latitude = 13.736717,
                 longitude = 100.523186,
-                skip = 0,
-                take = 20
+                skip = 0, //**
+                take = 20  //**
             };
 
             // act
@@ -101,6 +102,119 @@ namespace KinMai.UnitTests.Controllers.ReviewerControllerTest
             Assert.Equal(expectOutput.Message, actualOutput.Message);
             Assert.Equal(expectOutput.Status, actualOutput.Status);
         }
+
+        //
+        [Fact]
+        public async Task GetRestaurantNearMeList_RetuenStatus400_WhenResquestInvalid()
+        {
+           // arrange mock req
+            var mockRequest = new GetRestaurantNearMeRequestModel()
+            {
+                userId = new Guid(" "), 
+                latitude = 0,
+                longitude = 0,
+                skip = 0, //**
+                take = 0  //**
+            };
+
+            // ** mock dapper & controller 
+            mockEntityUnitOfWork.Setup(x => x.RestaurantRepository.GetAll()).Returns(() => It.IsAny<IQueryable<Restaurant>>());
+            mockDapperUnitOfWork.Setup(x => x.KinMaiRepository.QueryAsync<RestaurantInfoItemModel>(It.IsAny<string>())).Returns(() => Task.FromResult<IEnumerable<RestaurantInfoItemModel>>(mockRestaurantInfo));
+
+            ILogicUnitOfWork logicUnitOfWork = new LogicUnitOfWork(
+                mockEntityUnitOfWork.Object,
+                mockDapperUnitOfWork.Object,
+                mockAuthenticationUnitOfWork,
+                mockS3UnitOfWork.Object,
+                mockMailUnitOfWork.Object
+            );
+            var reviewerController = new ReviewerController(logicUnitOfWork);
+
+            // act
+            var actualOutput = await reviewerController.GetRestaurantNearMeList(mockRequest);
+            output.WriteLine(actualOutput.ToString());
+            var expectOutput = new ResponseModel<RestaurantInfoListModel>
+            {
+                Data = null,
+                Message = "Can't find restaurant near me",
+                Status = 400
+            };
+
+            // assert
+            Assert.Equal(expectOutput.Data, actualOutput.Data);
+            Assert.Equal(expectOutput.Message, actualOutput.Message);
+            Assert.Equal(expectOutput.Status, actualOutput.Status);
+
+        }
+
+        //500 - External error เช่น error ที่ service ของ amazon ที่เราไม่ได้ดักไว้, และก็เคสที่เราไม่ได้ดักไว้ก็จะ throw Exception ออกมา ขึ้น 500 เหมือนกัน
+        [Fact]
+        public async Task GetRestaurantNearMeList_RetuenStatus500_WhenRestaurantNotExist()
+        {
+            //add restaurant info
+            var mockRestaurantInfo = new List<RestaurantInfoItemModel>() {
+                new RestaurantInfoItemModel()
+                {
+                    RestaurantId = Guid.NewGuid(),
+                    RestaurantName = "Test",
+                    Rating = 0,
+                    StartTime = " ",
+                    EndTime = " ",
+                    Distance = 0,
+                    MinPriceRate = 0,
+                    MaxPriceRate = 0,
+                    TotalReview = 0,
+                    ImageCover = "testImageCover",
+                    AnotherImageCover = new List<string>(),
+                    IsFavorite = false,
+                    isReview = false
+                }
+            };
+
+            // ** mock dapper & controller 
+            mockEntityUnitOfWork.Setup(x => x.RestaurantRepository.GetAll()).Returns(() => It.IsAny<IQueryable<Restaurant>>());
+            mockDapperUnitOfWork.Setup(x => x.KinMaiRepository.QueryAsync<RestaurantInfoItemModel>(It.IsAny<string>())).Returns(() => Task.FromResult<IEnumerable<RestaurantInfoItemModel>>(mockRestaurantInfo));
+
+            ILogicUnitOfWork logicUnitOfWork = new LogicUnitOfWork(
+                mockEntityUnitOfWork.Object,
+                mockDapperUnitOfWork.Object,
+                mockAuthenticationUnitOfWork,
+                mockS3UnitOfWork.Object,
+                mockMailUnitOfWork.Object
+            );
+            var reviewerController = new ReviewerController(logicUnitOfWork);
+
+            // arrange mock req
+            var mockRequest = new GetRestaurantNearMeRequestModel()
+            {
+                userId = new Guid("9xxxxxxxxxxxxxxxx"), //nampunch1@gmail.com
+                latitude = 0,
+                longitude = 0,
+                skip = 0, //**
+                take = 0  //**
+            };
+
+            // act
+            var actualOutput = await reviewerController.GetRestaurantNearMeList(mockRequest);
+            output.WriteLine(actualOutput.ToString());
+            var expectOutput = new ResponseModel<RestaurantInfoListModel>
+            {
+                Data = null,
+                Message = "Restaurant doesn't exist",
+                Status = 500
+            };
+
+            // assert
+            Assert.Equal(expectOutput.Data, actualOutput.Data);
+            Assert.Equal(expectOutput.Message, actualOutput.Message);
+            Assert.Equal(expectOutput.Status, actualOutput.Status);
+
+        }
+
+
+
+
     }
+
 }
 
