@@ -1,7 +1,8 @@
-﻿using KinMai.Api.Controllers;
+using KinMai.Api.Controllers;
 using KinMai.Api.Models;
 using KinMai.Api.Models.Reviewer;
 using KinMai.Authentication.UnitOfWork;
+using KinMai.Common.Enum;
 using KinMai.Dapper.Interface;
 using KinMai.EntityFramework.Models;
 using KinMai.EntityFramework.UnitOfWork.Interface;
@@ -39,7 +40,6 @@ namespace KinMai.UnitTests.Controllers.ReviewerControllerTest
 		[Fact]
 		public async Task GetRestaurantNearMeList_RetuenStatus200_WhenRequestWithValidModel()
 		{
-            //add restaurant info
             var mockRestaurantInfo = new List<RestaurantInfoItemModel>() {
                 new RestaurantInfoItemModel()
                 {
@@ -59,9 +59,28 @@ namespace KinMai.UnitTests.Controllers.ReviewerControllerTest
                 }
             };
 
-            // ** mock dapper & controller 
-            mockEntityUnitOfWork.Setup(x => x.RestaurantRepository.GetAll()).Returns(() => It.IsAny<IQueryable<Restaurant>>());
-            mockDapperUnitOfWork.Setup(x => x.KinMaiRepository.QueryAsync<RestaurantInfoItemModel>(It.IsAny<string>())).Returns(() => Task.FromResult<IEnumerable<RestaurantInfoItemModel>>(mockRestaurantInfo));
+            var mockRestaurant = new List<Restaurant>()
+            {
+                new Restaurant()
+                {
+                    Id = Guid.NewGuid(),
+                    OwnerId = Guid.NewGuid(),
+                    Name = "Test",
+                    RestaurantType = (int)RestaurantType.All,
+                    MinPriceRate = 200,
+                    MaxPriceRate = 1000,
+                    Latitude = 0,
+                    Longitude = 0,
+                    CreateAt = DateTime.Now
+                }
+            };
+            IQueryable<Restaurant> queryableRestaurant = mockRestaurant.AsQueryable();
+
+            // mock dapper & controller
+            mockEntityUnitOfWork.Setup(x => x.RestaurantRepository.GetAll())
+                                .Returns(() => queryableRestaurant);
+            mockDapperUnitOfWork.Setup(x => x.KinMaiRepository.QueryAsync<RestaurantInfoItemModel>(It.IsAny<string>()))
+                                .Returns(() => Task.FromResult<IEnumerable<RestaurantInfoItemModel>>(mockRestaurantInfo));
 
             ILogicUnitOfWork logicUnitOfWork = new LogicUnitOfWork(
                 mockEntityUnitOfWork.Object,
@@ -84,26 +103,26 @@ namespace KinMai.UnitTests.Controllers.ReviewerControllerTest
 
             // act
             var actualOutput = await reviewerController.GetRestaurantNearMeList(mockRequest);
-            output.WriteLine(actualOutput.ToString());
             var expectOutput = new ResponseModel<RestaurantInfoListModel>
             {
                 Data = new RestaurantInfoListModel()
                 {
-                    RestaurantInfo = new List<RestaurantInfoItemModel>(),
-                    TotalRestaurant = 0,
-                    RestaurantCumulativeCount = 0
+                    RestaurantInfo = mockRestaurantInfo,
+                    TotalRestaurant = 1,
+                    RestaurantCumulativeCount = 1
                 },
                 Message = "success",
                 Status = 200
             };
 
             // assert
-            Assert.Equal(expectOutput.Data, actualOutput.Data);
+            Assert.Equal(expectOutput.Data.RestaurantInfo, actualOutput.Data.RestaurantInfo);
+            Assert.Equal(expectOutput.Data.TotalRestaurant, actualOutput.Data.TotalRestaurant);
+            Assert.Equal(expectOutput.Data.RestaurantCumulativeCount, actualOutput.Data.RestaurantCumulativeCount);
             Assert.Equal(expectOutput.Message, actualOutput.Message);
             Assert.Equal(expectOutput.Status, actualOutput.Status);
         }
 
-        //
         [Fact]
         public async Task GetRestaurantNearMeList_RetuenStatus400_WhenResquestInvalid()
         {
@@ -210,11 +229,6 @@ namespace KinMai.UnitTests.Controllers.ReviewerControllerTest
             Assert.Equal(expectOutput.Status, actualOutput.Status);
 
         }
-
-
-
-
     }
-
 }
 
