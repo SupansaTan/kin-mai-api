@@ -1,13 +1,12 @@
 ﻿using Amazon.CognitoIdentityProvider.Model;
-using KinMai.Api.Controllers;
 using KinMai.Api.Models;
 using KinMai.Authentication.Model;
 using KinMai.Authentication.UnitOfWork;
 using KinMai.Dapper.Interface;
 using KinMai.EntityFramework.Models;
 using KinMai.EntityFramework.UnitOfWork.Interface;
-using KinMai.Logic.UnitOfWork.Implement;
-using KinMai.Logic.UnitOfWork.Interface;
+using KinMai.Logic.Interface;
+using KinMai.Logic.Services;
 using KinMai.Mail.UnitOfWork;
 using KinMai.S3.UnitOfWork.Interface;
 using KinMai.UnitTests.Shared;
@@ -15,7 +14,7 @@ using Moq;
 using System.Linq.Expressions;
 using System.Net;
 
-namespace KinMai.UnitTests.Controllers.AuthenticationControllerTest
+namespace KinMai.UnitTests.Services.AuthenticationServiceTest
 {
     public class Login
     {
@@ -25,8 +24,7 @@ namespace KinMai.UnitTests.Controllers.AuthenticationControllerTest
         private readonly Mock<IMailUnitOfWork> mockMailUnitOfWork;
         private readonly Mock<IAuthenticationUnitOfWork> mockAuthenticationUnitOfWork;
         private readonly Mock<IEntityUnitOfWork> mockEntityUnitOfWork;
-        private readonly ILogicUnitOfWork logicUnitOfWork;
-        private readonly AuthenticationController authenticationController;
+        private readonly IAuthenticationService authenticationService;
 
         public Login()
         {
@@ -34,20 +32,20 @@ namespace KinMai.UnitTests.Controllers.AuthenticationControllerTest
             mockDapperUnitOfWork = new Mock<IDapperUnitOfWork>();
             mockS3UnitOfWork = new Mock<IS3UnitOfWork>();
             mockMailUnitOfWork = new Mock<IMailUnitOfWork>();
-            mockEntityUnitOfWork = new Mock<IEntityUnitOfWork>();
             mockAuthenticationUnitOfWork = new Mock<IAuthenticationUnitOfWork>();
-            logicUnitOfWork = new LogicUnitOfWork(
-                mockEntityUnitOfWork.Object,
-                mockDapperUnitOfWork.Object,
-                mockAuthenticationUnitOfWork.Object,
-                mockS3UnitOfWork.Object,
-                mockMailUnitOfWork.Object
-            );
-            authenticationController = new AuthenticationController(logicUnitOfWork);
+            mockEntityUnitOfWork = new Mock<IEntityUnitOfWork>();
+            authenticationService =
+                new AuthenticationService(
+                    mockEntityUnitOfWork.Object,
+                    mockAuthenticationUnitOfWork.Object,
+                    mockDapperUnitOfWork.Object,
+                    mockS3UnitOfWork.Object,
+                    mockMailUnitOfWork.Object
+               );
         }
 
         [Fact]
-        public async Task Login_ReturnStatus200WithTokenModel_WhenLoginByExistUser()
+        public async Task Login_ReturnTokenModel_LoginByExistUser()
         {
             // mock data
             Guid userId;
@@ -93,32 +91,28 @@ namespace KinMai.UnitTests.Controllers.AuthenticationControllerTest
                                         .Returns(Task.FromResult(awsLoginResponse));
 
             // act
-            var actualOutput = await authenticationController.Login(mockRequest);
-            var expectOutput = new ResponseModel<TokenResponseModel>()
+            var actualOutput = await authenticationService.Login(mockUser.Email, mockRequest.Password);
+            var expectOutput = new TokenResponseModel()
             {
-                Data = new TokenResponseModel()
-                {
-                    Token = awsLoginResponse.AuthenticationResult.AccessToken,
-                    ExpiredToken = actualOutput.Data.ExpiredToken,
-                    RefreshToken = awsLoginResponse.AuthenticationResult.RefreshToken
-                },
-                Message = "success",
-                Status = 200
+                Token = awsLoginResponse.AuthenticationResult.AccessToken,
+                ExpiredToken = actualOutput.ExpiredToken,
+                RefreshToken = awsLoginResponse.AuthenticationResult.RefreshToken
             };
 
             // assert
-            Assert.Equal(expectOutput.Data.Token, actualOutput.Data.Token);
-            Assert.Equal(expectOutput.Data.RefreshToken, actualOutput.Data.RefreshToken);
-            Assert.Equal(expectOutput.Message, actualOutput.Message);
-            Assert.Equal(expectOutput.Status, actualOutput.Status);
+            mockEntityUnitOfWork.VerifyAll();
+            mockAuthenticationUnitOfWork.VerifyAll();
+            Assert.Equal(expectOutput.Token, actualOutput.Token);
+            Assert.Equal(expectOutput.RefreshToken, actualOutput.RefreshToken);
         }
 
         [Fact]
-        public async Task Login_ReturnStatus500_WhenLoginWithIncorrectPassword()
+        public async Task Login_ThrowArgumentException_LoginByIncorrectPassword()
         {
             // mock data
             Guid userId;
             Guid.TryParse("9c16fe15-f21e-4071-94e8-c982b6c9c626", out userId);
+            var password = "11111111";
 
             // add user
             var mockUser = new User()
@@ -133,14 +127,7 @@ namespace KinMai.UnitTests.Controllers.AuthenticationControllerTest
                 IsLoginWithGoogle = false
             };
 
-            // arrange login model
-            var mockRequest = new LoginModel()
-            {
-                Email = mockUser.Email,
-                Password = "11111111",
-            };
-
-            // mock db repository & controller
+            // mock db repository & service
             mockEntityUnitOfWork.Setup(x => x.UserRepository.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>())).ReturnsAsync(() => mockUser);
 
             // setup aws cognito response
@@ -148,57 +135,42 @@ namespace KinMai.UnitTests.Controllers.AuthenticationControllerTest
                                         .Returns(() => null);
 
             // act
-            var actualOutput = await authenticationController.Login(mockRequest);
-            var expectOutput = new ResponseModel<TokenResponseModel>()
-            {
-                Data = null,
-                Message = "Invalid Email or password.",
-                Status = 500
-            };
+            Func<Task> act = () => authenticationService.Login(mockUser.Email, password);
 
             // assert
-            Assert.Equal(actualOutput.Data, expectOutput.Data);
-            Assert.Equal(actualOutput.Message, expectOutput.Message);
-            Assert.Equal(actualOutput.Status, expectOutput.Status);
+            var exception = await Assert.ThrowsAsync<Exception>(act);
+            mockEntityUnitOfWork.VerifyAll();
+            mockAuthenticationUnitOfWork.VerifyAll();
+            Assert.Equal("Invalid Email or password.", exception.Message);
         }
 
         [Fact]
-        public async Task Login_ReturnStatus400_WhenLoginByNewUser()
+        public async Task Login_ThrowArgumentException_LoginByNewUser()
         {
-            // arrange
-            var mockRequest = new LoginModel()
-            {
-                Email = "nampunch1@gmail.com",
-                Password = "11111111",
-            };
-
-            // mock db repository & controller
+            // mock db repository & service
             mockEntityUnitOfWork.Setup(x => x.UserRepository.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>())).ReturnsAsync(() => null);
 
+            // arrange
+            var email = "nampunch1@gmail.com";
+            var password = "12345678";
+
             // act
-            var actualOutput = await authenticationController.Login(mockRequest);
-            var expectOutput = new ResponseModel<TokenResponseModel>()
-            {
-                Data = null,
-                Message = "Email does not exist.",
-                Status = 400
-            };
+            Func<Task> act = () => authenticationService.Login(email, password);
 
             // assert
-            Assert.Equal(actualOutput.Data, expectOutput.Data);
-            Assert.Equal(actualOutput.Message, expectOutput.Message);
-            Assert.Equal(actualOutput.Status, expectOutput.Status);
+            var exception = await Assert.ThrowsAsync<ArgumentException>(act);
+            mockEntityUnitOfWork.VerifyAll();
+            Assert.Equal("Email does not exist.", exception.Message);
         }
 
         [Fact]
-        public async Task Login_ReturnStatus400_WhenLoginByUserRegisteredWithGoogleAccount()
+        public async Task Login_ThrowArgumentException_LoginByUserRegisteredByGoogleAccount()
         {
-            // mock user
-            Guid userId;
-            Guid.TryParse("9c16fe15-f21e-4071-94e8-c982b6c9c626", out userId);
+            // arrange
+            var password = "11111111";
             var mockUser = new User()
             {
-                Id = userId,
+                Id = Guid.NewGuid(),
                 Email = "nampunch1@gmail.com",
                 FirstName = "Supansa",
                 LastName = "Tantulset",
@@ -208,29 +180,16 @@ namespace KinMai.UnitTests.Controllers.AuthenticationControllerTest
                 IsLoginWithGoogle = true
             };
 
-            // mock db repository & controller
+            // mock db repository & service
             mockEntityUnitOfWork.Setup(x => x.UserRepository.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>())).ReturnsAsync(() => mockUser);
 
-            // arrange login model
-            var mockRequest = new LoginModel()
-            {
-                Email = mockUser.Email,
-                Password = "11111111",
-            };
-
             // act
-            var actualOutput = await authenticationController.Login(mockRequest);
-            var expectOutput = new ResponseModel<TokenResponseModel>()
-            {
-                Data = null,
-                Message = "This email is registered by Google provider, Please login by Google instead",
-                Status = 400
-            };
+            Func<Task> act = () => authenticationService.Login(mockUser.Email, password);
 
             // assert
-            Assert.Equal(actualOutput.Data, expectOutput.Data);
-            Assert.Equal(actualOutput.Message, expectOutput.Message);
-            Assert.Equal(actualOutput.Status, expectOutput.Status);
+            var exception = await Assert.ThrowsAsync<ArgumentException>(act);
+            mockEntityUnitOfWork.VerifyAll();
+            Assert.Equal("This email is registered by Google provider, Please login by Google instead", exception.Message);
         }
-    }
+    }   
 }

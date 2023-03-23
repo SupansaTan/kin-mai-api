@@ -1,13 +1,11 @@
 ﻿using Amazon.CognitoIdentityProvider.Model;
-using KinMai.Api.Controllers;
-using KinMai.Api.Models;
 using KinMai.Authentication.UnitOfWork;
 using KinMai.Dapper.Interface;
 using KinMai.EntityFramework.Models;
 using KinMai.EntityFramework.UnitOfWork.Interface;
+using KinMai.Logic.Interface;
 using KinMai.Logic.Models;
-using KinMai.Logic.UnitOfWork.Implement;
-using KinMai.Logic.UnitOfWork.Interface;
+using KinMai.Logic.Services;
 using KinMai.Mail.UnitOfWork;
 using KinMai.S3.UnitOfWork.Interface;
 using KinMai.UnitTests.Shared;
@@ -15,7 +13,7 @@ using Moq;
 using System.Linq.Expressions;
 using System.Net;
 
-namespace KinMai.UnitTests.Controllers.AuthenticationControllerTest
+namespace KinMai.UnitTests.Services.AuthenticationServiceTest
 {
     public class ReviewerRegister
     {
@@ -25,8 +23,7 @@ namespace KinMai.UnitTests.Controllers.AuthenticationControllerTest
         private readonly Mock<IMailUnitOfWork> mockMailUnitOfWork;
         private readonly Mock<IAuthenticationUnitOfWork> mockAuthenticationUnitOfWork;
         private readonly Mock<IEntityUnitOfWork> mockEntityUnitOfWork;
-        private readonly ILogicUnitOfWork logicUnitOfWork;
-        private readonly AuthenticationController authenticationController;
+        private readonly IAuthenticationService authenticationService;
 
         public ReviewerRegister()
         {
@@ -34,20 +31,20 @@ namespace KinMai.UnitTests.Controllers.AuthenticationControllerTest
             mockDapperUnitOfWork = new Mock<IDapperUnitOfWork>();
             mockS3UnitOfWork = new Mock<IS3UnitOfWork>();
             mockMailUnitOfWork = new Mock<IMailUnitOfWork>();
-            mockEntityUnitOfWork = new Mock<IEntityUnitOfWork>();
             mockAuthenticationUnitOfWork = new Mock<IAuthenticationUnitOfWork>();
-            logicUnitOfWork = new LogicUnitOfWork(
-                mockEntityUnitOfWork.Object,
-                mockDapperUnitOfWork.Object,
-                mockAuthenticationUnitOfWork.Object,
-                mockS3UnitOfWork.Object,
-                mockMailUnitOfWork.Object
-            );
-            authenticationController = new AuthenticationController(logicUnitOfWork);
+            mockEntityUnitOfWork = new Mock<IEntityUnitOfWork>();
+            authenticationService =
+                new AuthenticationService(
+                    mockEntityUnitOfWork.Object,
+                    mockAuthenticationUnitOfWork.Object,
+                    mockDapperUnitOfWork.Object,
+                    mockS3UnitOfWork.Object,
+                    mockMailUnitOfWork.Object
+               );
         }
 
         [Fact]
-        public async Task ReviewerRegister_ReturnStatus200_WhenRegisterWithValidModel()
+        public async Task ReviewerRegister_ReturnTrue_WhenRegisterWithValidModel()
         {
             // arrange
             var mockRequest = new ReviewerRegisterModel()
@@ -65,8 +62,8 @@ namespace KinMai.UnitTests.Controllers.AuthenticationControllerTest
                 HttpStatusCode = HttpStatusCode.OK
             };
 
-            // setup db repository response
-            mockEntityUnitOfWork.Setup(x => x.UserRepository.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>())).ReturnsAsync(() => null);
+            // mock db repository & service
+            mockEntityUnitOfWork.Setup(x => x.UserRepository.GetSingleAsync(It.IsAny<Expression<Func<User,bool>>>())).ReturnsAsync(() => null);
             mockEntityUnitOfWork.Setup(x => x.UserRepository.Add(It.IsAny<User>()));
 
             // setup aws cognito response
@@ -76,27 +73,17 @@ namespace KinMai.UnitTests.Controllers.AuthenticationControllerTest
                                         .Returns(Task.FromResult(true));
 
             // act
-            var actualOutput = await authenticationController.ReviewerRegister(mockRequest);
-            var expectOutput = new ResponseModel<bool>()
-            {
-                Data = true,
-                Message = "success",
-                Status = 200
-            };
+            var actualOutput = await authenticationService.ReviewerRegister(mockRequest);
 
             // assert
-            Assert.Equal(actualOutput.Data, expectOutput.Data);
-            Assert.Equal(actualOutput.Message, expectOutput.Message);
-            Assert.Equal(actualOutput.Status, expectOutput.Status);
+            mockEntityUnitOfWork.VerifyAll();
+            mockAuthenticationUnitOfWork.VerifyAll();
+            Assert.True(actualOutput);
         }
 
         [Fact]
-        public async Task ReviewerRegister_ReturnStatus200_WhenRegisterWithGoogleAccount()
+        public async Task ReviewerRegister_ReturnTrue_WhenRegisterWithGoogleAccount()
         {
-            // setup db repository response
-            mockEntityUnitOfWork.Setup(x => x.UserRepository.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>())).ReturnsAsync(() => null);
-            mockEntityUnitOfWork.Setup(x => x.UserRepository.Add(It.IsAny<User>()));
-
             // arrange
             var mockRequest = new ReviewerRegisterModel()
             {
@@ -106,25 +93,22 @@ namespace KinMai.UnitTests.Controllers.AuthenticationControllerTest
                 Username = "littlepunchhz"
             };
 
+            // mock db repository & service
+            mockEntityUnitOfWork.Setup(x => x.UserRepository.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>())).ReturnsAsync(() => null);
+            mockEntityUnitOfWork.Setup(x => x.UserRepository.Add(It.IsAny<User>()));
+
             // act
-            var actualOutput = await authenticationController.ReviewerRegister(mockRequest);
-            var expectOutput = new ResponseModel<bool>()
-            {
-                Data = true,
-                Message = "success",
-                Status = 200
-            };
+            var actualOutput = await authenticationService.ReviewerRegister(mockRequest);
 
             // assert
-            Assert.Equal(actualOutput.Data, expectOutput.Data);
-            Assert.Equal(actualOutput.Message, expectOutput.Message);
-            Assert.Equal(actualOutput.Status, expectOutput.Status);
+            mockEntityUnitOfWork.VerifyAll();
+            Assert.True(actualOutput);
         }
 
         [Fact]
-        public async Task ReviewerRegister_ReturnStatus400_WhenPasswordDoNotMatch()
+        public async Task ReviewerRegister_ThrowArgumentException_WhenPasswordDoNotMatch()
         {
-            // setup db repository response
+            // mock db repository & service
             mockEntityUnitOfWork.Setup(x => x.UserRepository.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>())).ReturnsAsync(() => null);
 
             // arrange
@@ -139,22 +123,16 @@ namespace KinMai.UnitTests.Controllers.AuthenticationControllerTest
             };
 
             // act
-            var actualOutput = await authenticationController.ReviewerRegister(mockRequest);
-            var expectOutput = new ResponseModel<bool>()
-            {
-                Data = false,
-                Message = "Password and Confirm password are not matching",
-                Status = 400
-            };
+            Func<Task> act = () => authenticationService.ReviewerRegister(mockRequest);
 
             // assert
-            Assert.Equal(actualOutput.Data, expectOutput.Data);
-            Assert.Equal(actualOutput.Message, expectOutput.Message);
-            Assert.Equal(actualOutput.Status, expectOutput.Status);
+            var exception = await Assert.ThrowsAsync<ArgumentException>(act);
+            mockEntityUnitOfWork.VerifyAll();
+            Assert.Equal("Password and Confirm password are not matching", exception.Message);
         }
 
         [Fact]
-        public async Task ReviewerRegister_ReturnStatus400_WhenRegisterWithExistEmail()
+        public async Task ReviewerRegister_ThrowArgumentException_WhenRegisterWithExistEmail()
         {
             var mockExistUser = new User()
             {
@@ -168,7 +146,7 @@ namespace KinMai.UnitTests.Controllers.AuthenticationControllerTest
                 IsLoginWithGoogle = false
             };
 
-            // setup db repository response
+            // mock db repository & service
             mockEntityUnitOfWork.Setup(x => x.UserRepository.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>())).ReturnsAsync(() => mockExistUser);
 
             // arrange
@@ -183,18 +161,12 @@ namespace KinMai.UnitTests.Controllers.AuthenticationControllerTest
             };
 
             // act
-            var actualOutput = await authenticationController.ReviewerRegister(mockRequest);
-            var expectOutput = new ResponseModel<bool>()
-            {
-                Data = false,
-                Message = "Email already exists.",
-                Status = 400
-            };
+            Func<Task> act = () => authenticationService.ReviewerRegister(mockRequest);
 
             // assert
-            Assert.Equal(actualOutput.Data, expectOutput.Data);
-            Assert.Equal(actualOutput.Message, expectOutput.Message);
-            Assert.Equal(actualOutput.Status, expectOutput.Status);
+            var exception = await Assert.ThrowsAsync<ArgumentException>(act);
+            mockEntityUnitOfWork.VerifyAll();
+            Assert.Equal("Email already exists.", exception.Message);
         }
     }
 }

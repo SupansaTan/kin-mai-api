@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace KinMai.Logic.Models
 {
+    // data expect
     public class RestaurantInfoListModel
     {
         public List<RestaurantInfoItemModel> RestaurantInfo { get; set; }

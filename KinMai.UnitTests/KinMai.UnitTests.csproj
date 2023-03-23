@@ -9,6 +9,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Images\restaurant.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Images\restaurant.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="EntityFramework" Version="6.4.4" />
     <PackageReference Include="FakeItEasy" Version="7.3.1" />
     <PackageReference Include="FakeItEasy.Analyzer.CSharp" Version="6.1.1">
@@ -18,6 +28,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="7.0.3" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0" />
     <PackageReference Include="Moq" Version="4.18.4" />
+    <PackageReference Include="Moq.Dapper" Version="1.0.7" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -32,8 +43,5 @@
     <ProjectReference Include="..\KinMai.Api\KinMai.Api.csproj" />
     <ProjectReference Include="..\KinMai.EntityFramework\KinMai.EntityFramework.csproj" />
     <ProjectReference Include="..\KinMai.Logic\KinMai.Logic.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Controllers\RestaurantControllerTest\" />
   </ItemGroup>
 </Project>

@@ -34,6 +34,9 @@ namespace KinMai.Logic.Services
 
         public async Task<RestaurantInfoListModel> GetRestaurantNearMeList(GetRestaurantNearMeRequestModel model)
         {
+            var user = _entityUnitOfWork.UserRepository.GetSingle(x => x.Id == model.userId);
+            if (user == null) throw new ArgumentException("User does not exist.");
+
             var query = QueryService.GetCommand(QUERY_PATH + "GetRestaurantNearMeList",
                             new ParamCommand { Key = "_userId", Value = model.userId.ToString() },
                             new ParamCommand { Key = "_latitude", Value = model.latitude.ToString() },
@@ -42,11 +45,12 @@ namespace KinMai.Logic.Services
                             new ParamCommand { Key = "_take", Value = model.take.ToString() }
                         );
             var restaurantInfoList = (await _dapperUnitOfWork.KinMaiRepository.QueryAsync<RestaurantInfoItemModel>(query)).ToList();
+            var restaurantList = _entityUnitOfWork.RestaurantRepository.GetAll();
             return new RestaurantInfoListModel()
             {
                 RestaurantInfo = restaurantInfoList,
                 RestaurantCumulativeCount = model.skip + restaurantInfoList.Count,
-                TotalRestaurant = _entityUnitOfWork.RestaurantRepository.GetAll().Count()
+                TotalRestaurant = restaurantList == null ? 0 : restaurantList.Count()
             };
         }
         public async Task<RestaurantCardListModel> GetRestaurantListFromFilter(GetRestaurantListFromFilterRequestModel model)
