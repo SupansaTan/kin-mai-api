@@ -323,12 +323,12 @@ namespace KinMai.Api.Controllers
             return response;
         }
         [HttpDelete("DeleteReview")]
-        public async Task<ResponseModel<bool>> DeleteReview([FromQuery] Guid reviewId)
+        public async Task<ResponseModel<bool>> DeleteReview([FromQuery] Guid userId, Guid restaurantId)
         {
             var response = new ResponseModel<bool>();
             try
             {
-                var isSuccess = await _logicUnitOfWork.ReviewerService.DeleteReview(reviewId);
+                var isSuccess = await _logicUnitOfWork.ReviewerService.DeleteReview(userId, restaurantId);
                 response = new ResponseModel<bool>
                 {
                     Data = isSuccess,

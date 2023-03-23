@@ -288,9 +288,9 @@ namespace KinMai.Logic.Services
                         );
             return (await _dapperUnitOfWork.KinMaiRepository.QueryAsync<GetFavoriteRestaurantList>(query)).ToList();
         }
-        public async Task<bool> DeleteReview(Guid reviewId)
+        public async Task<bool> DeleteReview(Guid userId, Guid restaurantId)
         {
-            var review = await _entityUnitOfWork.ReviewRepository.GetSingleAsync(x => x.Id == reviewId);
+            var review = await _entityUnitOfWork.ReviewRepository.GetSingleAsync(x => x.UserId == userId && x.RestaurantId == restaurantId);
             if (review is null) throw new ArgumentException("This review does not exists.");
 
             if (review.ImageLink != null && review.ImageLink.Any())
