@@ -10,9 +10,6 @@ using ImageMagick;
 using KinMai.S3.Models;
 using Microsoft.AspNetCore.Http;
 using MimeKit;
-using System.Text;
-using Amazon.S3.Model;
-using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 
 namespace KinMai.Logic.Services
 {
@@ -290,6 +287,22 @@ namespace KinMai.Logic.Services
                             new ParamCommand { Key = "_longitude", Value = model.Longitude.ToString() }
                         );
             return (await _dapperUnitOfWork.KinMaiRepository.QueryAsync<GetFavoriteRestaurantList>(query)).ToList();
+        }
+        public async Task<bool> DeleteReview(Guid reviewId)
+        {
+            var review = await _entityUnitOfWork.ReviewRepository.GetSingleAsync(x => x.Id == reviewId);
+            if (review is null) throw new ArgumentException("This review does not exists.");
+
+            if (review.ImageLink != null && review.ImageLink.Any())
+            {
+                review.ImageLink.ToList().ForEach(async (x) =>
+                {
+                    await _S3UnitOfWork.S3FileService.DeleteFile("kinmai", x).ConfigureAwait(false);
+                });
+            }
+            _entityUnitOfWork.ReviewRepository.Delete(review);
+            await _entityUnitOfWork.SaveAsync();
+            return true;
         }
         private string ReplaceUsername(string username)
         {
