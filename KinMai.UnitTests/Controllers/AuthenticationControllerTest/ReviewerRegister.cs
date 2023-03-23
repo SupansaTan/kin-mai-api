@@ -1,4 +1,5 @@
-﻿using KinMai.Api.Controllers;
+﻿using Amazon.CognitoIdentityProvider.Model;
+using KinMai.Api.Controllers;
 using KinMai.Api.Models;
 using KinMai.Authentication.UnitOfWork;
 using KinMai.Dapper.Interface;
@@ -12,6 +13,7 @@ using KinMai.S3.UnitOfWork.Interface;
 using KinMai.UnitTests.Shared;
 using Moq;
 using System.Linq.Expressions;
+using System.Net;
 
 namespace KinMai.UnitTests.Controllers.AuthenticationControllerTest
 {
@@ -21,7 +23,10 @@ namespace KinMai.UnitTests.Controllers.AuthenticationControllerTest
         private readonly Mock<IDapperUnitOfWork> mockDapperUnitOfWork;
         private readonly Mock<IS3UnitOfWork> mockS3UnitOfWork;
         private readonly Mock<IMailUnitOfWork> mockMailUnitOfWork;
-        private readonly IAuthenticationUnitOfWork mockAuthenticationUnitOfWork;
+        private readonly Mock<IAuthenticationUnitOfWork> mockAuthenticationUnitOfWork;
+        private readonly Mock<IEntityUnitOfWork> mockEntityUnitOfWork;
+        private readonly ILogicUnitOfWork logicUnitOfWork;
+        private readonly AuthenticationController authenticationController;
 
         public ReviewerRegister()
         {
@@ -29,27 +34,21 @@ namespace KinMai.UnitTests.Controllers.AuthenticationControllerTest
             mockDapperUnitOfWork = new Mock<IDapperUnitOfWork>();
             mockS3UnitOfWork = new Mock<IS3UnitOfWork>();
             mockMailUnitOfWork = new Mock<IMailUnitOfWork>();
-            mockAuthenticationUnitOfWork = new AuthenticationUnitOfWork();
+            mockEntityUnitOfWork = new Mock<IEntityUnitOfWork>();
+            mockAuthenticationUnitOfWork = new Mock<IAuthenticationUnitOfWork>();
+            logicUnitOfWork = new LogicUnitOfWork(
+                mockEntityUnitOfWork.Object,
+                mockDapperUnitOfWork.Object,
+                mockAuthenticationUnitOfWork.Object,
+                mockS3UnitOfWork.Object,
+                mockMailUnitOfWork.Object
+            );
+            authenticationController = new AuthenticationController(logicUnitOfWork);
         }
 
         [Fact]
         public async Task ReviewerRegister_ReturnStatus200_WhenRegisterWithValidModel()
         {
-            // mock db repository
-            var mockEntityUnitOfWork = new Mock<IEntityUnitOfWork>();
-            mockEntityUnitOfWork.Setup(x => x.UserRepository.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>())).ReturnsAsync(() => null);
-            mockEntityUnitOfWork.Setup(x => x.UserRepository.Add(It.IsAny<User>()));
-
-            // init controller
-            ILogicUnitOfWork logicUnitOfWork = new LogicUnitOfWork(
-                mockEntityUnitOfWork.Object,
-                mockDapperUnitOfWork.Object,
-                mockAuthenticationUnitOfWork,
-                mockS3UnitOfWork.Object,
-                mockMailUnitOfWork.Object
-            );
-            var authenticationController = new AuthenticationController(logicUnitOfWork);
-
             // arrange
             var mockRequest = new ReviewerRegisterModel()
             {
@@ -60,6 +59,21 @@ namespace KinMai.UnitTests.Controllers.AuthenticationControllerTest
                 Password = "12345678",
                 ConfirmPassword = "12345678"
             };
+
+            var mockSignUpResponse = new SignUpResponse()
+            {
+                HttpStatusCode = HttpStatusCode.OK
+            };
+
+            // setup db repository response
+            mockEntityUnitOfWork.Setup(x => x.UserRepository.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>())).ReturnsAsync(() => null);
+            mockEntityUnitOfWork.Setup(x => x.UserRepository.Add(It.IsAny<User>()));
+
+            // setup aws cognito response
+            mockAuthenticationUnitOfWork.Setup(x => x.AWSCognitoService.SignUp(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>()))
+                                        .Returns(Task.FromResult(mockSignUpResponse));
+            mockAuthenticationUnitOfWork.Setup(x => x.AWSCognitoService.ConfirmSignUp(It.IsAny<Guid>()))
+                                        .Returns(Task.FromResult(true));
 
             // act
             var actualOutput = await authenticationController.ReviewerRegister(mockRequest);
@@ -79,20 +93,9 @@ namespace KinMai.UnitTests.Controllers.AuthenticationControllerTest
         [Fact]
         public async Task ReviewerRegister_ReturnStatus200_WhenRegisterWithGoogleAccount()
         {
-            // mock db repository & service
-            var mockEntityUnitOfWork = new Mock<IEntityUnitOfWork>();
+            // setup db repository response
             mockEntityUnitOfWork.Setup(x => x.UserRepository.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>())).ReturnsAsync(() => null);
             mockEntityUnitOfWork.Setup(x => x.UserRepository.Add(It.IsAny<User>()));
-
-            // init controller
-            ILogicUnitOfWork logicUnitOfWork = new LogicUnitOfWork(
-                mockEntityUnitOfWork.Object,
-                mockDapperUnitOfWork.Object,
-                mockAuthenticationUnitOfWork,
-                mockS3UnitOfWork.Object,
-                mockMailUnitOfWork.Object
-            );
-            var authenticationController = new AuthenticationController(logicUnitOfWork);
 
             // arrange
             var mockRequest = new ReviewerRegisterModel()
@@ -121,19 +124,8 @@ namespace KinMai.UnitTests.Controllers.AuthenticationControllerTest
         [Fact]
         public async Task ReviewerRegister_ReturnStatus400_WhenPasswordDoNotMatch()
         {
-            // mock db repository & service
-            var mockEntityUnitOfWork = new Mock<IEntityUnitOfWork>();
+            // setup db repository response
             mockEntityUnitOfWork.Setup(x => x.UserRepository.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>())).ReturnsAsync(() => null);
-
-            // init controller
-            ILogicUnitOfWork logicUnitOfWork = new LogicUnitOfWork(
-                mockEntityUnitOfWork.Object,
-                mockDapperUnitOfWork.Object,
-                mockAuthenticationUnitOfWork,
-                mockS3UnitOfWork.Object,
-                mockMailUnitOfWork.Object
-            );
-            var authenticationController = new AuthenticationController(logicUnitOfWork);
 
             // arrange
             var mockRequest = new ReviewerRegisterModel()
@@ -176,19 +168,8 @@ namespace KinMai.UnitTests.Controllers.AuthenticationControllerTest
                 IsLoginWithGoogle = false
             };
 
-            // mock db repository &service
-            var mockEntityUnitOfWork = new Mock<IEntityUnitOfWork>();
+            // setup db repository response
             mockEntityUnitOfWork.Setup(x => x.UserRepository.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>())).ReturnsAsync(() => mockExistUser);
-
-            // init controller
-            ILogicUnitOfWork logicUnitOfWork = new LogicUnitOfWork(
-                mockEntityUnitOfWork.Object,
-                mockDapperUnitOfWork.Object,
-                mockAuthenticationUnitOfWork,
-                mockS3UnitOfWork.Object,
-                mockMailUnitOfWork.Object
-            );
-            var authenticationController = new AuthenticationController(logicUnitOfWork);
 
             // arrange
             var mockRequest = new ReviewerRegisterModel()
