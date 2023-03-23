@@ -9,7 +9,8 @@
 	EXTRACT(EPOCH FROM (now() - "Review"."CreateAt")) * 1000 as "CreatedDateDiff",
 	"Review"."ImageLink" as "ImageReviewList",
 	"Review"."FoodRecommendList" as "FoodRecommendList",
-	"Review"."ReviewLabelRecommend" as "ReviewLabelList"
+	"Review"."ReviewLabelRecommend" as "ReviewLabelList",
+	"Review"."ReplyComment" as "RestaurantReply"
 from "Review"
 left join "User" u ON u."Id" = "Review"."UserId" 
 where "Review"."RestaurantId" = '_restaurantId'
