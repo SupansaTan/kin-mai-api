@@ -1,4 +1,5 @@
-﻿using KinMai.Api.Controllers;
+﻿using Amazon.CognitoIdentityProvider.Model;
+using KinMai.Api.Controllers;
 using KinMai.Api.Models;
 using KinMai.Authentication.Model;
 using KinMai.Authentication.UnitOfWork;
@@ -12,6 +13,7 @@ using KinMai.S3.UnitOfWork.Interface;
 using KinMai.UnitTests.Shared;
 using Moq;
 using System.Linq.Expressions;
+using System.Net;
 
 namespace KinMai.UnitTests.Controllers.AuthenticationControllerTest
 {
@@ -21,7 +23,10 @@ namespace KinMai.UnitTests.Controllers.AuthenticationControllerTest
         private readonly Mock<IDapperUnitOfWork> mockDapperUnitOfWork;
         private readonly Mock<IS3UnitOfWork> mockS3UnitOfWork;
         private readonly Mock<IMailUnitOfWork> mockMailUnitOfWork;
-        private readonly IAuthenticationUnitOfWork mockAuthenticationUnitOfWork;
+        private readonly Mock<IAuthenticationUnitOfWork> mockAuthenticationUnitOfWork;
+        private readonly Mock<IEntityUnitOfWork> mockEntityUnitOfWork;
+        private readonly ILogicUnitOfWork logicUnitOfWork;
+        private readonly AuthenticationController authenticationController;
 
         public Login()
         {
@@ -29,7 +34,16 @@ namespace KinMai.UnitTests.Controllers.AuthenticationControllerTest
             mockDapperUnitOfWork = new Mock<IDapperUnitOfWork>();
             mockS3UnitOfWork = new Mock<IS3UnitOfWork>();
             mockMailUnitOfWork = new Mock<IMailUnitOfWork>();
-            mockAuthenticationUnitOfWork = new AuthenticationUnitOfWork();
+            mockEntityUnitOfWork = new Mock<IEntityUnitOfWork>();
+            mockAuthenticationUnitOfWork = new Mock<IAuthenticationUnitOfWork>();
+            logicUnitOfWork = new LogicUnitOfWork(
+                mockEntityUnitOfWork.Object,
+                mockDapperUnitOfWork.Object,
+                mockAuthenticationUnitOfWork.Object,
+                mockS3UnitOfWork.Object,
+                mockMailUnitOfWork.Object
+            );
+            authenticationController = new AuthenticationController(logicUnitOfWork);
         }
 
         [Fact]
@@ -59,31 +73,44 @@ namespace KinMai.UnitTests.Controllers.AuthenticationControllerTest
                 Password = "12345678",
             };
 
-            // mock db repository & controller
-            var mockEntityUnitOfWork = new Mock<IEntityUnitOfWork>();
+            // mock aws login response
+            var awsLoginResponse = new InitiateAuthResponse()
+            {
+                HttpStatusCode = HttpStatusCode.OK,
+                AuthenticationResult = new AuthenticationResultType()
+                {
+                    AccessToken = "accesstoken",
+                    RefreshToken = "refreshtoken",
+                    ExpiresIn = 3600,
+                }
+            };
+
+            // setup db response
             mockEntityUnitOfWork.Setup(x => x.UserRepository.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>())).ReturnsAsync(() => mockUser);
 
-            ILogicUnitOfWork logicUnitOfWork = new LogicUnitOfWork(
-                    mockEntityUnitOfWork.Object,
-                    mockDapperUnitOfWork.Object,
-                    mockAuthenticationUnitOfWork,
-                    mockS3UnitOfWork.Object,
-                    mockMailUnitOfWork.Object
-                );
-            var authenticationController = new AuthenticationController(logicUnitOfWork);
+            // setup aws cognito response
+            mockAuthenticationUnitOfWork.Setup(x => x.AWSCognitoService.Login(It.IsAny<Guid>(), It.IsAny<string>()))
+                                        .Returns(Task.FromResult(awsLoginResponse));
 
             // act
             var actualOutput = await authenticationController.Login(mockRequest);
             var expectOutput = new ResponseModel<TokenResponseModel>()
             {
-                Data = actualOutput.Data,
+                Data = new TokenResponseModel()
+                {
+                    Token = awsLoginResponse.AuthenticationResult.AccessToken,
+                    ExpiredToken = actualOutput.Data.ExpiredToken,
+                    RefreshToken = awsLoginResponse.AuthenticationResult.RefreshToken
+                },
                 Message = "success",
                 Status = 200
             };
 
             // assert
-            Assert.Equal(actualOutput.Message, expectOutput.Message);
-            Assert.Equal(actualOutput.Status, expectOutput.Status);
+            Assert.Equal(expectOutput.Data.Token, actualOutput.Data.Token);
+            Assert.Equal(expectOutput.Data.RefreshToken, actualOutput.Data.RefreshToken);
+            Assert.Equal(expectOutput.Message, actualOutput.Message);
+            Assert.Equal(expectOutput.Status, actualOutput.Status);
         }
 
         [Fact]
@@ -114,17 +141,11 @@ namespace KinMai.UnitTests.Controllers.AuthenticationControllerTest
             };
 
             // mock db repository & controller
-            var mockEntityUnitOfWork = new Mock<IEntityUnitOfWork>();
             mockEntityUnitOfWork.Setup(x => x.UserRepository.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>())).ReturnsAsync(() => mockUser);
 
-            ILogicUnitOfWork logicUnitOfWork = new LogicUnitOfWork(
-                    mockEntityUnitOfWork.Object,
-                    mockDapperUnitOfWork.Object,
-                    mockAuthenticationUnitOfWork,
-                    mockS3UnitOfWork.Object,
-                    mockMailUnitOfWork.Object
-                );
-            var authenticationController = new AuthenticationController(logicUnitOfWork);
+            // setup aws cognito response
+            mockAuthenticationUnitOfWork.Setup(x => x.AWSCognitoService.Login(It.IsAny<Guid>(), It.IsAny<string>()))
+                                        .Returns(() => null);
 
             // act
             var actualOutput = await authenticationController.Login(mockRequest);
@@ -152,17 +173,7 @@ namespace KinMai.UnitTests.Controllers.AuthenticationControllerTest
             };
 
             // mock db repository & controller
-            var mockEntityUnitOfWork = new Mock<IEntityUnitOfWork>();
             mockEntityUnitOfWork.Setup(x => x.UserRepository.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>())).ReturnsAsync(() => null);
-
-            ILogicUnitOfWork logicUnitOfWork = new LogicUnitOfWork(
-                    mockEntityUnitOfWork.Object,
-                    mockDapperUnitOfWork.Object,
-                    mockAuthenticationUnitOfWork,
-                    mockS3UnitOfWork.Object,
-                    mockMailUnitOfWork.Object
-                );
-            var authenticationController = new AuthenticationController(logicUnitOfWork);
 
             // act
             var actualOutput = await authenticationController.Login(mockRequest);
@@ -198,17 +209,7 @@ namespace KinMai.UnitTests.Controllers.AuthenticationControllerTest
             };
 
             // mock db repository & controller
-            var mockEntityUnitOfWork = new Mock<IEntityUnitOfWork>();
             mockEntityUnitOfWork.Setup(x => x.UserRepository.GetSingleAsync(It.IsAny<Expression<Func<User, bool>>>())).ReturnsAsync(() => mockUser);
-
-            ILogicUnitOfWork logicUnitOfWork = new LogicUnitOfWork(
-                    mockEntityUnitOfWork.Object,
-                    mockDapperUnitOfWork.Object,
-                    mockAuthenticationUnitOfWork,
-                    mockS3UnitOfWork.Object,
-                    mockMailUnitOfWork.Object
-                );
-            var authenticationController = new AuthenticationController(logicUnitOfWork);
 
             // arrange login model
             var mockRequest = new LoginModel()
