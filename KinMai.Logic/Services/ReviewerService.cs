@@ -98,6 +98,13 @@ namespace KinMai.Logic.Services
         }
         public async Task<bool> SetFavoriteRestaurant(SetFavoriteResturantRequestModel model)
         {
+            var user = _entityUnitOfWork.UserRepository.GetSingle(x => x.Id == model.UserId);
+            var restaurant = _entityUnitOfWork.RestaurantRepository.GetSingle(x => x.Id == model.RestaurantId);
+            if (user == null)
+                throw new ArgumentException("User does not exist.");
+            if (restaurant == null)
+                throw new ArgumentException("Restaurant does not exist.");
+
             var isExist = await _entityUnitOfWork.FavoriteRestaurantRepository.GetSingleAsync(x => x.UserId == model.UserId && x.RestaurantId == model.RestaurantId);
             // favorite restaurant
             if (isExist == null && model.IsFavorite)
