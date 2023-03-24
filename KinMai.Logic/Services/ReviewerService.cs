@@ -78,7 +78,7 @@ namespace KinMai.Logic.Services
             }
 
             var query = QueryService.GetCommand(QUERY_PATH + "GetRestaurantListFromFilter",
-                            new ParamCommand { Key = "_userId", Value = model.userId.ToString() },
+                            new ParamCommand { Key = "_userId", Value = model.userId == null? Guid.Empty.ToString() : model.userId.ToString() },
                             new ParamCommand { Key = "_latitude", Value = model.latitude.ToString() },
                             new ParamCommand { Key = "_longitude", Value = model.longitude.ToString() },
                             new ParamCommand { Key = "_keywords", Value = keyword },
