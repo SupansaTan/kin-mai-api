@@ -97,15 +97,10 @@ namespace KinMai.UnitTests.Controllers.ReviewerControllerTest
                 take = 20,
                 Keywords = "Test",
                 IsOpen = true,
-                CategoryType = new List<int>() { 1, 2 }.ToArray(),
-                DeliveryType = new List<int>() { 1, 2 }.ToArray(),
-                PaymentMethod = new List<int>() { 1, 2 }.ToArray()
-
+                CategoryType = new List<int>() { 1, 2 },
+                DeliveryType = new List<int>() { 1, 2 },
+                PaymentMethod = new List<int>() { 1, 2 }
             };
-
-            // setup db & dapper response
-
-
 
             // act
             var actualOutput = await reviewerController.GetRestaurantListFromFilter(mockRequest);
@@ -125,7 +120,6 @@ namespace KinMai.UnitTests.Controllers.ReviewerControllerTest
             var actualOutputObj = JsonConvert.SerializeObject(actualOutput);
             var expetedOutputObj = JsonConvert.SerializeObject(expectOutput);
             Assert.Equal(expetedOutputObj, actualOutputObj);
-
         }
 
         [Fact]
@@ -153,7 +147,6 @@ namespace KinMai.UnitTests.Controllers.ReviewerControllerTest
             var expetedOutputObj = JsonConvert.SerializeObject(expectOutput);
             Assert.Equal(expetedOutputObj, actualOutputObj);
         }
-
     }
 }
 
