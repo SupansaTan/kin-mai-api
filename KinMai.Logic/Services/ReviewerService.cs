@@ -223,7 +223,7 @@ namespace KinMai.Logic.Services
             }
 
             var query = QueryService.GetCommand(QUERY_PATH + "GetRestaurantDetail",
-                            new ParamCommand { Key = "_userId", Value = model.UserId.ToString() },
+                            new ParamCommand { Key = "_userId", Value = model.UserId == null? Guid.Empty.ToString(): model.UserId.ToString() },
                             new ParamCommand { Key = "_latitude", Value = model.Latitude.ToString() },
                             new ParamCommand { Key = "_longitude", Value = model.Longitude.ToString() },
                             new ParamCommand { Key = "_restaurantId", Value = model.RestaurantId.ToString() }
