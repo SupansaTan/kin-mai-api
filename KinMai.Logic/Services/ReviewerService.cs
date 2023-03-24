@@ -292,6 +292,22 @@ namespace KinMai.Logic.Services
                         );
             return (await _dapperUnitOfWork.KinMaiRepository.QueryAsync<GetFavoriteRestaurantList>(query)).ToList();
         }
+        public async Task<bool> DeleteReview(Guid userId, Guid restaurantId)
+        {
+            var review = await _entityUnitOfWork.ReviewRepository.GetSingleAsync(x => x.UserId == userId && x.RestaurantId == restaurantId);
+            if (review is null) throw new ArgumentException("This review does not exists.");
+
+            if (review.ImageLink != null && review.ImageLink.Any())
+            {
+                review.ImageLink.ToList().ForEach(async (x) =>
+                {
+                    await _S3UnitOfWork.S3FileService.DeleteFile("kinmai", x).ConfigureAwait(false);
+                });
+            }
+            _entityUnitOfWork.ReviewRepository.Delete(review);
+            await _entityUnitOfWork.SaveAsync();
+            return true;
+        }
         private string ReplaceUsername(string username)
         {
             var characters = username[1..(username.Length - 2)].ToCharArray();

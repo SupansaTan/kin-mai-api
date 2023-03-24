@@ -9,6 +9,7 @@
         public List<string> ImageReviewList { get; set; }
         public List<string> FoodRecommendList { get; set; }
         public List<int> ReviewLabelList { get; set; }
+        public string RestaurantReply { get; set; }
     }
 
     public class GetReviewInfoListModel
