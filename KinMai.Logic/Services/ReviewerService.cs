@@ -34,11 +34,8 @@ namespace KinMai.Logic.Services
 
         public async Task<RestaurantInfoListModel> GetRestaurantNearMeList(GetRestaurantNearMeRequestModel model)
         {
-            var user = _entityUnitOfWork.UserRepository.GetSingle(x => x.Id == model.userId);
-            if (user == null) throw new ArgumentException("User does not exist.");
-
             var query = QueryService.GetCommand(QUERY_PATH + "GetRestaurantNearMeList",
-                            new ParamCommand { Key = "_userId", Value = model.userId.ToString() },
+                            new ParamCommand { Key = "_userId", Value = (model.userId == null) ? Guid.Empty.ToString() : model.userId.ToString() },
                             new ParamCommand { Key = "_latitude", Value = model.latitude.ToString() },
                             new ParamCommand { Key = "_longitude", Value = model.longitude.ToString() },
                             new ParamCommand { Key = "_skip", Value = model.skip.ToString() },
@@ -81,7 +78,7 @@ namespace KinMai.Logic.Services
             }
 
             var query = QueryService.GetCommand(QUERY_PATH + "GetRestaurantListFromFilter",
-                            new ParamCommand { Key = "_userId", Value = model.userId.ToString() },
+                            new ParamCommand { Key = "_userId", Value = model.userId == null? Guid.Empty.ToString() : model.userId.ToString() },
                             new ParamCommand { Key = "_latitude", Value = model.latitude.ToString() },
                             new ParamCommand { Key = "_longitude", Value = model.longitude.ToString() },
                             new ParamCommand { Key = "_keywords", Value = keyword },
@@ -226,7 +223,7 @@ namespace KinMai.Logic.Services
             }
 
             var query = QueryService.GetCommand(QUERY_PATH + "GetRestaurantDetail",
-                            new ParamCommand { Key = "_userId", Value = model.UserId.ToString() },
+                            new ParamCommand { Key = "_userId", Value = model.UserId == null? Guid.Empty.ToString(): model.UserId.ToString() },
                             new ParamCommand { Key = "_latitude", Value = model.Latitude.ToString() },
                             new ParamCommand { Key = "_longitude", Value = model.Longitude.ToString() },
                             new ParamCommand { Key = "_restaurantId", Value = model.RestaurantId.ToString() }

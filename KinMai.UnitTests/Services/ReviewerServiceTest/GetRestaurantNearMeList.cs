@@ -84,21 +84,7 @@ namespace KinMai.UnitTests.Services.ReviewerServiceTest
                 take = 20  //**
             };
 
-            var mockUser = new User()
-            {
-                Id = mockRequest.userId,
-                FirstName = "Supansa",
-                LastName = "Tantulset",
-                Username = "littlepunchhz",
-                UserType = 1,
-                CreateAt = DateTime.UtcNow,
-                Email = "test@gmail.com",
-                IsLoginWithGoogle = false
-            };
-
             // setup db & dapper response
-            mockEntityUnitOfWork.Setup(x => x.UserRepository.GetSingle(It.IsAny<Expression<Func<User, bool>>>()))
-                                .Returns(() => mockUser);
             mockEntityUnitOfWork.Setup(x => x.RestaurantRepository.GetAll())
                                 .Returns(() => queryableRestaurant);
             mockDapperUnitOfWork.Setup(x => x.KinMaiRepository.QueryAsync<RestaurantInfoItemModel>(It.IsAny<string>()))
@@ -122,29 +108,74 @@ namespace KinMai.UnitTests.Services.ReviewerServiceTest
         }
 
         [Fact]
-        public async Task GetRestaurantNearMeList_ThrowArgumentException_WhenUserDoesNotExist()
+        public async Task GetRestaurantNearMeList_RetuenRestaurantInfoListModel_WhenUserDoesNotExist()
         {
-            // mock dapper & controller
-            mockEntityUnitOfWork.Setup(x => x.UserRepository.GetSingle(It.IsAny<Expression<Func<User, bool>>>()))
-                                .Returns(() => null);
+            var mockRestaurantInfo = new List<RestaurantInfoItemModel>() {
+                new RestaurantInfoItemModel()
+                {
+                    RestaurantId = Guid.NewGuid(),
+                    RestaurantName = "Test",
+                    Rating = 5,
+                    StartTime = "09:00",
+                    EndTime = "23:59",
+                    Distance = 500,
+                    MinPriceRate = 200,
+                    MaxPriceRate = 1000,
+                    TotalReview = 0,
+                    ImageCover = "testImageCover",
+                    AnotherImageCover = new List<string>(),
+                    IsFavorite = false,
+                    isReview = false
+                }
+            };
+
+            var mockRestaurant = new List<Restaurant>()
+            {
+                new Restaurant()
+                {
+                    Id = Guid.NewGuid(),
+                    OwnerId = Guid.NewGuid(),
+                    Name = "Test",
+                    RestaurantType = (int)RestaurantType.All,
+                    MinPriceRate = 200,
+                    MaxPriceRate = 1000,
+                    Latitude = 0,
+                    Longitude = 0,
+                    CreateAt = DateTime.Now
+                }
+            };
+            IQueryable<Restaurant> queryableRestaurant = mockRestaurant.AsQueryable();
 
             // arrange mock req
             var mockRequest = new GetRestaurantNearMeRequestModel()
             {
-                userId = Guid.NewGuid(),
                 latitude = 13.736717,
                 longitude = 100.523186,
                 skip = 0,
                 take = 20
             };
 
+            // setup db & dapper response
+            mockEntityUnitOfWork.Setup(x => x.RestaurantRepository.GetAll())
+                                .Returns(() => queryableRestaurant);
+            mockDapperUnitOfWork.Setup(x => x.KinMaiRepository.QueryAsync<RestaurantInfoItemModel>(It.IsAny<string>()))
+                                .Returns(() => Task.FromResult<IEnumerable<RestaurantInfoItemModel>>(mockRestaurantInfo));
+
             // act
-            Func<Task> actualOutput = () => reviewerService.GetRestaurantNearMeList(mockRequest);
+            var actualOutput = await reviewerService.GetRestaurantNearMeList(mockRequest);
+            var expectOutput = new RestaurantInfoListModel()
+            {
+                RestaurantInfo = mockRestaurantInfo,
+                TotalRestaurant = 1,
+                RestaurantCumulativeCount = 1
+            };
 
             // assert
-            var exception = await Assert.ThrowsAsync<ArgumentException>(actualOutput);
+            var actualOutputObj = JsonConvert.SerializeObject(actualOutput);
+            var expetedOutputObj = JsonConvert.SerializeObject(expectOutput);
             mockEntityUnitOfWork.VerifyAll();
-            Assert.Equal("User does not exist.", exception.Message);
+            mockDapperUnitOfWork.VerifyAll();
+            Assert.Equal(expetedOutputObj, actualOutputObj);
         }
 
         [Fact]

@@ -35,7 +35,7 @@ namespace KinMai.Logic.Models
     public class GetRestaurantDetailRequestModel
     {
         public Guid RestaurantId { get; set; }
-        public Guid UserId { get; set; }
+        public Guid? UserId { get; set; }
         public double Latitude { get; set; }
         public double Longitude { get; set; }
     }
