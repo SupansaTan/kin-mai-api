@@ -2,7 +2,7 @@
 {
     public class GetRestaurantNearMeRequestModel
     {
-        public Guid userId { get; set; }
+        public Guid? userId { get; set; }
         public double latitude { get; set; }
         public double longitude { get; set; }
         public int skip { get; set; }

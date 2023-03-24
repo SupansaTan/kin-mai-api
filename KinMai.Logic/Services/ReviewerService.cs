@@ -34,11 +34,8 @@ namespace KinMai.Logic.Services
 
         public async Task<RestaurantInfoListModel> GetRestaurantNearMeList(GetRestaurantNearMeRequestModel model)
         {
-            var user = _entityUnitOfWork.UserRepository.GetSingle(x => x.Id == model.userId);
-            if (user == null) throw new ArgumentException("User does not exist.");
-
             var query = QueryService.GetCommand(QUERY_PATH + "GetRestaurantNearMeList",
-                            new ParamCommand { Key = "_userId", Value = model.userId.ToString() },
+                            new ParamCommand { Key = "_userId", Value = (model.userId == null) ? Guid.Empty.ToString() : model.userId.ToString() },
                             new ParamCommand { Key = "_latitude", Value = model.latitude.ToString() },
                             new ParamCommand { Key = "_longitude", Value = model.longitude.ToString() },
                             new ParamCommand { Key = "_skip", Value = model.skip.ToString() },
