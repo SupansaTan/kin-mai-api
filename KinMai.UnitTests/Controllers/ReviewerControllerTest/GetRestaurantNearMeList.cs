@@ -7,7 +7,6 @@ using KinMai.Dapper.Interface;
 using KinMai.EntityFramework.Models;
 using KinMai.EntityFramework.UnitOfWork.Interface;
 using KinMai.Logic.Models;
-using KinMai.Logic.Services;
 using KinMai.Logic.UnitOfWork.Implement;
 using KinMai.Logic.UnitOfWork.Interface;
 using KinMai.Mail.UnitOfWork;
@@ -15,7 +14,6 @@ using KinMai.S3.UnitOfWork.Interface;
 using KinMai.UnitTests.Shared;
 using Moq;
 using Newtonsoft.Json;
-using System.Linq.Expressions;
 
 namespace KinMai.UnitTests.Controllers.ReviewerControllerTest
 {

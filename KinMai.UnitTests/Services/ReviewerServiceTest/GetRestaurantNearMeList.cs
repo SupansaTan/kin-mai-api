@@ -10,7 +10,6 @@ using KinMai.S3.UnitOfWork.Interface;
 using KinMai.UnitTests.Shared;
 using Moq;
 using Newtonsoft.Json;
-using System.Linq.Expressions;
 
 namespace KinMai.UnitTests.Services.ReviewerServiceTest
 {
