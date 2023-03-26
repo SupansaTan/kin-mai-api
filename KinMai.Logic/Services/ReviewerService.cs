@@ -10,9 +10,6 @@ using ImageMagick;
 using KinMai.S3.Models;
 using Microsoft.AspNetCore.Http;
 using MimeKit;
-using System.Text;
-using Amazon.S3.Model;
-using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 
 namespace KinMai.Logic.Services
 {
@@ -38,18 +35,19 @@ namespace KinMai.Logic.Services
         public async Task<RestaurantInfoListModel> GetRestaurantNearMeList(GetRestaurantNearMeRequestModel model)
         {
             var query = QueryService.GetCommand(QUERY_PATH + "GetRestaurantNearMeList",
-                            new ParamCommand { Key = "_userId", Value = model.userId.ToString() },
+                            new ParamCommand { Key = "_userId", Value = (model.userId == null) ? Guid.Empty.ToString() : model.userId.ToString() },
                             new ParamCommand { Key = "_latitude", Value = model.latitude.ToString() },
                             new ParamCommand { Key = "_longitude", Value = model.longitude.ToString() },
                             new ParamCommand { Key = "_skip", Value = model.skip.ToString() },
                             new ParamCommand { Key = "_take", Value = model.take.ToString() }
                         );
             var restaurantInfoList = (await _dapperUnitOfWork.KinMaiRepository.QueryAsync<RestaurantInfoItemModel>(query)).ToList();
+            var restaurantList = _entityUnitOfWork.RestaurantRepository.GetAll();
             return new RestaurantInfoListModel()
             {
                 RestaurantInfo = restaurantInfoList,
                 RestaurantCumulativeCount = model.skip + restaurantInfoList.Count,
-                TotalRestaurant = _entityUnitOfWork.RestaurantRepository.GetAll().Count()
+                TotalRestaurant = restaurantList == null ? 0 : restaurantList.Count()
             };
         }
         public async Task<RestaurantCardListModel> GetRestaurantListFromFilter(GetRestaurantListFromFilterRequestModel model)
@@ -80,7 +78,7 @@ namespace KinMai.Logic.Services
             }
 
             var query = QueryService.GetCommand(QUERY_PATH + "GetRestaurantListFromFilter",
-                            new ParamCommand { Key = "_userId", Value = model.userId.ToString() },
+                            new ParamCommand { Key = "_userId", Value = model.userId == null? Guid.Empty.ToString() : model.userId.ToString() },
                             new ParamCommand { Key = "_latitude", Value = model.latitude.ToString() },
                             new ParamCommand { Key = "_longitude", Value = model.longitude.ToString() },
                             new ParamCommand { Key = "_keywords", Value = keyword },
@@ -100,6 +98,13 @@ namespace KinMai.Logic.Services
         }
         public async Task<bool> SetFavoriteRestaurant(SetFavoriteResturantRequestModel model)
         {
+            var user = _entityUnitOfWork.UserRepository.GetSingle(x => x.Id == model.UserId);
+            var restaurant = _entityUnitOfWork.RestaurantRepository.GetSingle(x => x.Id == model.RestaurantId);
+            if (user == null)
+                throw new ArgumentException("User does not exist.");
+            if (restaurant == null)
+                throw new ArgumentException("Restaurant does not exist.");
+
             var isExist = await _entityUnitOfWork.FavoriteRestaurantRepository.GetSingleAsync(x => x.UserId == model.UserId && x.RestaurantId == model.RestaurantId);
             // favorite restaurant
             if (isExist == null && model.IsFavorite)
@@ -225,7 +230,7 @@ namespace KinMai.Logic.Services
             }
 
             var query = QueryService.GetCommand(QUERY_PATH + "GetRestaurantDetail",
-                            new ParamCommand { Key = "_userId", Value = model.UserId.ToString() },
+                            new ParamCommand { Key = "_userId", Value = model.UserId == null? Guid.Empty.ToString(): model.UserId.ToString() },
                             new ParamCommand { Key = "_latitude", Value = model.Latitude.ToString() },
                             new ParamCommand { Key = "_longitude", Value = model.Longitude.ToString() },
                             new ParamCommand { Key = "_restaurantId", Value = model.RestaurantId.ToString() }
@@ -290,6 +295,22 @@ namespace KinMai.Logic.Services
                             new ParamCommand { Key = "_longitude", Value = model.Longitude.ToString() }
                         );
             return (await _dapperUnitOfWork.KinMaiRepository.QueryAsync<GetFavoriteRestaurantList>(query)).ToList();
+        }
+        public async Task<bool> DeleteReview(Guid userId, Guid restaurantId)
+        {
+            var review = await _entityUnitOfWork.ReviewRepository.GetSingleAsync(x => x.UserId == userId && x.RestaurantId == restaurantId);
+            if (review is null) throw new ArgumentException("This review does not exists.");
+
+            if (review.ImageLink != null && review.ImageLink.Any())
+            {
+                review.ImageLink.ToList().ForEach(async (x) =>
+                {
+                    await _S3UnitOfWork.S3FileService.DeleteFile("kinmai", x).ConfigureAwait(false);
+                });
+            }
+            _entityUnitOfWork.ReviewRepository.Delete(review);
+            await _entityUnitOfWork.SaveAsync();
+            return true;
         }
         private string ReplaceUsername(string username)
         {

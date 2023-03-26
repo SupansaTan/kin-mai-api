@@ -1,10 +1,5 @@
 using KinMai.EntityFramework.Models;
 using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KinMai.Logic.Models
 {
@@ -27,7 +22,7 @@ namespace KinMai.Logic.Models
         public Guid RestaurantId { get; set; }
         public RestaurantInfoModel ResUpdateInfo { get; set; }
         public List<string>? RemoveImageLink { get; set; }
-        public List<IFormFile> NewImageFile { get; set; }
+        public List<IFormFile>? NewImageFile { get; set; }
         public string? RestaurantStatus { get; set; }
     }
     public class CategoryModel
@@ -42,5 +37,15 @@ namespace KinMai.Logic.Models
         public TimeOnly CloseTime { get; set; }
     }
 
+    public class ResArrayDataModel
+    {
+        public string[]? ImageLink { get; set; }
+        public int[]? DeliveryType { get; set; }
+        public int[]? PaymentMethod { get; set; }
+    }
 
+    public class ListReviewInfoModel
+    {
+        public List<ReviewInfoModel> reviews { get; set; }
+    }
 }

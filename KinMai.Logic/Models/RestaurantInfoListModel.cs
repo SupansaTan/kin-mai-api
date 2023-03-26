@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace KinMai.Logic.Models
 {
+    // data expect
     public class RestaurantInfoListModel
     {
         public List<RestaurantInfoItemModel> RestaurantInfo { get; set; }
@@ -27,5 +28,6 @@ namespace KinMai.Logic.Models
         public string ImageCover { get; set; }
         public List<string> AnotherImageCover { get; set; }
         public bool IsFavorite { get; set; }
+        public bool isReview { get; set; }
     }
 }
