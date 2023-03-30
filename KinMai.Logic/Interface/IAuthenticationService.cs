@@ -12,7 +12,11 @@ namespace KinMai.Logic.Interface
         Task<bool> ReviewerRegister(ReviewerRegisterModel model);
         Task<bool> RestaurantRegister(RestaurantRegisterModel model);
         Task<UserInfoModel> GetUserInfo(string email);
+        Task<GetUserProfileModel> GetUserProfile(Guid userId);
+        Task<bool> UpdateUserProfile(UpdateUserProfileModel model);
         Task<bool> CheckIsLoginWithGoogleFirstTimes(string email);
+        Task<bool> ResetPassword(ResetPasswordModel model);
+        Task<bool> SendEmailResetPassword(string email);
     }
 }
 

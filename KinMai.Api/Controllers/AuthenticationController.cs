@@ -1,5 +1,6 @@
 ﻿using KinMai.Api.Models;
 using KinMai.Authentication.Model;
+using KinMai.EntityFramework.Models;
 using KinMai.Logic.Models;
 using KinMai.Logic.UnitOfWork.Interface;
 using Microsoft.AspNetCore.Mvc;
@@ -93,7 +94,7 @@ namespace KinMai.Api.Controllers
             return response;
         }
         [HttpPost("RestaurantRegister")]
-        public async Task<ResponseModel<bool>> RestaurantRegister(RestaurantRegisterModel request)
+        public async Task<ResponseModel<bool>> RestaurantRegister([FromForm] RestaurantRegisterModel request)
         {
             var response = new ResponseModel<bool>();
             try
@@ -127,7 +128,7 @@ namespace KinMai.Api.Controllers
             return response;
         }
         [HttpGet("GetUserInfo")]
-        public async Task<ResponseModel<UserInfoModel>> ReviewerRegister([FromQuery] string email)
+        public async Task<ResponseModel<UserInfoModel>> GetUserInfo([FromQuery] string email)
         {
             var response = new ResponseModel<UserInfoModel>();
             try
@@ -160,6 +161,74 @@ namespace KinMai.Api.Controllers
             }
             return response;
         }
+        [HttpGet("GetUserProfile")]
+        public async Task<ResponseModel<GetUserProfileModel>> GetUserProfile([FromQuery] Guid userId)
+        {
+            var response = new ResponseModel<GetUserProfileModel>();
+            try
+            {
+                var userInfo = await _logicUnitOfWork.AuthenticationService.GetUserProfile(userId);
+                response = new ResponseModel<GetUserProfileModel>
+                {
+                    Data = userInfo,
+                    Message = "success",
+                    Status = 200
+                };
+            }
+            catch (ArgumentException ae)
+            {
+                response = new ResponseModel<GetUserProfileModel>
+                {
+                    Data = null,
+                    Message = ae.Message,
+                    Status = 400
+                };
+            }
+            catch (Exception e)
+            {
+                response = new ResponseModel<GetUserProfileModel>
+                {
+                    Data = null,
+                    Message = e.Message,
+                    Status = 500
+                };
+            }
+            return response;
+        }
+        [HttpPut("UpdateUserProfile")]
+        public async Task<ResponseModel<bool>> UpdateUserProfile([FromBody] UpdateUserProfileModel request)
+        {
+            var response = new ResponseModel<bool>();
+            try
+            {
+                var isSuccess = await _logicUnitOfWork.AuthenticationService.UpdateUserProfile(request);
+                response = new ResponseModel<bool>
+                {
+                    Data = isSuccess,
+                    Message = "success",
+                    Status = 200
+                };
+            }
+            catch (ArgumentException ae)
+            {
+                response = new ResponseModel<bool>
+                {
+                    Data = false,
+                    Message = ae.Message,
+                    Status = 400
+                };
+            }
+            catch (Exception e)
+            {
+                response = new ResponseModel<bool>
+                {
+                    Data = false,
+                    Message = e.Message,
+                    Status = 500
+                };
+            }
+            return response;
+        }
         [HttpGet("CheckIsLoginWithGoogleFirstTimes")]
         public async Task<ResponseModel<bool>> CheckIsLoginWithGoogleFirstTimes([FromQuery] string email)
         {
@@ -170,6 +239,74 @@ namespace KinMai.Api.Controllers
                 response = new ResponseModel<bool>
                 {
                     Data = isLoginFirstTime,
+                    Message = "success",
+                    Status = 200
+                };
+            }
+            catch (ArgumentException ae)
+            {
+                response = new ResponseModel<bool>
+                {
+                    Data = false,
+                    Message = ae.Message,
+                    Status = 400
+                };
+            }
+            catch (Exception e)
+            {
+                response = new ResponseModel<bool>
+                {
+                    Data = false,
+                    Message = e.Message,
+                    Status = 500
+                };
+            }
+            return response;
+        }
+        [HttpPost("ResetPassword")]
+        public async Task<ResponseModel<bool>> ResetPassword([FromBody] ResetPasswordModel request)
+        {
+            var response = new ResponseModel<bool>();
+            try
+            {
+                var isSuccess = await _logicUnitOfWork.AuthenticationService.ResetPassword(request);
+                response = new ResponseModel<bool>
+                {
+                    Data = isSuccess,
+                    Message = "success",
+                    Status = 200
+                };
+            }
+            catch (ArgumentException ae)
+            {
+                response = new ResponseModel<bool>
+                {
+                    Data = false,
+                    Message = ae.Message,
+                    Status = 400
+                };
+            }
+            catch (Exception e)
+            {
+                response = new ResponseModel<bool>
+                {
+                    Data = false,
+                    Message = e.Message,
+                    Status = 500
+                };
+            }
+            return response;
+        }
+        [HttpPost("SendEmailResetPassword")]
+        public async Task<ResponseModel<bool>> SendEmailResetPassword([FromBody] ForgotPasswordRequest request)
+        {
+            var response = new ResponseModel<bool>();
+            try
+            {
+                var isSuccess = await _logicUnitOfWork.AuthenticationService.SendEmailResetPassword(request.Email);
+                response = new ResponseModel<bool>
+                {
+                    Data = isSuccess,
                     Message = "success",
                     Status = 200
                 };

@@ -11,5 +11,6 @@ namespace KinMai.S3.Service.Interface
     {
         Task<string> UploadImage(UploadImageModel model);
         Task<bool> CreateFolder(string bucketName, string path);
+        Task DeleteFile(string bucketName, string fileName);
     }
 }

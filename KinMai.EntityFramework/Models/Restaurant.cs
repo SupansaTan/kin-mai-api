@@ -27,14 +27,25 @@ public partial class Restaurant
 
     public DateTime CreateAt { get; set; }
 
-    public int[] DeliveryType { get; set; } = null!;
+    public int[]? DeliveryType { get; set; }
 
-    public int[] PaymentMethod { get; set; } = null!;
+    public int[]? PaymentMethod { get; set; }
 
     public int RestaurantType { get; set; }
 
+    public double Latitude { get; set; }
+
+    public double Longitude { get; set; }
+
+    public int MinPriceRate { get; set; }
+
+    public int MaxPriceRate { get; set; }
+
     [InverseProperty("Restaurant")]
     public virtual ICollection<BusinessHour> BusinessHours { get; } = new List<BusinessHour>();
+
+    [InverseProperty("Restaurant")]
+    public virtual ICollection<FavoriteRestaurant> FavoriteRestaurants { get; } = new List<FavoriteRestaurant>();
 
     [ForeignKey("OwnerId")]
     [InverseProperty("Restaurants")]
@@ -44,7 +55,7 @@ public partial class Restaurant
     public virtual ICollection<Related> Relateds { get; } = new List<Related>();
 
     [InverseProperty("Restaurant")]
-    public virtual ICollection<Reviewer> Reviewers { get; } = new List<Reviewer>();
+    public virtual ICollection<Review> Reviews { get; } = new List<Review>();
 
     [InverseProperty("Restaurant")]
     public virtual ICollection<SocialContact> SocialContacts { get; } = new List<SocialContact>();

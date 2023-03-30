@@ -6,8 +6,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace KinMai.EntityFramework.Models;
 
-[Table("Reviewer")]
-public partial class Reviewer
+[Table("Review")]
+public partial class Review
 {
     [Key]
     public Guid Id { get; set; }
@@ -16,7 +16,7 @@ public partial class Reviewer
 
     public Guid RestaurantId { get; set; }
 
-    public int CountStar { get; set; }
+    public int Rating { get; set; }
 
     [StringLength(255)]
     public string? Comment { get; set; }
@@ -25,11 +25,18 @@ public partial class Reviewer
 
     public string[]? FoodRecommendList { get; set; }
 
+    public DateTime CreateAt { get; set; }
+
+    public int[]? ReviewLabelRecommend { get; set; }
+
+    [StringLength(255)]
+    public string? ReplyComment { get; set; }
+
     [ForeignKey("RestaurantId")]
-    [InverseProperty("Reviewers")]
+    [InverseProperty("Reviews")]
     public virtual Restaurant Restaurant { get; set; } = null!;
 
     [ForeignKey("UserId")]
-    [InverseProperty("Reviewers")]
+    [InverseProperty("Reviews")]
     public virtual User User { get; set; } = null!;
 }

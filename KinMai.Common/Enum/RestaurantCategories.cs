@@ -8,20 +8,19 @@ namespace KinMai.Common.Enum
 {
     public enum RestaurantCategories
     {
-        ThaiFood,
-        InternationalFood,
-        StreetFood,
-        CookedToOrder,
-        HalalFood,
-        Shabu,
-        IsaanFood,
-        Noodles,
-        GrilledPork,
-        CoffeeAndTea,
-        Dessert,
-        IceCream,
-        Caffe,
-        Bakery,
-        Juice
+        ThaiFood = 1,
+        InternationalFood = 2,
+        StreetFood = 3,
+        CookedToOrder = 4,
+        HalalFood = 5,
+        Shabu = 6,
+        IsaanFood = 7,
+        Noodles = 8,
+        CoffeeAndTea = 9,
+        Dessert = 10,
+        IceCream = 11,
+        Cafe = 12,
+        Bakery = 13,
+        Juice = 14,
     }
 }

@@ -6,9 +6,13 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>527af5e6-d743-4737-93dc-4a91e68f04c2</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <AWSProjectType>Lambda</AWSProjectType>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Amazon.Lambda.AspNetCoreServer" Version="8.0.0" />
+    <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.7.5" />
+    <PackageReference Include="Microsoft.NETCore.Targets" Version="5.0.0" PrivateAssets="all" />
     <PackageReference Include="Amazon.AspNetCore.Identity.Cognito" Version="3.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.0">
@@ -18,6 +22,7 @@
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.17.0" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+    <PackageReference Include="Amazon.Lambda.AspNetCoreServer.Hosting" Version="1.5.1" />
   </ItemGroup>
 
   <ItemGroup>
@@ -30,8 +35,8 @@
     <ProjectReference Include="..\KinMai.Dapper\KinMai.Dapper.csproj" />
     <ProjectReference Include="..\KinMai.EntityFramework\KinMai.EntityFramework.csproj" />
     <ProjectReference Include="..\KinMai.Logic\KinMai.Logic.csproj" />
+    <ProjectReference Include="..\KinMai.Mail\KinMai.Mail.csproj" />
     <ProjectReference Include="..\KinMai.S3\KinMai.S3.csproj" />
-    <ProjectReference Include="..\KinMai.UnitTests\KinMai.UnitTests.csproj" />
   </ItemGroup>
 
 </Project>

@@ -7,16 +7,76 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="QueryCommand\" />
+    <None Remove="QueryCommand\GetRestaurantNearMeList.sql" />
+    <None Remove="QueryCommand\Reviewer\FavoriteRestaurantList.sql" />
+    <None Remove="QueryCommand\Reviewer\GetRestaurantDetail.sql" />
+    <None Remove="QueryCommand\Reviewer\GetRestaurantListFromFilter.sql" />
+    <None Remove="QueryCommand\Reviewer\GetRestaurantReviewList.sql" />
+    <None Remove="QueryCommand\Reviewer\GetTotalReview.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="QueryCommand\Reviewer\FavoriteRestaurantList.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="QueryCommand\Reviewer\GetRestaurantDetail.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="QueryCommand\Reviewer\GetRestaurantListFromFilter.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="QueryCommand\Reviewer\GetRestaurantNearMeList.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="QueryCommand\Reviewer\GetRestaurantReviewList.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="QueryCommand\Reviewer\GetTotalReview.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NETCore.Targets" Version="5.0.0" PrivateAssets="all" />
+    <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="12.2.2" />
+    <PackageReference Include="MimeKit" Version="3.4.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\KinMai.Common\KinMai.Common.csproj" />
+    <ProjectReference Include="..\KinMai.Mail\KinMai.Mail.csproj" />
     <ProjectReference Include="..\KinMai.S3\KinMai.S3.csproj" />
-    <ProjectReference Include="..\KinMai.UnitTests\KinMai.UnitTests.csproj" />
     <ProjectReference Include="..\KinMai.Dapper\KinMai.Dapper.csproj" />
     <ProjectReference Include="..\KinMai.Authentication\KinMai.Authentication.csproj" />
     <ProjectReference Include="..\KinMai.EntityFramework\KinMai.EntityFramework.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="QueryCommand\Restaurant\GetRestaurantArrayData.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="QueryCommand\Restaurant\GetReviewList.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="QueryCommand\Restaurant\RemoveDeliveryType.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="QueryCommand\Restaurant\RemoveImage.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="QueryCommand\Restaurant\RemovePayment.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="QueryCommand\Restaurant\UpdateDeliveryType.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="QueryCommand\Restaurant\UpdateImage.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="QueryCommand\Restaurant\UpdatePayment.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

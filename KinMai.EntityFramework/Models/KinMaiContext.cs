@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
 using KinMai.Common.Resolver;
-using KinMai.EntityFramework.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace KinMai.Api.Models;
+namespace KinMai.EntityFramework.Models;
 
 public partial class KinMaiContext : DbContext
 {
@@ -21,11 +18,13 @@ public partial class KinMaiContext : DbContext
 
     public virtual DbSet<Category> Categories { get; set; }
 
+    public virtual DbSet<FavoriteRestaurant> FavoriteRestaurants { get; set; }
+
     public virtual DbSet<Related> Relateds { get; set; }
 
     public virtual DbSet<Restaurant> Restaurants { get; set; }
 
-    public virtual DbSet<Reviewer> Reviewers { get; set; }
+    public virtual DbSet<Review> Reviews { get; set; }
 
     public virtual DbSet<SocialContact> SocialContacts { get; set; }
 
@@ -56,6 +55,21 @@ public partial class KinMaiContext : DbContext
             entity.Property(e => e.Id).ValueGeneratedNever();
         });
 
+        modelBuilder.Entity<FavoriteRestaurant>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("favoriterestaurant_pk");
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+
+            entity.HasOne(d => d.Restaurant).WithMany(p => p.FavoriteRestaurants)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("favoriterestaurant_fk_1");
+
+            entity.HasOne(d => d.User).WithMany(p => p.FavoriteRestaurants)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("favoriterestaurant_fk");
+        });
+
         modelBuilder.Entity<Related>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("related_pk");
@@ -80,21 +94,63 @@ public partial class KinMaiContext : DbContext
             entity.HasOne(d => d.Owner).WithMany(p => p.Restaurants)
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("user_fk");
+
+            if (!Database.IsNpgsql())
+            {
+                entity.Property(e => e.DeliveryType)
+                .HasConversion(
+                    v => string.Join(",", v),
+                    v => Array.ConvertAll(v.Split(",", StringSplitOptions.RemoveEmptyEntries), c => int.Parse(c))
+                );
+
+                entity.Property(e => e.PaymentMethod)
+                .HasConversion(
+                    v => string.Join(",", v),
+                    v => Array.ConvertAll(v.Split(",", StringSplitOptions.RemoveEmptyEntries), c => int.Parse(c))
+                );
+
+                entity.Property(e => e.ImageLink)
+                .HasConversion(
+                     v => string.Join(',', v),
+                     v => v.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                );
+            }
         });
 
-        modelBuilder.Entity<Reviewer>(entity =>
+        modelBuilder.Entity<Review>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("reviewer_pk");
 
             entity.Property(e => e.Id).ValueGeneratedNever();
 
-            entity.HasOne(d => d.Restaurant).WithMany(p => p.Reviewers)
+            entity.HasOne(d => d.Restaurant).WithMany(p => p.Reviews)
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("restaurant_fk");
 
-            entity.HasOne(d => d.User).WithMany(p => p.Reviewers)
+            entity.HasOne(d => d.User).WithMany(p => p.Reviews)
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("user_fk");
+
+            if (!Database.IsNpgsql())
+            {
+                entity.Property(e => e.ReviewLabelRecommend)
+                .HasConversion(
+                    v => string.Join(",", v),
+                    v => Array.ConvertAll(v.Split(",", StringSplitOptions.RemoveEmptyEntries), c => int.Parse(c))
+                );
+
+                entity.Property(e => e.FoodRecommendList)
+                .HasConversion(
+                    v => string.Join(',', v),
+                    v => v.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                );
+
+                entity.Property(e => e.ImageLink)
+                .HasConversion(
+                     v => string.Join(',', v),
+                     v => v.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                );
+            }
         });
 
         modelBuilder.Entity<SocialContact>(entity =>
@@ -115,7 +171,6 @@ public partial class KinMaiContext : DbContext
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.UserType).HasDefaultValueSql("1");
         });
-
         OnModelCreatingPartial(modelBuilder);
     }
 
