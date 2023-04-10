@@ -38,63 +38,62 @@ namespace KinMai.Logic.Services
 
         public async Task<RestaurantDetailModel> GetRestaurantDetail(Guid restuarantId)
         {
-            var resInfo = await _entityUnitOfWork.RestaurantRepository.GetSingleAsync(x => x.Id == restuarantId);
-            if (resInfo != null)
+            try
             {
-                var query = QueryService.GetCommand(QUERY_PATH + "GetRestaurantArrayData",
-                            new ParamCommand { Key = "_restaurantId", Value = restuarantId.ToString() }
-                        );
-                var data = (await _dapperUnitOfWork.KinMaiRepository.QueryAsync<ResArrayDataModel>(query)).ToList();
-                var arrayData = (ResArrayDataModel)data[0];
-                var socialContact = _entityUnitOfWork.SocialContactRepository.GetAll(x => x.RestaurantId == restuarantId)
-                    .Select(x => new SocialContactModel()
-                    {
-                        SocialType = x.SocialType,
-                        ContactValue = x.ContactValue
-                    }).ToList();
-                var allCategories = _entityUnitOfWork.CategoryRepository.GetAll();
-                var categories = _entityUnitOfWork.RelatedRepository.GetAll(x => x.RestaurantId == restuarantId)
-                    .Select(x => new CategoryModel()
-                    {
-                        CategoryType = allCategories.FirstOrDefault(n => n.Id == x.CategoriesId).Type,
-                        CategoryName = allCategories.FirstOrDefault(n => n.Id == x.CategoriesId).Name
-                    }).ToList();
-                var buHour = _entityUnitOfWork.BusinessHourRepository.GetAll(x => x.RestaurantId == restuarantId)
-                    .Select(x => new ResBusinessHourModel()
-                    {
-                        Day = x.Day,
-                        OpenTime = x.OpenTime,
-                        CloseTime = x.CloseTime
-                    }).ToList();
-                return new RestaurantDetailModel()
+                var resInfo = await _entityUnitOfWork.RestaurantRepository.GetSingleAsync(x => x.Id == restuarantId);
+                if (resInfo != null)
                 {
-                    RestaurantInfo = new Restaurant()
+                    var query = QueryService.GetCommand(QUERY_PATH + "GetRestaurantArrayData",
+                                new ParamCommand { Key = "_restaurantId", Value = restuarantId.ToString() }
+                            );
+                    var data = (await _dapperUnitOfWork.KinMaiRepository.QueryAsync<ResArrayDataModel>(query)).ToList();
+                    var arrayData = (ResArrayDataModel)data[0];
+                    var socialContact = _entityUnitOfWork.SocialContactRepository.GetAll(x => x.RestaurantId == restuarantId)
+                        .Select(x => new SocialContactModel()
+                        {
+                            SocialType = x.SocialType,
+                            ContactValue = x.ContactValue
+                        }).ToList();
+                    var allCategories = _entityUnitOfWork.CategoryRepository.GetAll();
+                    var categories = _entityUnitOfWork.RelatedRepository.GetAll(x => x.RestaurantId == restuarantId)
+                        .Select(x => new CategoryModel()
+                        {
+                            CategoryType = allCategories.FirstOrDefault(n => n.Id == x.CategoriesId).Type,
+                            CategoryName = allCategories.FirstOrDefault(n => n.Id == x.CategoriesId).Name
+                        }).ToList();
+                    return new RestaurantDetailModel()
                     {
-                        Id = resInfo.Id,
-                        OwnerId = resInfo.OwnerId,
-                        Name = resInfo.Name,
-                        Description = resInfo.Description,
-                        Address = JsonConvert.SerializeObject(resInfo.Address),
-                        CreateAt = resInfo.CreateAt,
-                        RestaurantType = (int)resInfo.RestaurantType,
-                        Owner = resInfo.Owner,
-                        Latitude = resInfo.Latitude,
-                        Longitude = resInfo.Longitude,
-                        MinPriceRate = resInfo.MinPriceRate,
-                        MaxPriceRate = resInfo.MaxPriceRate,
-                        ImageLink = arrayData.ImageLink,
-                        DeliveryType = arrayData.DeliveryType?.ToArray(),
-                        PaymentMethod = arrayData.PaymentMethod?.ToArray(),
-                    },
-                    SocialContact = socialContact,
-                    Categories = categories,
-                    BusinessHours = buHour,
-
-                };
+                        RestaurantInfo = new Restaurant()
+                        {
+                            Id = resInfo.Id,
+                            OwnerId = resInfo.OwnerId,
+                            Name = resInfo.Name,
+                            Description = resInfo.Description,
+                            Address = JsonConvert.SerializeObject(resInfo.Address),
+                            CreateAt = resInfo.CreateAt,
+                            RestaurantType = (int)resInfo.RestaurantType,
+                            Owner = resInfo.Owner,
+                            Latitude = resInfo.Latitude,
+                            Longitude = resInfo.Longitude,
+                            MinPriceRate = resInfo.MinPriceRate,
+                            MaxPriceRate = resInfo.MaxPriceRate,
+                            ImageLink = arrayData.ImageLink,
+                            DeliveryType = arrayData.DeliveryType?.ToArray(),
+                            PaymentMethod = arrayData.PaymentMethod?.ToArray(),
+                        },
+                        SocialContact = socialContact,
+                        Categories = categories,
+                        BusinessHours = arrayData.BusinessHour.ToList()
+                    };
+                }
+                else
+                {
+                    throw new ArgumentException("This restaurant does not exists.");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                throw new ArgumentException("This restaurant does not exists.");
+                throw new Exception(ex.Message);
             }
         }
 
