@@ -8,7 +8,7 @@ namespace KinMai.Logic.Models
         public Restaurant RestaurantInfo { get; set; }
         public List<SocialContactModel> SocialContact { get; set; }
         public List<CategoryModel> Categories { get; set; }
-        public List<ResBusinessHourModel> BusinessHours { get; set; }
+        public List<string> BusinessHours { get; set; }
     }
 
     public class SocialContactModel
@@ -33,8 +33,8 @@ namespace KinMai.Logic.Models
     public class ResBusinessHourModel
     {
         public int Day { get; set; }
-        public TimeOnly OpenTime { get; set; }
-        public TimeOnly CloseTime { get; set; }
+        public string OpenTime { get; set; }
+        public string CloseTime { get; set; }
     }
 
     public class ResArrayDataModel
@@ -42,6 +42,7 @@ namespace KinMai.Logic.Models
         public string[]? ImageLink { get; set; }
         public int[]? DeliveryType { get; set; }
         public int[]? PaymentMethod { get; set; }
+        public List<string> BusinessHour { get; set; }
     }
 
     public class ListReviewInfoModel

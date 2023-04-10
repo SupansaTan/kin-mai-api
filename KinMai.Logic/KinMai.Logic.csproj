@@ -8,6 +8,14 @@
 
   <ItemGroup>
     <None Remove="QueryCommand\GetRestaurantNearMeList.sql" />
+    <None Remove="QueryCommand\Restaurant\GetRestaurantArrayData.sql" />
+    <None Remove="QueryCommand\Restaurant\GetReviewList.sql" />
+    <None Remove="QueryCommand\Restaurant\RemoveDeliveryType.sql" />
+    <None Remove="QueryCommand\Restaurant\RemoveImage.sql" />
+    <None Remove="QueryCommand\Restaurant\RemovePayment.sql" />
+    <None Remove="QueryCommand\Restaurant\UpdateDeliveryType.sql" />
+    <None Remove="QueryCommand\Restaurant\UpdateImage.sql" />
+    <None Remove="QueryCommand\Restaurant\UpdatePayment.sql" />
     <None Remove="QueryCommand\Reviewer\FavoriteRestaurantList.sql" />
     <None Remove="QueryCommand\Reviewer\GetRestaurantDetail.sql" />
     <None Remove="QueryCommand\Reviewer\GetRestaurantListFromFilter.sql" />
@@ -16,6 +24,30 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="QueryCommand\Restaurant\GetRestaurantArrayData.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="QueryCommand\Restaurant\GetReviewList.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="QueryCommand\Restaurant\RemoveDeliveryType.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="QueryCommand\Restaurant\RemoveImage.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="QueryCommand\Restaurant\RemovePayment.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="QueryCommand\Restaurant\UpdateDeliveryType.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="QueryCommand\Restaurant\UpdateImage.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="QueryCommand\Restaurant\UpdatePayment.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="QueryCommand\Reviewer\FavoriteRestaurantList.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -50,33 +82,6 @@
     <ProjectReference Include="..\KinMai.Dapper\KinMai.Dapper.csproj" />
     <ProjectReference Include="..\KinMai.Authentication\KinMai.Authentication.csproj" />
     <ProjectReference Include="..\KinMai.EntityFramework\KinMai.EntityFramework.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="QueryCommand\Restaurant\GetRestaurantArrayData.sql">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="QueryCommand\Restaurant\GetReviewList.sql">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="QueryCommand\Restaurant\RemoveDeliveryType.sql">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="QueryCommand\Restaurant\RemoveImage.sql">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="QueryCommand\Restaurant\RemovePayment.sql">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="QueryCommand\Restaurant\UpdateDeliveryType.sql">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="QueryCommand\Restaurant\UpdateImage.sql">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="QueryCommand\Restaurant\UpdatePayment.sql">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>

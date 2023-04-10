@@ -33,15 +33,7 @@ RETURNS float AS $rating$
     begin
 	    if exists(select * FROM "Review" where "RestaurantId" = restaurantId)
 	    then
-	        SELECT SUM(
-	            case 
-	                WHEN FLOOR("Rating") = 1 THEN "Rating"
-	                WHEN FLOOR("Rating") = 2 THEN "Rating" *2
-	                WHEN FLOOR("Rating") = 3 THEN "Rating" *3
-	                WHEN FLOOR("Rating") = 4 THEN "Rating" *4
-	                WHEN FLOOR("Rating") = 5 THEN "Rating" *5        
-	            end    
-	            ) / SUM("Rating") into avg_rating
+	        SELECT AVG("Rating")::numeric(10,1) into avg_rating
 	        FROM "Review"
 	        where "RestaurantId" = restaurantId;
 	    end if;
