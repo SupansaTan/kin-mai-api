@@ -73,6 +73,4 @@ SELECT
 	calculate_distance("Restaurant"."Latitude", "Restaurant"."Longitude", '_latitude', '_longitude') AS "Distance"
 FROM "Restaurant"
 LEFT JOIN "BusinessHours" ON "BusinessHours"."RestaurantId" = "Restaurant"."Id"
-ORDER BY "Distance"
-OFFSET '_skip'
-LIMIT '_take';
+ORDER BY "Distance";
