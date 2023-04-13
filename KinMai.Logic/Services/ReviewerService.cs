@@ -270,7 +270,9 @@ namespace KinMai.Logic.Services
 
             // get total review
             var queryGetTotalReview = QueryService.GetCommand(QUERY_PATH + "GetTotalReview",
-                            new ParamCommand { Key = "_restaurantId", Value = model.RestaurantId.ToString() }
+                            new ParamCommand { Key = "_restaurantId", Value = model.RestaurantId.ToString() },
+                            new ParamCommand { Key = "_keyword", Value = keyword },
+                            new ParamCommand { Key = "_rating", Value = model.Rating.ToString() }
                         );
             var totalReview = (await _dapperUnitOfWork.KinMaiRepository.QueryAsync<GetTotalReviewModel>(queryGetTotalReview)).ToList().First();
             
