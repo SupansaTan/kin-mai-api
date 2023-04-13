@@ -103,16 +103,16 @@ namespace KinMai.UnitTests.Services.RestaurantServiceTest
                 }
             };
 
-            var mockBusinessHour = new List<BusinessHour>()
+            var mockBusinessHour = new List<string>()
             {
-                new BusinessHour()
-                {
-                    Id = Guid.NewGuid(),
-                    RestaurantId = mockRestaurant.Id,
-                    Day = 1,
-                    OpenTime = TimeOnly.FromDateTime(DateTime.UtcNow).AddHours(7),
-                    CloseTime = TimeOnly.FromDateTime(DateTime.UtcNow).AddHours(7),
-                }
+                JsonConvert.SerializeObject(
+                    new ResBusinessHourModel()
+                    {
+                        Day = 1,
+                        OpenTime = TimeOnly.FromDateTime(DateTime.UtcNow).AddHours(7).ToString(),
+                        CloseTime = TimeOnly.FromDateTime(DateTime.UtcNow).AddHours(7).ToString()
+                    }
+                )
             };
 
             var mockRestaurantInfoResponse = new List<ResArrayDataModel>()
@@ -122,13 +122,13 @@ namespace KinMai.UnitTests.Services.RestaurantServiceTest
                     ImageLink = mockRestaurant.ImageLink,
                     DeliveryType = mockRestaurant.DeliveryType,
                     PaymentMethod = mockRestaurant.PaymentMethod,
+                    BusinessHour = mockBusinessHour
                 }
             };
 
             IQueryable<SocialContact> mockSocialContactQueryable = mockSocialContact.AsQueryable();
             IQueryable<Category> mockCategoryQueryable = mockCategory.AsQueryable();
             IQueryable<Related> mockRelatedQueryable = mockRelated.AsQueryable();
-            IQueryable<BusinessHour> mockBusinessHourQueryable = mockBusinessHour.AsQueryable();
 
             // setup db response
             mockEntityUnitOfWork.Setup(x => x.RestaurantRepository.GetSingleAsync(It.IsAny<Expression<Func<Restaurant, bool>>>()))
@@ -139,8 +139,6 @@ namespace KinMai.UnitTests.Services.RestaurantServiceTest
                                 .Returns(() => mockCategoryQueryable);
             mockEntityUnitOfWork.Setup(x => x.RelatedRepository.GetAll(It.IsAny<Expression<Func<Related, bool>>>()))
                                 .Returns(() => mockRelatedQueryable);
-            mockEntityUnitOfWork.Setup(x => x.BusinessHourRepository.GetAll(It.IsAny<Expression<Func<BusinessHour, bool>>>()))
-                                .Returns(() => mockBusinessHourQueryable);
 
             // setup dapper response
             mockDapperUnitOfWork.Setup(x => x.KinMaiRepository.QueryAsync<ResArrayDataModel>(It.IsAny<string>()))
@@ -184,15 +182,7 @@ namespace KinMai.UnitTests.Services.RestaurantServiceTest
                         CategoryName = mockCategory[0].Name
                     }
                 },
-                BusinessHours = new List<ResBusinessHourModel>()
-                {
-                    new ResBusinessHourModel()
-                    {
-                        Day = mockBusinessHour[0].Day,
-                        OpenTime = mockBusinessHour[0].OpenTime,
-                        CloseTime = mockBusinessHour[0].CloseTime
-                    }
-                },
+                BusinessHours = mockBusinessHour,
             };
 
             // assert
